@@ -1,0 +1,141 @@
+.h5p-guessit {
+  position: relative;
+}
+.h5p-guessit .h5p-input-wrapper {
+  display: inline-block;
+  position: relative;
+  margin-bottom: 12px;
+}
+.h5p-guessit .h5p-text-input {
+  font-family: "Lucida Console", Courier, monospace; 
+  font-size: 1.2em;
+  border-radius: 0.25em;
+  border: 1px solid #a0a0a0;
+  padding: 0.1875em 1em 0.1875em 0.5em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 6em;
+}
+.h5p-guessit .h5p-text-input:focus {
+  outline: none;
+  box-shadow: 0 0 0.5em 0 #7fb8ff;
+  border-color: #7fb8ff;
+}
+.h5p-guessit .h5p-text-input.h5p-not-filled-out {
+  background: #fff0f0;
+}
+.h5p-guessit .h5p-separate-lines .h5p-input-wrapper {
+  display: block;
+}
+.h5p-guessit .h5p-separate-lines .h5p-text-input {
+  width: 100%;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+/* Correctly answered input */
+.h5p-guessit .h5p-correct .h5p-text-input {
+  background: #9dd8bb;
+  border: 1px solid #9dd8bb;
+  color: #255c41;
+}
+/* Showing markup. top & left determined by position of input element. 
+*/
+.h5p-guessit-markup {
+  font-family: "Lucida Console", Courier, monospace; 
+  font-size: 1.2em;
+  margin-left: .5em;
+  position: absolute;
+}
+.h5p-guessit .h5p-correct:after {
+  position: absolute;
+  right: 0.5em;
+  top: 0;
+  text-decoration: none;
+  content: "\f00c";
+  font-family: 'H5PFontAwesome4';
+  color: #255c41;
+}
+
+/* Wrongly answered input */
+.h5p-guessit .h5p-wrong .h5p-text-input {
+  background-color: #f7d0d0;
+  border: 1px solid #f7d0d0;
+  color: #b71c1c;
+}
+.h5p-guessit .h5p-wrong:after {
+  position: absolute;
+  right: 0.5em;
+  top: 0;
+  font-family: 'H5PFontAwesome4';
+  text-decoration: none;
+  content: "\f00d";
+  color: #b71c1c;
+}
+
+/* Actual text paragraphs */
+.h5p-guessit .h5p-question-content p {
+  line-height: 1.75em;
+  margin: 0 0 1em;
+}
+
+/* Header and footer blocks (title + evaluation, buttons) */
+.h5p-guessit .joubel-tip-container {
+  position: absolute;
+  right: 0.4em;
+  font-size: 1em;
+}
+.h5p-guessit .joubel-tip-container .joubel-icon-tip-normal {
+  line-height: 1em;
+}
+.h5p-guessit .has-tip .h5p-text-input {
+  padding-right: 2.25em;
+}
+.h5p-guessit .has-tip.h5p-correct:after,
+.h5p-guessit .has-tip.h5p-wrong:after {
+  right: 2.25em;
+}
+.h5p-guessit .has-tip.h5p-correct .h5p-text-input,
+.h5p-guessit .has-tip.h5p-wrong .h5p-text-input {
+  padding-right: 3.5em;
+}
+
+.h5p-guessit-sentence.h5p-guessit-sentence-hidden {
+  display: none;
+}
+
+.h5p-guessit .joubel-tip-container {
+  position: relative;
+  margin-left: 10px;
+}
+
+.h5p-question.h5p-guessit {
+  background: rgba(255, 255, 255, 0)!important;
+  border-color: rgb(153,204,255);
+  border-style: solid ;
+  border-width: thin ;
+}
+
+.h5p-guessit.time-status {
+  position: absolute;
+  bottom: 0px;
+  right: 10px;
+}
+
+.h5p-question-reset-task:before {
+  font-family: 'H5PFontAwesome4';
+  content: "\f021";
+  margin-right: 0.5em;
+}
+/* Showing solution */
+
+.h5p-guessit .h5p-correct-answer {
+  color: #255c41;
+  font-weight: bold;
+  border: 1px #255c41 dashed;
+  background-color: #d4f6e6;
+  padding: 0.15em;
+  border-radius: 0.25em;
+  margin-left: .5em;
+}

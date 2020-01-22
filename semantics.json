@@ -1,0 +1,303 @@
+[
+  {
+    "label": "Task description",
+    "importance": "high",
+    "name": "text",
+    "type": "text",
+    "widget": "html",
+    "default": "Try to guess the mysterious sentence",
+    "description": "A guide telling the user how to answer this task.",
+    "enterMode": "p",
+    "tags": [
+      "strong",
+      "em",
+      "u",
+      "a",
+      "ul",
+      "ol",
+      "h2",
+      "h3",
+      "hr",
+      "pre",
+      "code"
+    ]
+  },
+  {
+    "name": "questions",
+    "type": "list",
+    "label": "Sentences",
+    "importance": "high",
+    "widgets": [
+      {
+        "name": "VerticalTabs",
+        "label": "Default"
+      }
+    ],
+    "min": 1,
+    "max": 31,
+    "field": {
+      "name": "question",
+      "type": "group",
+      "label": "Question",
+      "importance": "high",      
+      "fields": [
+        {
+          "name": "sentence",
+          "type": "text",      
+          "label": "Sentence",
+          "importance": "high"
+        },
+        {  
+          "name": "tip",
+          "label": "Tip",
+          "type": "text",
+          "importance": "low",
+          "description": "Tip text for this sentence (optional)",
+          "optional": true
+        }
+      ]
+    }
+  },
+  {
+    "label": "Text for \"Show solutions\" button",
+    "name": "showSolutions",
+    "type": "text",
+    "default": "Show solution",
+    "common": true
+  },
+  {
+    "label": "Text for \"Reset\" button",
+    "importance": "low",
+    "name": "resetGame",
+    "type": "text",
+    "default": "Try another sentence?",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"Check\" button",
+    "importance": "low",
+    "name": "checkAnswer",
+    "type": "text",
+    "default": "Check",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"Not enough rounds\" message",
+    "importance": "low",
+    "name": "notEnoughRounds",
+    "type": "text",
+    "default": "The solution won't be available before round @round",
+    "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"':ans' is correct\" message",
+    "importance": "low",
+    "name": "answerIsCorrect",
+    "type": "text",
+    "default": "':ans' is correct",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"':ans' is wrong\" message",
+    "importance": "low",
+    "name": "answerIsWrong",
+    "type": "text",
+    "default": "':ans' is wrong",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"Answered correctly\" message",
+    "importance": "low",
+    "name": "answeredCorrectly",
+    "type": "text",
+    "default": "Answered correctly",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"Answered incorrectly\" message",
+    "importance": "low",
+    "name": "answeredIncorrectly",
+    "type": "text",
+    "default": "Answered incorrectly",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Assistive technology label for solution",
+    "importance": "low",
+    "name": "solutionLabel",
+    "type": "text",
+    "default": "Correct answer:",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Assistive technology label for input field",
+    "importance": "low",
+    "name": "inputLabel",
+    "type": "text",
+    "description": "Use @num and @total to replace current cloze number and total cloze number",
+    "default": "Blank input @num of @total",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Assistive technology label for saying an input has a tip tied to it",
+    "importance": "low",
+    "name": "inputHasTipLabel",
+    "type": "text",
+    "default": "Tip available",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Tip icon label",
+    "importance": "low",
+    "name": "tipLabel",
+    "type": "text",
+    "default": "Tip",
+    "common": true,
+    "optional": true
+  },
+  {
+    "name": "behaviour",
+    "type": "group",
+    "label": "Behavioural settings.",
+    "importance": "low",
+    "description": "These options will let you control how the task behaves.",
+    "optional": true,
+    "fields": [
+      {
+        "label": "Enable \"Reset\"",
+        "importance": "low",
+        "description": "Check this option if you want to allow the user to guess another sentence when the game is over.",
+        "name": "enableReset",
+        "type": "boolean",
+        "default": true,
+        "optional": true
+      },
+      {
+        "label": "Enable \"Show solution\" button",
+        "importance": "low",
+        "name": "enableSolutionsButton",
+        "type": "boolean",
+        "default": true,
+        "optional": true
+      },
+      {
+        "name": "numRounds",
+        "type": "number",
+        "label": "Number of rounds",
+        "description": "Minimum number of rounds before Solutions can be displayed",
+        "importance": "low",
+        "optional": true,
+        "default": 1,
+        "min": 1,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableSolutionsButton",
+              "equals": true
+            }
+          ]
+        } 
+      },
+      {
+        "name": "round",
+        "type": "text",
+        "label": "Text for \"Round\" message below sentences to be guessed",
+        "description": "@round will be replaced by the number of the current round",
+        "importance": "low",
+        "default": "Round @round",
+        "common": true 
+      },
+      {
+        "name": "timeSpent",
+        "label": "Time spent text",
+        "importance": "low",
+        "type": "text",
+        "default": "Time Spent",
+        "description": "Label for showing the time spent while guessing one sentence",
+        "common": true 
+      },
+      {
+        "name": "keepCorrectAnswers",
+        "type": "boolean",
+        "label": "Keep correct answers and markup",
+        "description": "Check this option if you want to keep the correct words and the incorrect words markup upon Retry.",
+        "importance": "low",
+        "default": false
+      },
+      {
+        "label": "Show confirmation dialog on \"Reset the Game\"",
+        "importance": "low",
+        "name": "confirmResetDialog",
+        "type": "boolean",
+        "description": "Check this option to ask the user to confirm that they want to reset the GuessIt game",
+        "default": false
+      }
+    ]
+  },
+  {
+    "label": "Reset Game confirmation dialog",
+    "importance": "low",
+    "name": "confirmReset",
+    "type": "group",
+    "common": true,
+    "fields": [
+      {
+        "label": "Header text",
+        "importance": "low",
+        "name": "header",
+        "type": "text",
+        "default": "Reset the game?"
+      },
+      {
+        "label": "Body text",
+        "importance": "low",
+        "name": "body",
+        "type": "text",
+        "default": "Are you sure you wish to start again with a new sentence?",
+        "widget": "html",
+        "enterMode": "p",
+        "tags": [
+          "strong",
+          "em",
+          "del",
+          "u",
+          "code"
+        ]
+      },
+      {
+        "label": "Cancel button label",
+        "importance": "low",
+        "name": "cancelLabel",
+        "type": "text",
+        "default": "Cancel"
+      },
+      {
+        "label": "Confirm button label",
+        "importance": "low",
+        "name": "confirmLabel",
+        "type": "text",
+        "default": "Reset"
+      }
+    ]
+  },
+  {
+    "name": "scoreBarLabel",
+    "type": "text",
+    "label": "Textual representation of the score bar for those using a readspeaker",
+    "default": "You got :num out of :total points",
+    "importance": "low",
+    "common": true
+  }
+]
