@@ -1,5 +1,4 @@
 .h5p-guessit {
-  position: relative;
 }
 .h5p-guessit .h5p-input-wrapper {
   display: inline-block;
@@ -90,7 +89,7 @@
   line-height: 1em;
 }
 .h5p-guessit .has-tip .h5p-text-input {
-  padding-right: 2.25em;
+  //padding-right: 2.25em;
 }
 .h5p-guessit .has-tip.h5p-correct:after,
 .h5p-guessit .has-tip.h5p-wrong:after {
@@ -110,16 +109,9 @@
   margin-left: 10px;
 }
 
-.h5p-question.h5p-guessit {
-  background: rgba(255, 255, 255, 0)!important;
-  border-color: rgb(153,204,255);
-  border-style: solid ;
-  border-width: thin ;
-}
-
 .h5p-guessit.time-status {
+  font-size: 0.9em;
   position: absolute;
-  bottom: 0px;
   right: 10px;
 }
 
@@ -139,3 +131,65 @@
   border-radius: 0.25em;
   margin-left: .5em;
 }
+.h5p-guessit .h5p-guessit-optionsbuttons {
+  margin-top: 16px;
+  padding-right: 8px;
+}
+.h5p-guessit-hide,
+.h5p-guessit.h5p-guessit-options.h5p-guessit-hide {
+  display: none;
+}
+.h5p-guessit .h5p-guessit-number {
+}
+.h5p-guessit.h5p-guessit-options {
+  background-color: #f0f8ff;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  display: inline-block;
+  padding: 5px;
+  font-size: 0.8em;
+}
+
+.h5p-guessit .joubel-tip-container.hidden {
+  visibility: hidden;
+}
+
+.h5p-guessit .h5p-joubelui-button:first-child {
+  margin-left: 8px;
+}
+.h5p-guessit .h5p-question-scorebar.h5p-question-visible {
+  display: none;
+}
+
+.h5p-guessit .h5p-guessit-description {
+  font-size: 0.9em;
+  background: #fefefe;
+  border-bottom: 1px solid #EEE;
+  //margin-left: 1em;
+  //margin-right: 1em;
+} 
+
+.h5p-guessit .listGuessedSentences {
+  border: 1px #255c41 dashed;
+  background-color: #d4f6e6;
+  border-radius: 0.25em;
+  line-height: 0.25em;
+  padding-left: 0.5em;
+  font-size: 0.8em;
+} 
+
+.h5p-guessit.h5p-frame.h5p-no-frame {
+  background: #fefefe;
+  border: 1px solid #EEE;
+}
+
+.h5p-question-introduction {
+}
+
+.h5p-guessit.h5p-no-frame > .h5p-question > *:first-child {
+  //margin-left: 1em!important;
+}
+
+.h5p-guessit.h5p-no-frame > .h5p-question > *, .h5p-transparent > div > .h5p-question > * {
+  //margin-left: 1em!important;
+} 

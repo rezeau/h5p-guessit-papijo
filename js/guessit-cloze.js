@@ -15,17 +15,14 @@
     var self = this;
     var $input, $wrapper;
     var answers = solution.solutions;
-    var answer = answers.join('/'); 
-    if (answer.indexOf("&#039;") >= 0) {
-         //answer = answer.replace("&#039;", "'");
-      }   
+    var answer = answers.join('/');   
     var checkedAnswer = null;
     var inputLabel = l10n.inputLabel;
-
     
-      // Convert solution into lowercase
+    if (behaviour.caseSensitive !== true) {
+      // Convert possible solutions into lowercase
       answer = answer.toLowerCase();
-    
+    }
 
     /**
      * Check if the answer is correct.
@@ -34,9 +31,9 @@
      * @param {string} answered
      */
     var correct = function (answered) {
-      //if (behaviour.caseSensitive !== true) {
+      if (behaviour.caseSensitive !== true) {
         answered = answered.toLowerCase();
-      //} 
+      }
       return (answered == answer);
     };                                
 
@@ -159,11 +156,14 @@
         cleanAnswerLetter = cleanAnswer[i];
         studentLetter = studentAnswer[i];
         cleanStudentLetter = cleanStudentAnswer[i];   
+          
         if (studentLetter == answerLetter) {
           markup += eq;
-        } else if (cleanStudentLetter == cleanAnswerLetter || answerLetter == apos) {
-          markup += answerLetter;
-          break;           
+        } else if (cleanStudentLetter == cleanAnswerLetter || answerLetter == apos 
+          || cleanStudentLetter.toLowerCase() == cleanAnswerLetter.toLowerCase() 
+          || cleanAnswerLetter == ',' || cleanAnswerLetter == '.' || cleanAnswerLetter == '?' || cleanAnswerLetter == '!' 
+          ) {
+          markup += answerLetter;           
         } else if (cleanStudentLetter > cleanAnswerLetter) {
           markup += lw;
           break;
@@ -228,14 +228,6 @@
           }
         }
       });
-      
-      // JR Disable space bar inside blanks input! Adapt it to accept or not special chars. Does not work on tablets.
-      $input.keydown(function (e) {
-        var k;
-        document.all ? k = e.keyCode : k = e.which;
-        //return ((k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || k == 32 || (k >= 48 && k <= 57));
-        return (k !== 32);
-      });
     };
 
     /**
@@ -246,12 +238,6 @@
       self.length = result.length;
       return result;
     };
-    
-    this.RestrictSpaceSpecial = function(e) {
-      var k;
-      document.all ? k = e.keyCode : k = e.which;
-      return ((k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || k == 32 || (k >= 48 && k <= 57));
-    }
 
     /**
      * @returns {string} Trimmed answer

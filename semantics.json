@@ -1,13 +1,13 @@
 [
   {
-    "label": "Task description",
-    "importance": "high",
-    "name": "text",
+    "name": "description",
     "type": "text",
     "widget": "html",
+    "label": "Task description",
+    "importance": "medium",
     "default": "Try to guess the mysterious sentence",
-    "description": "A guide telling the user how to answer this task.",
-    "enterMode": "p",
+    "description": "A guide telling the user how to do this task.",
+    "optional": true,
     "tags": [
       "strong",
       "em",
@@ -17,10 +17,15 @@
       "ol",
       "h2",
       "h3",
-      "hr",
-      "pre",
-      "code"
-    ]
+      "h4",
+      "h5",
+      "hr"
+    ],
+    "font": {
+      "size": true,
+      "color": true,
+      "background": true
+    }
   },
   {
     "name": "questions",
@@ -66,11 +71,20 @@
     "common": true
   },
   {
-    "label": "Text for \"Reset\" button",
+    "label": "Text for \"New sentence\" button",
     "importance": "low",
-    "name": "resetGame",
+    "name": "newSentence",
     "type": "text",
-    "default": "Try another sentence?",
+    "default": "Guess another sentence",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"End Game\" button",
+    "importance": "low",
+    "name": "endGame",
+    "type": "text",
+    "default": "End Game",
     "common": true,
     "optional": true
   },
@@ -92,6 +106,55 @@
     "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions",
     "common": true,
     "optional": true
+  },
+  {
+    "label": "Text for \"How many words do you want in your mystery sentence?\" message",
+    "importance": "low",
+    "name": "numWords",
+    "type": "text",
+    "default": "How many words do you want in your mystery sentence?",
+    "common": true,
+    "optional": true
+  },
+  {
+    "name": "sentence",
+    "type": "text",
+    "label": "Text for \"sentence\" singular word",
+    "description": "This word will be used in various parts of the activity",
+    "importance": "low",
+    "default": "sentence",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "sentences",
+    "type": "text",
+    "label": "Text for \"sentence\" plural word",
+    "description": "This word will be used in various parts of the activity",
+    "importance": "low",
+    "default": "sentences",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "round",
+    "type": "text",
+    "label": "Text for \"Round\" message below sentences to be guessed",
+    "description": "@round will be replaced by the number of the current round",
+    "importance": "low",
+    "default": "Round @round",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "timeSpent",
+    "label": "Time spent text",
+    "importance": "low",
+    "type": "text",
+    "default": "Time Spent",
+    "description": "Label for showing the time spent while guessing one sentence",
+    "common": true,
+    "optional": true 
   },
   {
     "label": "Text for \"':ans' is correct\" message",
@@ -175,10 +238,18 @@
     "optional": true,
     "fields": [
       {
-        "label": "Enable \"Reset\"",
+        "name": "caseSensitive",
         "importance": "low",
-        "description": "Check this option if you want to allow the user to guess another sentence when the game is over.",
-        "name": "enableReset",
+        "type": "boolean",
+        "default": false,
+        "label": "Case sensitive",
+        "description": "Makes sure the user input has to be exactly the same as the answer."
+      },
+      {
+        "label": "Enable Number of words Choice",
+        "importance": "low",
+        "description": "Check this option to allow the user to select the number of words (per sentence) to guess.",
+        "name": "enableNumChoice",
         "type": "boolean",
         "default": true,
         "optional": true
@@ -211,45 +282,38 @@
         } 
       },
       {
-        "name": "round",
-        "type": "text",
-        "label": "Text for \"Round\" message below sentences to be guessed",
-        "description": "@round will be replaced by the number of the current round",
+        "label": "Display Guessed Sentences",
         "importance": "low",
-        "default": "Round @round",
-        "common": true 
-      },
-      {
-        "name": "timeSpent",
-        "label": "Time spent text",
-        "importance": "low",
-        "type": "text",
-        "default": "Time Spent",
-        "description": "Label for showing the time spent while guessing one sentence",
-        "common": true 
-      },
-      {
-        "name": "keepCorrectAnswers",
+        "name": "listGuessedSentences",
+        "description": "Check this to add each guessed sentence to a display list after each successful attempt.",
         "type": "boolean",
-        "label": "Keep correct answers and markup",
-        "description": "Check this option if you want to keep the correct words and the incorrect words markup upon Retry.",
-        "importance": "low",
-        "default": false
+        "default": false,
+        "optional": true
       },
       {
-        "label": "Show confirmation dialog on \"Reset the Game\"",
+        "name": "sentencesOrder",
+        "type": "select",
+        "label": "Sentences Order",
         "importance": "low",
-        "name": "confirmResetDialog",
-        "type": "boolean",
-        "description": "Check this option to ask the user to confirm that they want to reset the GuessIt game",
-        "default": false
+        "description": "Select the order in which the sentences will be displayed to the user.",
+        "default": "normal",
+        "options": [
+          {
+            "value": "normal",
+            "label": "Normal order"
+          },
+          {
+            "value": "random",
+            "label": "Random order"
+          }
+        ]
       }
     ]
   },
   {
-    "label": "Reset Game confirmation dialog",
+    "label": "End Game confirmation dialog",
     "importance": "low",
-    "name": "confirmReset",
+    "name": "confirmEndGame",
     "type": "group",
     "common": true,
     "fields": [
@@ -258,14 +322,14 @@
         "importance": "low",
         "name": "header",
         "type": "text",
-        "default": "Reset the game?"
+        "default": "End Game?"
       },
       {
         "label": "Body text",
         "importance": "low",
         "name": "body",
         "type": "text",
-        "default": "Are you sure you wish to start again with a new sentence?",
+        "default": "Are you sure you wish to End this Game?",
         "widget": "html",
         "enterMode": "p",
         "tags": [
@@ -288,16 +352,8 @@
         "importance": "low",
         "name": "confirmLabel",
         "type": "text",
-        "default": "Reset"
+        "default": "OK"
       }
     ]
-  },
-  {
-    "name": "scoreBarLabel",
-    "type": "text",
-    "label": "Textual representation of the score bar for those using a readspeaker",
-    "default": "You got :num out of :total points",
-    "importance": "low",
-    "common": true
   }
 ]

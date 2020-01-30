@@ -31,7 +31,7 @@
      * Revert counter back to its natural state
      */
     self.reset = function () {
-      current = 0;
+      current = 1;
       update();
     };
     
