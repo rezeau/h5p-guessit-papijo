@@ -64,7 +64,9 @@
           .attr('aria-label', inputLabel + '. ' + l10n.answeredCorrectly);
       }
       else {                                       
-        this.markUp(checkedAnswer)
+        if (checkedAnswer) {
+          this.markUp(checkedAnswer);
+        }
         $wrapper.addClass('h5p-wrong');
         $input.attr('aria-label', inputLabel + '. ' + l10n.answeredIncorrectly);        
       }
@@ -130,10 +132,6 @@
      * Mark up the incorrect studentAnswer.
      */
     this.markUp = function (studentAnswer) {
-      // Replace apostrophe HTML entity with proper apostrophe ASCII character!
-      if (answer.indexOf("&#039;") >= 0) {
-      //   answer = answer.replace("&#039;", "'");
-      }
       var cleanAnswer = answer; 
       var hasOnlyAscii = /^[\u0000-\u007f]*$/.test(answer);
       if (!hasOnlyAscii) {
@@ -148,31 +146,44 @@
       var markup = '';
       var eq = '=';
       var lw = '<';
-      var gt = '>';      
-      var apos = "'";
+      var gt = '>';
+      
+      // TODO offer this in the parameters?
+      const punctuation = "';:,.-?¿!¡ß"
+      
       var minLen = Math.min(answer.length, studentAnswer.length);      
       for (i = 0; i < minLen; i++) {
         answerLetter = answer[i];
-        cleanAnswerLetter = cleanAnswer[i];
+        cleanAnswerLetter = cleanAnswer[i].toLowerCase();
         studentLetter = studentAnswer[i];
-        cleanStudentLetter = cleanStudentAnswer[i];   
+        cleanStudentLetter = cleanStudentAnswer[i].toLowerCase();   
           
         if (studentLetter == answerLetter) {
           markup += eq;
-        } else if (cleanStudentLetter == cleanAnswerLetter || answerLetter == apos 
-          || cleanStudentLetter.toLowerCase() == cleanAnswerLetter.toLowerCase() 
-          || cleanAnswerLetter == ',' || cleanAnswerLetter == '.' || cleanAnswerLetter == '?' || cleanAnswerLetter == '!' 
+        } else if (cleanStudentLetter == cleanAnswerLetter ) {
+          markup += answerLetter;
+          break;
+        } else if (cleanStudentLetter == cleanAnswerLetter || punctuation.includes(cleanAnswer[i]) ) {
+          markup += answerLetter;
+          break;           
+        } else if (
+            cleanStudentLetter < cleanAnswerLetter
           ) {
-          markup += answerLetter;           
-        } else if (cleanStudentLetter > cleanAnswerLetter) {
-          markup += lw;
+          markup += gt;
           break;
         } else {
-          markup += gt;
+          markup += lw;
           break;
         }
       }        
       
+      // Automatically give punctuation at end of sentence if absent.
+      if (studentAnswer.length == answer.length - 1  
+          && cleanStudentAnswer[i] === undefined 
+          && punctuation.includes(cleanAnswer[i]) ) 
+      {
+        markup += cleanAnswer[i];
+      }
       
       // Place the markup line below the studentAnswer by 18px.
       var offset = $wrapper.offset();

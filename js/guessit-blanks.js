@@ -51,13 +51,14 @@ H5P.GuessIt = (function ($, Question) {
     this.params = $.extend(true, {}, {
       description: "Task description",
       questions: [
-        "Paris is the capital of *France*."
+        "Paris is the capital of France."
       ],
       showSolutions: "Show solution",
       tryAgain: "Try again",
       newSentence: 'Guess another sentence',
       endGame: 'End Game',
       checkAnswer: "Check",
+      notFilledOut: "Please fill in all the blanks before checking your answer!",
       notEnoughRounds: "The solution won't be available before Round @round",
       answerIsCorrect: "':ans' is correct",
       answerIsWrong: "':ans' is wrong",
@@ -71,8 +72,18 @@ H5P.GuessIt = (function ($, Question) {
       sentences: 'sentences',
       timeSpent: "Time Spent",
       tipLabel: "Tip",
+      scoreBarLabel: 'You got :num out of :total points',
       numWords: 'How many words do you want in your mystery sentence?',
+      summary: 'Summary',
+      sentencesGuessed: 'Sentences guessed',
+      solutionsViewed: 'Solutions viewed',
+      totalTimeSpent: 'Total Time Spent',
+      totalRounds: 'Total Rounds',
+      scoreExplanationButtonLabel: 'Show score explanation',
+      scoreExplanationforSinglePoint: 'The maximum score for this activity is 1 and you got the point for any number of sentences guessed.',
+      scoreExplanationforAllSentences: 'Your score indicates the number of sentences you guessed out of the total number of sentences in this activity.',
       behaviour: {
+        singlePoint: true,
         enableNumChoice: true,
         enableSolutionsButton: true,
         listGuessedSentences: false,
@@ -100,9 +111,14 @@ H5P.GuessIt = (function ($, Question) {
     this.clozes = [];
     this.numQuestionsInWords = []
     this.sentencesFound = 0;
+    
     // Init userAnswers
     this.userAnswers = [];
     this.sentencesList = '';
+    this.totalTimeSpent = 0;
+    this.totalRounds = 0;
+    this.solutionsViewed = [];
+    
     // Init currentSentence values
     this.sentenceClozeNumber = [];
 
@@ -144,14 +160,12 @@ H5P.GuessIt = (function ($, Question) {
     self.setContent(self.createQuestions(labelId), {
     });
 
-    //var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
-    $content.addClass('h5p-guessit h5p-frame');
-
     this.$description = $('<div>', {
       'class': 'h5p-guessit h5p-guessit-description',
       'html': this.params.description
       })
+    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
+    $content.addClass ('h5p-guessit h5p-frame');
     
     // Init buttons for selecting number of words (if enabled in params.behaviour). 
     if (this.params.behaviour.enableNumChoice) {
@@ -244,47 +258,55 @@ H5P.GuessIt = (function ($, Question) {
     // Check answer button
     self.addButton('check-answer', self.params.checkAnswer, function () {
       if (self.$timer == undefined) {
-        self.initCounters();
+        self.initCounters();        
       }
-      self.toggleButtonVisibility(STATE_CHECKING);
-      self.markResults()
-      self.setFeedback();
-      //self.triggerAnswered();
-      self.timer.stop();
-      var isFinished = (self.getScore() === self.getMaxScore());
-      if (isFinished) {
-        //self.eventCompleted();
-        if (self.sentencesFound  !== self.params.questions.length - 1) {           
-          self.showButton('new-sentence');
-          self.showButton('end-game');          
-        } else {
-          // button end-game2 does not ask for confirmation
-          self.showButton('end-game2');
+      self.setFeedback();                             
+      if (!self.allBlanksFilledOut()) {
+        self.updateFeedbackContent(self.params.notFilledOut);  
+      } else {
+        self.toggleButtonVisibility(STATE_CHECKING);
+        self.updateFeedbackContent('');
+        self.markResults();
+        //self.triggerAnswered();
+        self.timer.stop();
+        var isFinished = (self.getScore() === self.getMaxScore());
+        if (isFinished) {
+          //self.eventCompleted();
+          if (self.sentencesFound  !== self.params.questions.length - 1) {           
+            self.showButton('new-sentence');
+            setTimeout(function () {
+              self.focusButton();
+              }, 10);          
+            self.showButton('end-game');          
+          } else {
+            // button end-game2 does not ask for confirmation
+            self.showButton('end-game2');
+          }
+          if (self.params.behaviour.listGuessedSentences) {
+            self.sentencesList += '<p>' + self.params.questions[self.currentSentenceId].sentence + '</p>';
+            var $content = $('[id="h5p-GuessIt-listGuessedSentences"]');
+            $content.removeClass ('h5p-guessit-hide')
+            $content.html(self.sentencesList);
+          } 
         }
-        if (self.params.behaviour.listGuessedSentences) {
-          self.sentencesList += '<p>' + self.params.questions[self.currentSentenceId].sentence + '</p>';
-          var $content = $('[id="h5p-GuessIt-listGuessedSentences"]');
-          $content.removeClass ('h5p-guessit-hide')
-          $content.html(self.sentencesList);
-        } 
       }
     });
 
+    
+    // Try again button
+      self.addButton('try-again', self.params.tryAgain, function () {
+        self.reTry();
+        self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();
+      });
+    
     // Show solution button
     self.addButton('show-solution', self.params.showSolutions, function () {
       self.showCorrectAnswers(false);
     }, self.params.behaviour.enableSolutionsButton);
     
-    // Try again button TODO    
-    //if (self.params.behaviour.enableRetry === true) {
-      self.addButton('try-again', self.params.tryAgain, function () {
-        self.reTry();
-        self.$questions.filter(':first').find('input:first').focus();
-      });
-    //}
     
     // New Sentence button    
-    self.addButton('new-sentence', self.params.newSentence, function () {
+    $newSentenceButton = self.addButton('new-sentence', self.params.newSentence, function () {
       self.newSentence();
     }, true);  
     this.hideButton('new-sentence');
@@ -451,7 +473,7 @@ H5P.GuessIt = (function ($, Question) {
         // Figure out if this is the last input.
         isLastInput = $this.is($inputs[$inputs.length - 1]);
       }
-
+      
       if ((isLastInput && !self.shiftPressed) || (enterPressed && isLastInput)) {
         // Focus first button on next tick        
         setTimeout(function () {
@@ -550,22 +572,19 @@ H5P.GuessIt = (function ($, Question) {
     // The show solutions button is hidden if all answers are correct
     if (this.params.behaviour.enableSolutionsButton) {
       if (state === STATE_CHECKING && !isFinished) {
-        // JR TODO rework the conditions maybe after so many tries? to be parametered?
         this.showButton('show-solution');
       }
       else {
         this.hideButton('show-solution');
       }
     }
-    // TODO
-    //if (this.params.behaviour.enableRetry) {
-      if ((state === STATE_CHECKING && !isFinished) || state === STATE_SHOWING_SOLUTION) {
-        this.showButton('try-again');
-      }
-      else {
-        this.hideButton('try-again');
-      }
-    //}
+    
+    if ((state === STATE_CHECKING && !isFinished) || state === STATE_SHOWING_SOLUTION) {
+      this.showButton('try-again');
+    }
+    else {
+      this.hideButton('try-again');
+    }
 
     if (state === STATE_ONGOING) {
       this.showButton('check-answer');
@@ -582,7 +601,7 @@ H5P.GuessIt = (function ($, Question) {
    */
   GuessIt.prototype.allowSolution = function () {
       if (!this.minRoundsReached()) {
-      var minRoundsText = this.params.notEnoughRounds
+        var minRoundsText = this.params.notEnoughRounds
           .replace('@round', this.params.behaviour.numRounds);
         this.updateFeedbackContent(minRoundsText);
         this.read(minRoundsText);
@@ -616,19 +635,24 @@ H5P.GuessIt = (function ($, Question) {
   };
 
   /**
+   * Check if all blanks are filled out
+   *
+   * @method allBlanksFilledOut
+   * @return {boolean} Returns true if all blanks are filled out.
+   */
+  GuessIt.prototype.allBlanksFilledOut = function () {
+    return !this.currentSentenceClozes[this.currentSentenceId].some(function (cloze) {
+      return !cloze.filledOut();
+    });
+  };
+  
+  /**
    * Mark which answers are correct and which are wrong and disable fields if retry is off.
    */
   GuessIt.prototype.markResults = function () {
     var self = this;
-    //for (var i = 0; i < self.clozes.length; i++) {
     for (var i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
-    
       this.currentSentenceClozes[this.currentSentenceId][i].checkAnswer(this.defaultDiacriticsRemovalMap);
-      /* TODO
-      if (!self.params.behaviour.enableRetry) {
-        self.clozes[i].disableInput();
-      }
-      */
     }
     this.trigger('resize');
   };
@@ -651,10 +675,13 @@ H5P.GuessIt = (function ($, Question) {
     if (!this.allowSolution()) {
       return;
     }
-
+    
+    if (this.solutionsViewed [this.currentSentenceId] !== true) {
+      this.solutionsViewed [this.currentSentenceId] = true;
+    }
     this.toggleButtonVisibility(STATE_SHOWING_SOLUTION);
     this.hideSolutions();
-
+    
     for (var i = 0; i < this.clozes.length; i++) {
       this.clozes[i].showSolution();
     }
@@ -696,7 +723,7 @@ H5P.GuessIt = (function ($, Question) {
   GuessIt.prototype.reTry = function () {
     this.answered = false;
     this.hideSolutions();
-    this.removeFeedback();
+    //this.removeFeedback();
     this.$questions.find('.h5p-input-wrapper').removeClass('h5p-wrong');
     this.enableInCorrectInputs();
     this.toggleButtonVisibility(STATE_ONGOING);
@@ -720,6 +747,7 @@ H5P.GuessIt = (function ($, Question) {
   GuessIt.prototype.newSentence = function () {    
     var self = this;
     this.sentencesFound ++;
+
     if (this.sentencesFound  == this.params.questions.length) {
       this.$numberWords.html('the end');
     }
@@ -738,7 +766,6 @@ H5P.GuessIt = (function ($, Question) {
 
   GuessIt.prototype.initCounters = function () {
     var self = this; 
-    // todo not the same with or without choicewordsnub
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content .h5p-question-content');
     // Timer part.
     this.$timer = $('<div/>', {
@@ -775,17 +802,21 @@ H5P.GuessIt = (function ($, Question) {
     $content.find('.h5p-container').removeClass('h5p-guessit-hide');
     
     // TODO move this trigger ?
-    this.triggerXAPI('attempted');     
-    if (self.$timer !== undefined) {
+    this.triggerXAPI('attempted');
+    
+    if (self.timer !== undefined) {      
+      this.totalTimeSpent += this.timer.getTime();
+      this.totalRounds += this.counter.getcurrent();
       this.$timer.removeClass ('h5p-guessit-hide');
       this.timer.reset();
       this.timer.play();
       this.counter.reset();
     }
+    
     this.hideButton('new-sentence');
     this.hideButton('end-game');
     this.answered = false;
-    this.removeFeedback();
+    //this.removeFeedback();
     this.clearAnswers();
     this.removeMarkedResults();
     this.toggleButtonVisibility(STATE_ONGOING);
@@ -833,38 +864,114 @@ H5P.GuessIt = (function ($, Question) {
       this.currentSentenceId = acceptedQuestions[0]
     } else { 
       // https://www.w3resource.com/javascript-exercises/javascript-array-exercise-35.php
-      this.currentSentenceId = acceptedQuestions[Math.floor(Math.random()*acceptedQuestions.length)]
+      // Note ~~ equivalent of Math.floor See http://rocha.la/JavaScript-bitwise-operators-in-practice
+      this.currentSentenceId = acceptedQuestions[~~(Math.random()*acceptedQuestions.length)]
     }    
     this.$questions.eq(this.currentSentenceId).removeClass('h5p-guessit-sentence-hidden'); 
     
   };
   
   GuessIt.prototype.showFinalPage = function () {    
-    var self = this;
-    var $content = $('[data-content-id="' + self.contentId + '"] .h5p-question-introduction');
-    $content.remove();
-    this.hideButton('end-game');
-    this.hideButton('end-game2');
-    this.hideButton('new-sentence');
-    this.$timer.remove();
+    var self = this;                                                           
+    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     
-    // TODO construct the final summary page (on the model of the papi jo dialog cards) 
-    // OR the quiz / question-set summary page
+    // Needed to display 'h5p-guessit-summary-screen' centered!
+    $content.removeClass('h5p-no-frame');
+    
+    // Remove all this now useless elements from DOM.
+    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');    
+    $('.h5p-no-frame, .h5p-guessit-description, .h5p-question-introduction, .h5p-question-content,'
+      +' .h5p-question-scorebar, .h5p-question-feedback',
+      $content).remove();
+    
+    this.totalRounds += this.counter.getcurrent();
+    
+    // Calculate and nicely format total time spent.
+    this.totalTimeSpent += this.timer.getTime();  
+    var time = this.totalTimeSpent / 1000   
+    // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds#3733257
+    function fancyTimeFormat(time) {   
+      // Hours, minutes and seconds
+      var hrs = ~~(time / 3600);
+      var mins = ~~((time % 3600) / 60);
+      var secs = ~~time % 60;
+      var ret = "";
+      if (hrs > 0) {
+          ret += "" + hrs + ":" + (mins < 10 ? "0" : "");
+      }
+      // Using international SI abreviations.
+      const $minute = 'min';      
+      const $second = 'sec';
+      ret += "" + mins + ' ' + $minute + ' ' + (secs < 10 ? "0" : "");
+      ret += "" + secs + ' ' + $second;
+      return ret;
+    }
+    var totalTime = fancyTimeFormat(time);
+    
+    // Calculate the number of sentences that have been guessed.
     var usedQuestions = 1;
     for (i = 0; i < this.params.questions.length; i++) {
       if (this.$questions.eq(i).hasClass('used')) {
         usedQuestions ++;
       }
     }  
-                                 
-    console.log('usedQuestions = ' + usedQuestions)
-    text = '<b>END OF GAME</b><br> You have guessed = ' + usedQuestions
-      + ' / ' + this.params.questions.length + ' ' + this.params.sentences;
-    text += '<br><br> <span style="color:red;">This final page is a work in progress <br>(says papi Jo)</span>';
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content .h5p-question-content');
-    $content.html(text);
     
+    if (this.params.behaviour.singlePoint) {
+      actualScore = 1;
+      maxScore = 1;
+      explainScore = this.params.scoreExplanationforSinglePoint; 
+    } else {
+      actualScore = usedQuestions;
+      maxScore = this.params.questions.length;
+      explainScore = this.params.scoreExplanationforAllSentences;
+    }
     
+    // Push score to XAPI 
+    self.triggerXAPIScored(actualScore, maxScore, 'completed');
+    self.triggerXAPI('answered');
+                                                                                                        
+    this.hideButton('end-game');
+    this.hideButton('end-game2');
+    this.hideButton('new-sentence');
+    this.$timer.remove();
+      
+    var text = '<div class="h5p-guessit-summary-header">'
+      + this.params.summary + '</div>'
+      + '<table class="h5p-guessit-summary-table">'
+      +  '<td class="h5p-guessit-summary-table-row-category">' + this.params.totalRounds + '</td>'
+      + '<td class="h5p-guessit-summary-table-row-symbol h5p-guessit-check">&nbsp;</td>'
+      + '<td class="h5p-guessit-summary-table-row-score">'
+      + usedQuestions
+      + '&nbsp;<span class="h5p-guessit-summary-table-row-score-divider">/</span>&nbsp;'
+      + this.params.questions.length + '</td></tr>'
+      + '<tr><td class="h5p-guessit-summary-table-row-category">' + this.params.totalRounds + '</td>'
+      + '<td class="h5p-guessit-summary-table-row-symbol"></td>'
+      + '<td class="h5p-guessit-summary-table-row-score">' + this.totalRounds + '</td></tr>'
+      
+      + '<tr><td class="h5p-guessit-summary-table-row-category">' + this.params.solutionsViewed + '</td>'
+      + '<td class="h5p-guessit-summary-table-row-symbol"></td>'
+      + '<td class="h5p-guessit-summary-table-row-score">' + this.solutionsViewed.length + '</td></tr>'
+      
+      + '<tr><td colspan="3" class="h5p-guessit-summary-table-row-category">' 
+      + this.params.totalTimeSpent + '<span style = "float: right;">' + totalTime +  '</span></td>'
+      + '<td class="">' + '</td>'
+      + '<td class="">' + '</td></tr>'        
+      + '</table>';
+      
+    var $content = $('[data-content-id="' + self.contentId + '"] .h5p-container');
+    var $feedback = $('<div>', {
+      'class': 'h5p-guessit-summary-screen',
+      'html': text
+    }).appendTo($content);
+    
+    this.$feedbackContainer = $('<div class="h5p-guessit feedback-container"/>')
+      .appendTo($feedback);
+    
+    scoreBarLabel = this.params.scoreBarLabel.replace('@score', actualScore).replace('@total', maxScore);
+    scoreBar = H5P.JoubelUI.createScoreBar(maxScore, scoreBarLabel, explainScore, this.params.scoreExplanationButtonLabel);
+    scoreBar.setMaxScore(maxScore);
+    scoreBar.setScore(actualScore);
+    scoreBar.appendTo(this.$feedbackContainer);
   }
   
   /**
@@ -984,7 +1091,7 @@ H5P.GuessIt = (function ($, Question) {
     // Check that stored user state is valid
     if (!isValidState) {
       return;
-    }
+    } 
 
     // Set input from user state
     this.previousState.forEach(function (clozeContent, ccIndex) {

@@ -108,6 +108,15 @@
     "optional": true
   },
   {
+    "label": "Text for \"Fill in all the blanks\" message",
+    "importance": "low",
+    "name": "notFilledOut",
+    "type": "text",
+    "default": "Please fill in all the blanks before checking your answer!",
+    "common": true,
+    "optional": true
+  },
+  {
     "label": "Text for \"How many words do you want in your mystery sentence?\" message",
     "importance": "low",
     "name": "numWords",
@@ -153,6 +162,79 @@
     "type": "text",
     "default": "Time Spent",
     "description": "Label for showing the time spent while guessing one sentence",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "scoreExplanationButtonLabel",
+    "label": "Score Explanation Button Label",
+    "importance": "low",
+    "type": "text",
+    "default": "Show score explanation",
+    "description": "Label the 'Show score explanation' feedback text",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "scoreExplanationforSinglePoint",
+    "label": "Score Explanation for the Single Point score",
+    "importance": "low",
+    "type": "text",
+    "default": "The maximum score for this activity is 1 and you got the point for any number of sentences guessed.",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "scoreExplanationforAllSentences",
+    "label": "Score Explanation for AllSentences",
+    "importance": "low",
+    "type": "text",
+    "default": "Your score indicates the number of sentences you guessed out of the total number of sentences in this activity.",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "summary",
+    "label": "Text for the Summary page header",
+    "importance": "low",
+    "type": "text",
+    "default": "Summary",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "sentencesGuessed",
+    "label": "Text for the number of Sentences guessed (on the summary page)",
+    "importance": "low",
+    "type": "text",
+    "default": "Sentences guessed",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "solutionsViewed",
+    "label": "Text for the number of Solutions viewed (on the summary page)",
+    "importance": "low",
+    "type": "text",
+    "default": "Solutions viewed",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "totalTimeSpent",
+    "label": "Text for the total time spent (on the summary page)",
+    "importance": "low",
+    "type": "text",
+    "default": "Total Time Spent",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "totalRounds",
+    "label": "Text for the total number of rounds used (on the summary page)",
+    "importance": "low",
+    "type": "text",
+    "default": "Total Rounds",
     "common": true,
     "optional": true 
   },
@@ -237,6 +319,14 @@
     "description": "These options will let you control how the task behaves.",
     "optional": true,
     "fields": [
+      {
+        "name": "singlePoint",
+        "type": "boolean",
+        "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
+        "importance": "low",
+        "description": "Uncheck this option if you want this activity to be scored against the total number of sentences.",
+        "default": true
+      },
       {
         "name": "caseSensitive",
         "importance": "low",

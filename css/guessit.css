@@ -88,9 +88,7 @@
 .h5p-guessit .joubel-tip-container .joubel-icon-tip-normal {
   line-height: 1em;
 }
-.h5p-guessit .has-tip .h5p-text-input {
-  //padding-right: 2.25em;
-}
+
 .h5p-guessit .has-tip.h5p-correct:after,
 .h5p-guessit .has-tip.h5p-wrong:after {
   right: 2.25em;
@@ -113,6 +111,7 @@
   font-size: 0.9em;
   position: absolute;
   right: 10px;
+  bottom: 0;
 }
 
 .h5p-question-reset-task:before {
@@ -165,8 +164,6 @@
   font-size: 0.9em;
   background: #fefefe;
   border-bottom: 1px solid #EEE;
-  //margin-left: 1em;
-  //margin-right: 1em;
 } 
 
 .h5p-guessit .listGuessedSentences {
@@ -183,13 +180,72 @@
   border: 1px solid #EEE;
 }
 
-.h5p-question-introduction {
+.h5p-guessit.h5p-frame.h5p-frame .h5p-container {
+  background: #fefefe;
+  margin: 10px;
 }
 
-.h5p-guessit.h5p-no-frame > .h5p-question > *:first-child {
-  //margin-left: 1em!important;
+
+.h5p-guessit .h5p-question-introduction {
+  margin-left: 1em!important;
+  margin-right: 1em!important;
 }
 
-.h5p-guessit.h5p-no-frame > .h5p-question > *, .h5p-transparent > div > .h5p-question > * {
-  //margin-left: 1em!important;
-} 
+.h5p-guessit-summary-screen {
+  margin: auto;
+  max-width: 32em;
+}
+.h5p-guessit .h5p-guessit-summary-screen .h5p-guessit-summary-header {
+  width: 100%;
+  font-weight: bold;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.h5p-guessit-summary-screen .h5p-guessit-summary-table {
+  width: 100%;
+}
+
+.h5p-guessit-summary-screen .h5p-guessit-summary-table td {
+  height: 1.6em;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #d9d9d9;
+  text-align: left;
+}
+
+.h5p-guessit-summary-screen .h5p-guessit-summary-table td.h5p-guessit-summary-table-row-category {
+  width: 100%;
+}
+
+.h5p-guessit-summary-screen .h5p-guessit-summary-table td.h5p-guessit-summary-table-row-symbol {
+  padding-left: 0.5em;
+}
+
+.h5p-guessit-summary-screen .h5p-guessit-summary-table td.h5p-guessit-summary-table-row-symbol.h5p-guessit-check:before {
+  font-family: 'H5PFontAwesome4';
+  content: "\f00c";
+  color: #1f824c;
+}
+
+.h5p-guessit-summary-screen .h5p-guessit-summary-table td.h5p-guessit-summary-table-row-symbol.h5p-guessit-times:before {
+  font-family: 'H5PFontAwesome4';
+  content: "\f00d";
+  color: #d95354;
+}
+
+.h5p-guessit-summary-screen .h5p-guessit-summary-table td.h5p-guessit-summary-table-row-score {
+  padding-left: 0.5em;
+  text-align: right;
+  font-weight: bold;
+}
+
+.h5p-guessit-summary-screen .h5p-guessit-summary-table td.h5p-guessit-summary-table-row-score-divider {
+  color: #757575;
+  font-size: 0.75em;
+}
+
+.h5p-guessit .feedback-container {
+  text-align: center;
+  margin-top: 20px;
+}
