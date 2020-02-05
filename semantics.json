@@ -32,6 +32,7 @@
     "type": "list",
     "label": "Sentences",
     "importance": "high",
+    "description": "Simply type the sentences to be guessed by the students, WITHOUT any asterisks. Recommended number of words per sentence: between 3 and 5.",
     "widgets": [
       {
         "name": "VerticalTabs",
@@ -186,10 +187,20 @@
   },
   {
     "name": "scoreExplanationforAllSentences",
-    "label": "Score Explanation for AllSentences",
+    "label": "Score Explanation for All Sentences",
     "importance": "low",
     "type": "text",
-    "default": "Your score indicates the number of sentences you guessed out of the total number of sentences in this activity.",
+    "default": "Score = number of guessed sentences / number of sentences in this activity.",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "scoreExplanationforSentencesWithNumberWords",
+    "label": "Score Explanation for All Sentences with selected number of words",
+    "importance": "low",
+    "type": "text",
+    "default": "Score = number of guessed sentences / number of sentences containing @words words.",
+    "description": "@words will be replaced by the number of words per sentence selected by the user on the initial screen",
     "common": true,
     "optional": true 
   },
@@ -325,7 +336,7 @@
         "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
         "importance": "low",
         "description": "Uncheck this option if you want this activity to be scored against the total number of sentences.",
-        "default": true
+        "default": false
       },
       {
         "name": "caseSensitive",
@@ -338,10 +349,10 @@
       {
         "label": "Enable Number of words Choice",
         "importance": "low",
-        "description": "Check this option to allow the user to select the number of words (per sentence) to guess.",
+        "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!",
         "name": "enableNumChoice",
         "type": "boolean",
-        "default": true,
+        "default": false,
         "optional": true
       },
       {
@@ -349,14 +360,14 @@
         "importance": "low",
         "name": "enableSolutionsButton",
         "type": "boolean",
-        "default": true,
+        "default": false,
         "optional": true
       },
       {
         "name": "numRounds",
         "type": "number",
         "label": "Number of rounds",
-        "description": "Minimum number of rounds before Solutions can be displayed",
+        "description": "Minimum number of rounds before Solutions can be displayed:",
         "importance": "low",
         "optional": true,
         "default": 1,
@@ -375,7 +386,7 @@
         "label": "Display Guessed Sentences",
         "importance": "low",
         "name": "listGuessedSentences",
-        "description": "Check this to add each guessed sentence to a display list after each successful attempt.",
+        "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story.",
         "type": "boolean",
         "default": false,
         "optional": true
@@ -385,7 +396,7 @@
         "type": "select",
         "label": "Sentences Order",
         "importance": "low",
-        "description": "Select the order in which the sentences will be displayed to the user.",
+        "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
         "default": "normal",
         "options": [
           {
