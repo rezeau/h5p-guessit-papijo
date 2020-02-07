@@ -155,34 +155,21 @@ H5P.GuessIt = (function ($, Question) {
 
     // Using instructions as label for our text groups
     const labelId = 'h5p-GuessIt-listGuessedSentences';
-
-    // Register task description text
-    self.setIntroduction('<div class = "h5p-guessit listGuessedSentences h5p-guessit-hide" id="' + labelId + '">' + '' + '</div>');
-    //self.setIntroduction('<div class = "h5p-guessit h5p-guessit-description">' + 'the introduction used for list of sentences' + '</div>');
-    
+        
     // Register task content area
     self.setContent(self.createQuestions(labelId), {
     });
-
-    this.$description = $('<div>', {
+    
+    this.$taskdescription = $('<div>', {
       'class': 'h5p-guessit h5p-guessit-description',
       'html': this.params.description
       })
+    
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     $content.addClass ('h5p-guessit h5p-frame');
     
     // Init buttons for selecting number of words (if enabled in params.behaviour). 
-    if (this.params.behaviour.enableNumChoice) {
-      this.$numberWords = $('<div>', {
-        'class': 'h5p-guessit h5p-guessit-options',
-        'html': this.params.numWords
-      });
-      
-      var $optionButtons = $('<div>', {
-        'class': 'h5p-guessit-optionsbuttons'
-      }).appendTo(this.$numberWords);
-      
-      this.$numberWords.appendTo(this.$description); 
+    if (this.params.behaviour.enableNumChoice) { 
       // Put in array the number of words of all the questions
       var numWords = [];                          
       for (i = 0; i < this.params.questions.length; i++) {
@@ -196,45 +183,70 @@ H5P.GuessIt = (function ($, Question) {
               result[a[i]] = 0;
           ++result[a[i]];
       } 
-      this.numQuestionsInWords = result;
-      // Remove duplicates from numWords array 
-      let uniquenumWords = [...new Set(numWords)];
-      // Sort uniquenumWords array 
-      uniquenumWords.sort();
-      // Get last item from uniquenumWords array
-      var limit = uniquenumWords.slice(-1).pop()
-      // Init iteratation
-      var numSentencesWithWords = [];
       
-      uniquenumWords.forEach(iterateNW);      
-      // Iterate uniquenumWords array 
-      function iterateNW(item) {
-        var n = self.numQuestionsInWords[item];
-        numSentencesWithWords[item] = n;
-        var s = self.params.sentence;
-        if (n > 1) {
-          s = self.params.sentences;
+      var nbDifferentNums = Object.keys(result).length;
+      // Do not ask user for nb words in sentences if there is no choice!
+      if (nbDifferentNums > 1) {
+        this.numQuestionsInWords = result;      
+        this.$numberWords = $('<div>', {
+          'class': 'h5p-guessit h5p-guessit-options',
+          'html': this.params.numWords
+        });
+        
+        var $optionButtons = $('<div>', {
+          'class': 'h5p-guessit-optionsbuttons'
+        }).appendTo(this.$numberWords);
+        this.$numberWords.appendTo(this.$taskdescription);
+        
+        if (nbDifferentNums > 1) { 
+        // Remove duplicates from numWords array 
+        let uniquenumWords = [...new Set(numWords)];
+        // Sort uniquenumWords array 
+        uniquenumWords.sort();
+        // Get last item from uniquenumWords array
+        var limit = uniquenumWords.slice(-1).pop()
+        // Init iteratation
+        var numSentencesWithWords = [];
+        
+        uniquenumWords.forEach(iterateNW);      
+        // Iterate uniquenumWords array 
+        function iterateNW(item) {
+          var n = self.numQuestionsInWords[item];
+          numSentencesWithWords[item] = n;
+          var s = self.params.sentence;
+          if (n > 1) {
+            s = self.params.sentences;
+          }
+          var setNumWords = H5P.JoubelUI.createButton({
+            'class': 'h5p-guessit-number-button',
+            'title': item,
+            'html': item + ' [' + n + ' ' + s + ']',
+            'id': 'dc-number-' + item
+          }).click(function () {          
+              self.$numberWords.addClass ('h5p-guessit-hide');
+              self.numWords = item;
+              self.numQuestions = numSentencesWithWords[item];                        
+              self.initTask();
+            }).appendTo($optionButtons);
         }
-        var setNumWords = H5P.JoubelUI.createButton({
-          'class': 'h5p-guessit-number-button',
-          'title': item,
-          'html': item + ' [' + n + ' ' + s + ']',
-          'id': 'dc-number-' + item
-        }).click(function () {          
-            self.$numberWords.addClass ('h5p-guessit-hide');
-            self.numWords = item;
-            self.numQuestions = numSentencesWithWords[item];                        
-            self.initTask();
-          }).appendTo($optionButtons);
+       
+        // Hide content
+        $content.find('.h5p-container').addClass('h5p-guessit h5p-guessit-hide');
+        }
+      } else {
+        this.params.behaviour.enableNumChoice = false;
+        self.numQuestions = self.params.questions.length;                    
+        self.initTask();
       }
-     
-      // Hide content
-      $content.find('.h5p-container').addClass('h5p-guessit h5p-guessit-hide');
     } else {
       self.numQuestions = self.params.questions.length;                    
       self.initTask();
     }
-    this.$description.prependTo ($content);
+    
+    this.$taskdescription.prependTo($content);
+    this.$divGuessedSentences = $('<div>', {
+      'class': 'h5p-guessit-listGuessedSentences h5p-guessit-hide'
+      }).appendTo(this.$taskdescription);
        
     // ... and buttons
     self.registerButtons();
@@ -272,7 +284,16 @@ H5P.GuessIt = (function ($, Question) {
       }
       self.setFeedback();                             
       if (!self.allBlanksFilledOut()) {
-        self.updateFeedbackContent(self.params.notFilledOut);  
+        self.updateFeedbackContent(self.params.notFilledOut);
+        // Sets focus on first empty blank input.
+        $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
+        $currentInputs.each(function(index, val){
+          if ($(this).val() == '') {
+            $(this).focus();
+            return false; // breaks
+          }
+        });
+          
       } else {
         self.toggleButtonVisibility(STATE_CHECKING);
         self.updateFeedbackContent('');
@@ -293,15 +314,13 @@ H5P.GuessIt = (function ($, Question) {
           }
           if (self.params.behaviour.listGuessedSentences) {
             self.sentencesList += '<p>' + self.params.questions[self.currentSentenceId].sentence + '</p>';
-            var $content = $('[id="h5p-GuessIt-listGuessedSentences"]');
-            $content.removeClass ('h5p-guessit-hide')
-            $content.html(self.sentencesList);
+            self.$divGuessedSentences.removeClass ('h5p-guessit-hide');
+            self.$divGuessedSentences.html(self.sentencesList)
           } 
         }
       }
     });
 
-    
     // Try again button
       self.addButton('try-again', self.params.tryAgain, function () {
         self.reTry();
@@ -313,10 +332,10 @@ H5P.GuessIt = (function ($, Question) {
       self.showCorrectAnswers(false);
     }, self.params.behaviour.enableSolutionsButton);
     
-    
     // New Sentence button    
     $newSentenceButton = self.addButton('new-sentence', self.params.newSentence, function () {
       self.newSentence();
+      self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();
     }, true);  
     this.hideButton('new-sentence');
     this.hideButton('end-game');
@@ -799,7 +818,6 @@ H5P.GuessIt = (function ($, Question) {
 
   GuessIt.prototype.initTask = function () {
     var self = this;
-    console.log('this.numWords =' + this.numWords)
     var $content = $('[data-content-id="' + this.contentId + '"].h5p-content');                                                 
     $content.find('.h5p-container').removeClass('h5p-guessit-hide');
     
@@ -861,19 +879,19 @@ H5P.GuessIt = (function ($, Question) {
   };
   
   GuessIt.prototype.showFinalPage = function () {    
-    var self = this; 
-    console.log('this.numWords =' + this.numWords)                                                          
+    var self = this;                                                           
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     
     // Needed to display 'h5p-guessit-summary-screen' centered!
     $content.removeClass('h5p-no-frame');
     
-    // Remove all this now useless elements from DOM.
+    // Remove all these now useless elements from DOM.
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');    
+    
     $('.h5p-no-frame, .h5p-guessit-description, .h5p-question-introduction, .h5p-question-content,'
       +' .h5p-question-scorebar, .h5p-question-feedback',
       $content).remove();
-    
+      
     this.totalRounds += this.counter.getcurrent();
     
     // Calculate and nicely format total time spent.
@@ -916,7 +934,7 @@ H5P.GuessIt = (function ($, Question) {
       maxScore = this.numQuestions;
       if (!this.params.behaviour.enableNumChoice) {
         explainScore = this.params.scoreExplanationforAllSentences;
-      } else {
+      } else {           
         explainScore = this.params.scoreExplanationforSentencesWithNumberWords
           .replace('@words', this.numWords);
       }
@@ -955,10 +973,12 @@ H5P.GuessIt = (function ($, Question) {
       + '</table>';
       
     var $content = $('[data-content-id="' + self.contentId + '"] .h5p-container');
+    
     var $feedback = $('<div>', {
       'class': 'h5p-guessit-summary-screen',
       'html': text
     }).appendTo($content);
+    this.$divGuessedSentences.prependTo($feedback)
     
     this.$feedbackContainer = $('<div class="h5p-guessit feedback-container"/>')
       .appendTo($feedback);
@@ -968,6 +988,7 @@ H5P.GuessIt = (function ($, Question) {
     scoreBar.setMaxScore(maxScore);
     scoreBar.setScore(actualScore);
     scoreBar.appendTo(this.$feedbackContainer);
+    this.trigger('resize');
   }
   
   /**
@@ -978,7 +999,6 @@ H5P.GuessIt = (function ($, Question) {
     this.toggleButtonVisibility(STATE_FINISHED);
   };
 
-  
   /**
    * Parse the solution text (text between the asterisks)
    *

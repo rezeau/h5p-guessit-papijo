@@ -144,7 +144,7 @@
   background-color: #f0f8ff;
   margin-bottom: 10px;
   margin-top: 10px;
-  display: inline-block;
+  display: block;
   padding: 5px;
   font-size: 0.8em;
 }
@@ -161,18 +161,17 @@
 }
 
 .h5p-guessit .h5p-guessit-description {
-  font-size: 0.9em;
   background: #fefefe;
   border-bottom: 1px solid #EEE;
 } 
 
-.h5p-guessit .listGuessedSentences {
+.h5p-guessit-listGuessedSentences {
   border: 1px #255c41 dashed;
   background-color: #d4f6e6;
   border-radius: 0.25em;
-  line-height: 0.25em;
+  line-height: 0.4em;
   padding-left: 0.5em;
-  font-size: 0.8em;
+  font-size: 0.9em;
 } 
 
 .h5p-guessit.h5p-frame.h5p-no-frame {
@@ -249,3 +248,14 @@
   text-align: center;
   margin-top: 20px;
 }
+.h5p-guessit .h5p-question-new-sentence:before {
+  font-family: 'H5PFontAwesome4';
+  content: "\f0fe"; 
+}
+.h5p-guessit .h5p-question-end-game:before,
+.h5p-guessit .h5p-question-end-game2:before {
+  font-family: 'H5PFontAwesome4';
+  content: "\f08b"; 
+}
+
+
