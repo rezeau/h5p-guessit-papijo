@@ -99,6 +99,15 @@
     "optional": true
   },
   {
+    "label": "Text for \"Try again\" button",
+    "importance": "low",
+    "name": "tryAgain",
+    "type": "text",
+    "default": "Try again",
+    "common": true,
+    "optional": true
+  },
+  {
     "label": "Text for \"Not enough rounds\" message",
     "importance": "low",
     "name": "notEnoughRounds",

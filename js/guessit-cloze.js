@@ -149,8 +149,8 @@
       var gt = '>';
       
       // TODO offer this in the parameters?
-      const punctuation = "';:,.-?¿!¡ß"
-      
+      // List of punctuation or weird characters (other than those in the diactitics list below) to "give" to the user.
+      const punctuation = "';:,.-?¿!¡ßœ"
       var minLen = Math.min(answer.length, studentAnswer.length);      
       for (i = 0; i < minLen; i++) {
         answerLetter = answer[i];

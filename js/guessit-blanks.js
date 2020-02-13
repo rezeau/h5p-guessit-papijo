@@ -409,7 +409,6 @@ H5P.GuessIt = (function ($, Question) {
     var html = '';
     var clozeNumber = 0;
     this.currentSentenceClozes = [];
-    //this.allClozes = ['','',''];
     this.allClozes = [];
     
     for(var i = 0; i < self.params.questions.length; i++) {
@@ -418,7 +417,11 @@ H5P.GuessIt = (function ($, Question) {
     
     var closeNumber = 0;
     for (var i = 0; i < self.params.questions.length; i++) {
-      var sentenceClozeNumber = 0;      
+      var sentenceClozeNumber = 0;
+      
+      // Remove extra blank spaces
+      self.params.questions[i].sentence = self.params.questions[i].sentence.replace(/\s+/g,' ').trim();      
+      
       var question = self.params.questions[i].sentence;
       // Replace potential apostrophe entity with apostrophe character!
       if (question.indexOf("&#039;") >= 0) {
@@ -426,6 +429,8 @@ H5P.GuessIt = (function ($, Question) {
       }
       this.sentenceClozeNumber[i] = question.split(' ').length;
       
+      
+
       // JR add asterisks around all words in sentence!
       var pattern = /\s/g;     
       var replacement = '* *';
@@ -775,13 +780,13 @@ H5P.GuessIt = (function ($, Question) {
   GuessIt.prototype.newSentence = function () {    
     var self = this;
     this.sentencesFound ++;
-
-    if (this.sentencesFound == this.params.questions.length) {
-      this.$numberWords.html('the end');
-    }
     var $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
-    $content.find('.cloned').remove();  
-    self.initTask(0);
+    $content.find('.cloned').remove();
+    var s = self.params.sentence + ' '; 
+    // Capitalize initial letter
+    s = s.charAt(0).toUpperCase() + s.slice(1); 
+    self.$progress.text(s + (this.sentencesFound + 1) +'/' + this.numQuestions)
+    self.initTask();    
   };
 
   GuessIt.prototype.initCounters = function () {
@@ -812,7 +817,16 @@ H5P.GuessIt = (function ($, Question) {
     });
     this.counter = new GuessIt.Counter(this.$counter.find('.h5p-counter'));
     this.$counter.appendTo(this.$timer);
-    this.counter.increment();                                           
+    this.counter.increment();
+
+    var s = self.params.sentence + ' ';
+    s = s.charAt(0).toUpperCase() + s.slice(1);
+    this.$progress = $('<div>', {
+      class: 'counter-status',
+      tabindex: -1,
+      text: s + 1 +'/' + this.numQuestions
+    });
+    this.$progress.appendTo(this.$timer);
     
   }
 
