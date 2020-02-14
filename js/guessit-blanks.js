@@ -323,6 +323,7 @@ H5P.GuessIt = (function ($, Question) {
 
     // Try again button
       self.addButton('try-again', self.params.tryAgain, function () {
+        self.updateFeedbackContent('');
         self.reTry();
         self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();
       });
