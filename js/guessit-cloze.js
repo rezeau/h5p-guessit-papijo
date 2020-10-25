@@ -12,6 +12,7 @@
    * @param {string} l10n.inputLabel Assistive technology label for cloze input
    */
   GuessIt.Cloze = function (solution, behaviour, defaultUserAnswer, l10n) {
+  console.log('this is cloze')
     var self = this;
     var $input, $wrapper;
     var answers = solution.solutions;

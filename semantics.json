@@ -346,6 +346,24 @@
     "optional": true,
     "fields": [
       {
+        "name": "playMode",
+        "type": "select",
+        "label": "Play Mode",
+        "importance": "low",
+        "description": "Select your play mode (detailed explanation needed here)",
+        "default": "availableSentences",
+        "options": [
+          {
+            "value": "availableSentences",
+            "label": "Use available sentences"
+          },
+          {
+            "value": "userSentence",
+            "label": "Allow user to enter their own sentence"
+          }
+        ]
+      },
+      {
         "name": "singlePoint",
         "type": "boolean",
         "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
@@ -368,7 +386,16 @@
         "name": "enableNumChoice",
         "type": "boolean",
         "default": false,
-        "optional": true
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        }
       },
       {
         "label": "Enable \"Show solution\" button",
@@ -404,7 +431,16 @@
         "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story.",
         "type": "boolean",
         "default": false,
-        "optional": true
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        }
       },
       {
         "name": "sentencesOrder",
@@ -413,6 +449,15 @@
         "importance": "low",
         "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
         "default": "normal",
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        },
         "options": [
           {
             "value": "normal",
