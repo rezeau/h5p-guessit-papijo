@@ -51,8 +51,11 @@ H5P.GuessIt = (function ($, Question) {
     this.params = $.extend(true, {}, {
       description: "Task description",
       questions: [
-        "Paris is the capital of France."
+        {
+           "sentence": "Papi Jo is the best!"
+        }
       ],
+      playMode: 'availableSentences',
       showSolutions: "Show solution",
       tryAgain: "Try again",
       newSentence: 'Guess another sentence',
@@ -83,8 +86,11 @@ H5P.GuessIt = (function ($, Question) {
       scoreExplanationforSinglePoint: 'The maximum score for this activity is 1 and you got the point for any number of sentences guessed.',
       scoreExplanationforAllSentences: 'Score = number of guessed sentences / number of sentences in this activity.',
       scoreExplanationforSentencesWithNumberWords: 'Score = number of guessed sentences / number of sentences containing @words words.',
-      behaviour: {
-        playMode: 'availableSentences',
+      userSentenceDescriptionLabel: 'Type a sentence to be guessed by your friends',
+      userSentencenumRoundsLabel: 'Minimum number of rounds before Solutions can be displayed:',
+      userSentenceTipLabel: 'Type a Tip for this sentence (optional)',
+      userSentenceNeverShow: 'Never Show',
+      behaviour: {        
         singlePoint: false,
         enableNumChoice: false,
         enableSolutionsButton: false,
@@ -96,26 +102,26 @@ H5P.GuessIt = (function ($, Question) {
     }, params);
     
     // Delete empty questions. Should normally not happen, but... 
-    // This check is needed if this GuessIt activity instance was saved with an empty item/sentence. 
+    // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.     
     for (var i = this.params.questions.length - 1; i >= 0; i--) {
       if (!this.params.questions[i].sentence) {
         this.params.questions.length --;
       }
-    }
-    if (this.params.behaviour.playMode == 'userSentence') {
-       this.params.behaviour.enableNumChoice = false;
     }
     // JR added an ID field (needed for save state + numberchoice).
     for (i = 0; i < this.params.questions.length; i++) {
       this.params.questions[i]["ID"] = i;      
     }
     this.totalNumQuestions = this.params.questions.length; 
+    if (this.params.playMode == 'userSentence') {
+      this.totalNumQuestions = 1;
+    }
     // Previous state
     this.contentData = contentData;                                                       
     if (this.contentData !== undefined && this.contentData.previousState !== undefined) {
       this.previousState = this.contentData.previousState;
     }
-    
+      
     // Clozes
     this.clozes = [];
     this.numQuestionsInWords = []
@@ -163,101 +169,117 @@ H5P.GuessIt = (function ($, Question) {
    */
   GuessIt.prototype.registerDomElements = function (sentence) {
     var self = this;
-    console.log ('166 sentence = ' + sentence);
-    
     this.$taskdescription = $('<div>', {
       'class': 'h5p-guessit h5p-guessit-description',
       'html': this.params.description
       })
-    
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     $content.addClass ('h5p-guessit h5p-frame');
     
-               
-    
-    //self.registerDomElementsContinue($content);
-    
-    
-    if (this.params.behaviour.playMode == 'userSentence' && sentence == undefined) {
-          self.params.behaviour.enableNumChoice = false; 
-          this.inputField = document.createElement('input');
-          this.inputField.setAttribute("type", "text");
-          this.inputField.setAttribute("id", "usersentence"); 
-              
-          this.$userSentence = $('<div>', {
-            'class': 'h5p-guessit h5p-guessit-options h5p-userSentence',
-            'html': this.inputField
-            });
-          this.$userSentence.prependTo($content);
-          //this.$taskdescription.prependTo($content);
-          this.$userSentence.prependTo($content);
-          
-          this.inputField.focus();
-          $content.ready(function() {
-            $("#usersentence").keydown(function() {          
-              if (event.keyCode === 13 || event.keyCode === 9) {
-                $usersentence = $(this).val();
-                self.usersentence = $usersentence;
-                this.usersentence = $usersentence;
-                console.log('++++++ 202 ontinue ' + this.usersentence)
-                self.registerDomElements("one two three four");
-                                
-              }    
-            });
-          })
-    }  else {     
-    
-    console.log('++++++++++++++++++++++++++ continue ' + this.usersentence)
-    }
-    
-    
-    if (this.params.behaviour.playMode == 'userSentence' && sentence == undefined) {
-      return
-    }
-    if (this.params.behaviour.playMode == 'userSentence') {
-    alert(this.usersentence)
-      self.params.questions[0].sentence = this.usersentence;
-      //self.params.questions[0].sentence = "this is not nice";      
-      self.params.questions[0].tip = "";
+    // Special case of userSentence mode.
+    if (this.params.playMode == 'userSentence') {
+      this.$userSentenceDescription = $('<div>', {
+          'class': 'h5p-guessit h5p-guessit-usersentencedescription h5p-guessit-required',
+          'html': self.params.userSentenceDescriptionLabel
+          });
+      this.$userTipDescription = $('<div>', {
+          'class': 'h5p-guessit-usertipdescription',
+          'html': self.params.userSentenceTipLabel
+          });
+      
+      self.params.behaviour.enableNumChoice = false; 
+      var usersentence = document.createElement('input');
+      usersentence.setAttribute("type", "text");
+      usersentence.setAttribute("id", "usersentence");          
+      usersentence.setAttribute("class", "h5p-text-input-user");
+      usersentence.setAttribute("placeholder", "God save the Queen.");
+      
+      var usertip = document.createElement('input');
+      usertip.setAttribute("type", "text");
+      usertip.setAttribute("id", "usertip");          
+      usertip.setAttribute("class", "h5p-text-input-user");          
+      usertip.setAttribute("placeholder", "England's motto");
+      
+      this.$userSentenceDescription.prependTo($content);                      
+      this.$userSentence = $('<div>', {
+        'class': 'h5p-guessit h5p-guessit-options h5p-userSentence',
+        'html': usersentence
+        });
+      this.$userSentence.appendTo(this.$userSentenceDescription);
+      usersentence.focus();      
+      
+      this.$userTipDescription.appendTo(this.$userSentence);      
+      this.$userTip = $('<div>', {
+        'class': 'h5p-userTip',
+        'html': usertip
+        });
+      this.$userTip.appendTo(this.$userTipDescription);
+      
+      // Validate user sentence & possibly other options...
+      var $optionButtons = $('<div>', {
+          'class': 'h5p-guessit-optionsbuttons',
+          'html': '<div>' + this.params.userSentencenumRoundsLabel + '</div>'
+        }).appendTo(this.$userSentence);
+        
+      var radios = ['2', '5', '10', '15', '20', this.params.userSentenceNeverShow];
+      var i = 0;       
+      for (var value of radios) {      
+        user = 'userId-' + i;
+        $optionButtons
+          .append(`<input type="radio" id = "${user}" name="rounds" value="${value}">`)
+          .append(`<label for="${value}">${value}</label></div>`);
+         i++;            
+      }
+      $optionButtons.append('<br>');
+      // Set the 'Never show' 'userId-5' radio button checked.      
+      $("input[id = 'userId-5']").prop('checked',true);      
+      
+      var usersentenceok = H5P.JoubelUI.createButton({
+          'class': 'h5p-guessit-okbutton',
+          'title': 'OK',
+          'html': 'OK'
+        }).click(function () {          
+          $usersentence = ($("#usersentence").val());
+          $tip = ($("#usertip").val());            
+          if ($usersentence !== '') {
+            var numRnds = $("input[name='rounds']:checked").val();              
+            if ( !$("input[id = 'userId-5']").is(':checked') ) {
+              self.params.behaviour.enableSolutionsButton = true;
+              self.params.behaviour.numRounds = numRnds;
+            } else {
+              self.params.behaviour.enableSolutionsButton = false;
+            }
+            self.registerDomElements($usersentence);
+          } else { // User sentence is empty.
+            // Empty potential value of usertip.
+            $("#usertip").val(null)
+            // Reset focus on input field
+            $("#usersentence").focus(); 
+          }  
+        }).appendTo($optionButtons);
+
+      if (sentence == undefined) {
+        return;
+      }
+      $content.find('.h5p-guessit-usersentencedescription').addClass('h5p-guessit h5p-guessit-hide');
+      self.params.questions[0].sentence = sentence;      
+      self.params.questions[0].tip = $tip;
       self.params.questions.length = 1;
     }
+    
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     var $containerParents = $content.parents('.h5p-container');
 
     self.numQuestions = self.params.questions.length;
-    console.log (JSON.stringify(self.params.questions, null, "  "));
-    
-    
-    
     this.sentencesList = '';
     // Using instructions as label for our text groups
     const labelId = 'h5p-GuessIt-listGuessedSentences';
-    
-    //return;
         
     // Register task content area
     self.setContent(self.createQuestions(labelId), {
-    });
-
-if (this.params.behaviour.playMode == 'userSentence') {
-      var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
-      $content.find('.h5p-userSentence').addClass('h5p-guessit h5p-guessit-hide');
-      var $content = $('.h5p-container.h5p-standalone');
-      var $qc = $('<div>', {
-        'class': 'h5p-question-content',
-        'html': ''
-      }).appendTo($content);
-      var $q0 = $('<div>', {
-        'class': 'h5p-question-content',
-        'html': this.$questions
-      }).appendTo($qc);
-    }
-        
+    }); 
     
-    // Init buttons for selecting number of words (if enabled in params.behaviour). 
-    console.log ('this.params.behaviour.enableNumChoice = ' +  this.params.behaviour.enableNumChoice 
-      + '\nthis.params.behaviour.playMode = '+this.params.behaviour.playMode);
-    
+    // Init buttons for selecting number of words (if enabled in params.behaviour).
     if (this.params.behaviour.enableNumChoice) {
         
       // Put in array the number of words of all the questions
@@ -349,18 +371,28 @@ if (this.params.behaviour.playMode == 'userSentence') {
     
     // ... and buttons
     self.registerButtons();
-    return;
     
-       
+    if (this.params.playMode == 'userSentence') {
+      var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
+      $content.find('.h5p-userSentence').addClass('h5p-guessit h5p-guessit-hide');
+      var $container = $content.children('.h5p-container');
+      var $userQuestion = $('<div>', {
+        'class': 'h5p-question-content',
+        'html': this.$questions
+      }).prependTo($container);
+    }
+    
+    // Sets focus on first input when starting game.
+    $(document).ready(function() {
+      self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();      
+    });
   };
-
 
   /**
    * Create all the buttons for the task
    */
   GuessIt.prototype.registerButtons = function (JOUBELUI) {
     var self = this;
-    console.log ('registerButtons 319');
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     var $containerParents = $content.parents('.h5p-container');
 
@@ -468,10 +500,8 @@ if (this.params.behaviour.playMode == 'userSentence') {
       self.showFinalPage();
     }, true);  
     this.hideButton('end-game2');
-        
     self.toggleButtonVisibility(STATE_ONGOING);
-    //alert ('end of register buttons 429');
-    
+            
   };
 
   /**
@@ -486,8 +516,6 @@ if (this.params.behaviour.playMode == 'userSentence') {
    */
   GuessIt.prototype.handleGuessIt = function (question, handler) {
     // Go through the text and run handler on all asterisk
-    console.log ('handleGuessIt 585 question');
-    console.log (JSON.stringify(question, null, "  "));
     var clozeEnd, clozeStart = question.indexOf('*');
     var self = this;
     while (clozeStart !== -1 && clozeEnd !== -1) {
@@ -511,7 +539,7 @@ if (this.params.behaviour.playMode == 'userSentence') {
       // Find the next cloze
       clozeStart = question.indexOf('*', clozeEnd);
     }
-    console.log (JSON.stringify(question, null, "  "));
+    
     return question;
   };
 
@@ -520,8 +548,6 @@ if (this.params.behaviour.playMode == 'userSentence') {
    */
   GuessIt.prototype.createQuestions = function (labelId) {
     var self = this;
-    console.log('createQuestions 461')
-    console.log (JSON.stringify(self.params.questions, null, "  "));
     
     var html = '';
     var clozeNumber = 0;
@@ -547,7 +573,7 @@ if (this.params.behaviour.playMode == 'userSentence') {
     var closeNumber = 0;
     for (var i = 0; i < self.params.questions.length; i++) {
       var sentenceClozeNumber = 0;
-      console.log (JSON.stringify(self.params.questions[i], null, "  "));
+      
       // Remove extra blank spaces
       self.params.questions[i].sentence = self.params.questions[i].sentence.replace(/\s+/g,' ').trim();      
       
@@ -592,12 +618,11 @@ if (this.params.behaviour.playMode == 'userSentence') {
     
     self.hasClozes = clozeNumber > 0;
     this.$questions = $(html);
-    console.log(this.$questions);
+    
     // Set optional tip (for sentence)
     var tipLabel = this.params.tipLabel;
     var inputLabel = this.params.tipLabel;
     this.$questions.each(function (index) {
-    //alert('index = ' + index);
       var tip = self.params.questions[index].tip;
       if(tip !== undefined && tip.trim().length > 0) {
         $(this).addClass('has-tip')
@@ -610,7 +635,6 @@ if (this.params.behaviour.playMode == 'userSentence') {
     
     // Set input fields.
     this.$questions.find('input').each(function (i) {
-    //alert('i = ' + i);
       n = self.allClozes[i][1];
       t = self.allClozes[i][2];
       self.clozes[i].setInput($(this), '', function () {
@@ -666,7 +690,6 @@ if (this.params.behaviour.playMode == 'userSentence') {
       self.resetGrowTextField();
     });
     
-      
     return this.$questions;
     
   };
@@ -697,8 +720,7 @@ if (this.params.behaviour.playMode == 'userSentence') {
       });
       $input.parent().append(tmp);
       var width = tmp.width();
-      // JR
-      var parentWidth = self.$questions.eq(self.currentSentenceId).width();
+      var parentWidth = self.$questions.width();
       tmp.remove();
       if (width <= minPx) {
         // Apply min width
@@ -914,7 +936,6 @@ if (this.params.behaviour.playMode == 'userSentence') {
    */
   GuessIt.prototype.newSentence = function () {    
     var self = this;
-    console.log('************** GuessIt.prototype.newSentence 847 **********')
     this.sentencesFound ++;
     var $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
     $content.find('.cloned').remove();
@@ -954,21 +975,22 @@ if (this.params.behaviour.playMode == 'userSentence') {
     this.counter = new GuessIt.Counter(this.$counter.find('.h5p-counter'));
     this.$counter.appendTo(this.$timer);
     this.counter.increment();
-
-    var s = self.params.sentence + ' ';
-    s = s.charAt(0).toUpperCase() + s.slice(1);
-    this.$progress = $('<div>', {
-      class: 'counter-status',
-      tabindex: -1,
-      text: s + 1 +'/' + this.numQuestions
-    });
-    this.$progress.appendTo(this.$timer);
+    // No point displaying progress in userSentence mode!
+    if (this.params.playMode == 'availableSentences') {
+      var s = self.params.sentence + ' ';
+      s = s.charAt(0).toUpperCase() + s.slice(1);
+      this.$progress = $('<div>', {
+        class: 'counter-status',
+        tabindex: -1,
+        text: s + 1 +'/' + this.numQuestions
+      });
+      this.$progress.appendTo(this.$timer);
+    }
     
   }
 
   GuessIt.prototype.initTask = function () {
     var self = this;
-    console.log('***********this is initTask 925');
     var $content = $('[data-content-id="' + this.contentId + '"].h5p-content');                                                 
     $content.find('.h5p-container').removeClass('h5p-guessit-hide');
     
@@ -1020,10 +1042,9 @@ if (this.params.behaviour.playMode == 'userSentence') {
       acceptedQuestions = acceptedQuestions.filter(function(number) {
         return number !== null;
       });          
-      if (this.params.behaviour.playMode == 'userSentence') {
+      if (this.params.playMode == 'userSentence') {
         acceptedQuestions = [0];
       }
-      console.log ('970 acceptedQuestions = ' + JSON.stringify(acceptedQuestions, null, "  "));
       if (this.params.behaviour.sentencesOrder == 'normal')   {
         this.currentSentenceId = acceptedQuestions[0]
       } else { 
@@ -1031,18 +1052,16 @@ if (this.params.behaviour.playMode == 'userSentence') {
         // Note ~~ equivalent of Math.floor See http://rocha.la/JavaScript-bitwise-operators-in-practice
         this.currentSentenceId = acceptedQuestions[~~(Math.random()*acceptedQuestions.length)]
       }
-      console.log ('this.currentSentenceId = ' + this.currentSentenceId);
       this.$questions.eq(this.currentSentenceId).removeClass('h5p-guessit-sentence-hidden');
      
-    if (this.params.behaviour.playMode == 'userSentence') {
+    if (this.params.playMode == 'userSentence') {
       this.currentSentenceId = 0; 
       this.$questions.eq(this.currentSentenceId).removeClass('h5p-guessit-sentence-hidden');
     }
     
   };
   
-  GuessIt.prototype.showFinalPage = function () {
-  console.log ('showFinalPage');    
+  GuessIt.prototype.showFinalPage = function () {    
     var self = this;                                                           
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     
@@ -1112,16 +1131,19 @@ if (this.params.behaviour.playMode == 'userSentence') {
     this.hideButton('end-game2');
     this.hideButton('new-sentence');
     this.$timer.remove();
-      
-    var text = '<div class="h5p-guessit-summary-header">'
-      + this.params.summary + '</div>'
-      + '<table class="h5p-guessit-summary-table">'
-      +  '<td class="h5p-guessit-summary-table-row-category">' + this.params.sentencesGuessed + '</td>'
+    $outof = '<td class="h5p-guessit-summary-table-row-category">' + this.params.sentencesGuessed + '</td>'
       + '<td class="h5p-guessit-summary-table-row-symbol h5p-guessit-check">&nbsp;</td>'
       + '<td class="h5p-guessit-summary-table-row-score">'
       + this.nbSentencesGuessed
       + '&nbsp;<span class="h5p-guessit-summary-table-row-score-divider">/</span>&nbsp;'
-      + this.totalNumQuestions + '</td></tr>'
+      + this.totalNumQuestions + '</td></tr>';
+    if (this.params.playMode == 'userSentence') {
+        $outof = '';
+    }
+    var text = '<div class="h5p-guessit-summary-header">'
+      + this.params.summary + '</div>'
+      + '<table class="h5p-guessit-summary-table">'
+      + $outof
       + '<tr><td class="h5p-guessit-summary-table-row-category">' + this.params.totalRounds + '</td>'
       + '<td class="h5p-guessit-summary-table-row-symbol"></td>'
       + '<td class="h5p-guessit-summary-table-row-score">' + this.totalRounds + '</td></tr>'
@@ -1146,12 +1168,13 @@ if (this.params.behaviour.playMode == 'userSentence') {
     
     this.$feedbackContainer = $('<div class="h5p-guessit feedback-container"/>')
       .appendTo($feedback);
-    
-    scoreBarLabel = this.params.scoreBarLabel.replace('@score', actualScore).replace('@total', maxScore);
-    scoreBar = H5P.JoubelUI.createScoreBar(maxScore, scoreBarLabel, explainScore, this.params.scoreExplanationButtonLabel);
-    scoreBar.setMaxScore(maxScore);
-    scoreBar.setScore(actualScore);
-    scoreBar.appendTo(this.$feedbackContainer);
+    if (this.params.playMode == 'availableSentences') {
+      scoreBarLabel = this.params.scoreBarLabel.replace('@score', actualScore).replace('@total', maxScore);
+      scoreBar = H5P.JoubelUI.createScoreBar(maxScore, scoreBarLabel, explainScore, this.params.scoreExplanationButtonLabel);
+      scoreBar.setMaxScore(maxScore);
+      scoreBar.setScore(actualScore);
+      scoreBar.appendTo(this.$feedbackContainer);
+    }
     this.trigger('resize');
     
     // Reset all user state elements.
@@ -1251,7 +1274,7 @@ if (this.params.behaviour.playMode == 'userSentence') {
    * Helps set focus the given input field.
    * @param {jQuery} $input
    */
-  GuessIt.setFocus = function ($input) {
+  GuessIt.prototype.setFocus = function ($input) {
     setTimeout(function () {
       $input.focus();
     }, 1);
@@ -1270,7 +1293,6 @@ if (this.params.behaviour.playMode == 'userSentence') {
     state.totalRounds = this.totalRounds;
     state.nbSsolutionsViewed = this.nbSsolutionsViewed;
     state.totalTimeSpent = this.totalTimeSpent;
-    // console.log ('**** state' + JSON.stringify(state, null, "  "));
     return state;
   };
 
