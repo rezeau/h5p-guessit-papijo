@@ -4,7 +4,7 @@
     "type": "select",
     "label": "Play Mode",
     "importance": "low",
-    "description": "Select your play mode (detailed explanation needed here)",
+    "description": "Select your play mode",
     "default": "availableSentences",
     "options": [
       {
@@ -105,11 +105,11 @@
     "common": true
   },
   {
-    "label": "Text for the \"Never show\" radio button choice",
+    "label": "Text for \"New sentence\" button",
     "importance": "low",
-    "name": "userSentenceNeverShow",
+    "name": "newSentence",
     "type": "text",
-    "default": "Never show",
+    "default": "Guess another sentence",
     "common": true,
     "optional": true
   },
@@ -166,7 +166,8 @@
     "type": "text",
     "default": "How many words do you want in your mystery sentence?",
     "common": true,
-    "optional": true
+    "optional": true,
+    "description": "Only used if \"Enable Number of words Choice\" is enabled"
   },
   {
     "label": "Text for \"Type a sentence to be guessed by your friends\" message",
@@ -175,16 +176,8 @@
     "type": "text",
     "default": "Type a sentence to be guessed by your friends",
     "common": true,
-    "optional": true
-  },
-  {
-    "label": "Text for \"Minimum number of rounds before Solutions can be displayed:\" message",
-    "importance": "low",
-    "name": "userSentencenumRoundsLabel",
-    "type": "text",
-    "default": "Minimum number of rounds before Solutions can be displayed:",
-    "common": true,
-    "optional": true
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
   },
   {
     "label": "Text for \"Type a Tip for this sentence (optional)\" message",
@@ -193,7 +186,28 @@
     "type": "text",
     "default": "Type a Tip for this sentence (optional)",
     "common": true,
-    "optional": true
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+  },
+  {
+    "label": "Text for \"Minimum number of rounds before Solutions can be displayed:\" message",
+    "importance": "low",
+    "name": "userSentencenumRoundsLabel",
+    "type": "text",
+    "default": "Minimum number of rounds before Solutions can be displayed:",
+    "common": true,
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+  },
+  {
+    "label": "Text for the \"Never show\" radio button choice",
+    "importance": "low",
+    "name": "userSentenceNeverShow",
+    "type": "text",
+    "default": "Never show",
+    "common": true,
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
   },
   {
     "name": "sentence",

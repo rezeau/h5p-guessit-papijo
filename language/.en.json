@@ -2,7 +2,7 @@
   "semantics": [
     {
       "label": "Play Mode",
-      "description": "Select your play mode (detailed explanation needed here)",
+      "description": "Select your play mode",
       "default": "availableSentences",
       "options": [
         {
@@ -54,8 +54,8 @@
       "default": "Show solution"
     },
     {
-      "label": "Text for the \"Never show\" radio button choice",
-      "default": "Never show"
+      "label": "Text for \"New sentence\" button",
+      "default": "Guess another sentence"
     },
     {
       "label": "Text for \"End Game\" button",
@@ -80,19 +80,28 @@
     },
     {
       "label": "Text for \"How many words do you want in your mystery sentence?\" message",
-      "default": "How many words do you want in your mystery sentence?"
+      "default": "How many words do you want in your mystery sentence?",
+      "description": "Only used if \"Enable Number of words Choice\" is enabled"
     },
     {
       "label": "Text for \"Type a sentence to be guessed by your friends\" message",
-      "default": "Type a sentence to be guessed by your friends"
-    },
-    {
-      "label": "Text for \"Minimum number of rounds before Solutions can be displayed:\" message",
-      "default": "Minimum number of rounds before Solutions can be displayed:"
+      "default": "Type a sentence to be guessed by your friends",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
     },
     {
       "label": "Text for \"Type a Tip for this sentence (optional)\" message",
-      "default": "Type a Tip for this sentence (optional)"
+      "default": "Type a Tip for this sentence (optional)",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+    },
+    {
+      "label": "Text for \"Minimum number of rounds before Solutions can be displayed:\" message",
+      "default": "Minimum number of rounds before Solutions can be displayed:",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+    },
+    {
+      "label": "Text for the \"Never show\" radio button choice",
+      "default": "Never show",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
     },
     {
       "label": "Text for \"sentence\" singular word",

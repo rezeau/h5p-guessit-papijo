@@ -192,13 +192,11 @@ H5P.GuessIt = (function ($, Question) {
       usersentence.setAttribute("type", "text");
       usersentence.setAttribute("id", "usersentence");          
       usersentence.setAttribute("class", "h5p-text-input-user");
-      usersentence.setAttribute("placeholder", "God save the Queen.");
       
       var usertip = document.createElement('input');
       usertip.setAttribute("type", "text");
       usertip.setAttribute("id", "usertip");          
-      usertip.setAttribute("class", "h5p-text-input-user");          
-      usertip.setAttribute("placeholder", "England's motto");
+      usertip.setAttribute("class", "h5p-text-input-user");
       
       this.$userSentenceDescription.prependTo($content);                      
       this.$userSentence = $('<div>', {

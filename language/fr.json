@@ -1,0 +1,262 @@
+{
+  "semantics": [
+    {
+      "label": "Mode",
+      "description": "Choisissez votre mode de jeu",
+      "default": "availableSentences",
+      "options": [
+        {
+          "label": "Utiliser les phrases disponibles ci-dessous"
+        },
+        {
+          "label": "Permettre au joueur de saisir sa propre phrase à faire deviner."
+        }
+      ]
+    },
+    {
+      "label": "Consigne",
+      "default": "Devinez la phrase mystère mot par mot",
+      "description": "La consigne indique à l'utilisateur comment faire l'activité. Vous pouvez modifier le texte de cette consigne.",
+      "font": {}
+    },
+    {
+      "label": "Phrases",
+      "description": "Tapez simplement les phrases à deviner par les utilisateurs, SANS aucun astérisque. Nombre de mots recommandé par phrase : entre 3 et 8.",
+      "widgets": [
+        {
+          "label": "Default"
+        }
+      ],
+      "field": {
+        "label": "Question",
+        "fields": [
+          {
+            "label": "Phrase"
+          },
+          {
+            "label": "Indice",
+            "description": "Indice pour cette phrase (facultatif)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "<span style=\"position: absolute;top: -40px;\">Tutoriel et exemples : <a href=\"http://www.rezeau.org/drupal/fr\" target=\"_blank\" rel=\"noopener\">Site Drupal de Papi Jo</a></span>",
+      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
+    },
+    {
+      "label": "Texte du bouton \"Montrer la solution\" button",
+      "default": "Montrer la solution"
+    },
+    {
+      "label": "Texte du bouton \"Nouvelle phrase\" button",
+      "default": "Nouvelle phrase"
+    },
+    {
+      "label": "Texte du bouton \"Fin de partie\" button",
+      "default": "Fin de partie"
+    },
+    {
+      "label": "Texte du bouton \"Vérifier\"",
+      "default": "Vérifier"
+    },
+    {
+      "label": "Texte du bouton \"Réessayer\"",
+      "default": "Réessayer"
+    },
+    {
+      "label": "Texte du message \"Pas assez de tours\"",
+      "default": "La solution ne sera pas disponible avant le tour @round",
+      "description": "@round sera remplacé par le nombre minimum de tours nécessaires avant d'afficher les solutions"
+    },
+    {
+      "label": "Texte du message \"Remplissez tous les blancs\"",
+      "default": "Vous devez avoir rempli tous les blancs avant de vérifier votre réponse."
+    },
+    {
+      "label": "Texte du message \"Combien de mots voulez-vous dans votre phrase mystère ?\"",
+      "default": "Combien de mots voulez-vous dans votre phrase mystère ?",
+      "description": "Utilisé uniquement si l'option \"Nombre de mots\" est activée"
+    },
+    {
+      "label": "Texte du message \"Tapez une phrase à faire deviner par vos amis\"",
+      "default": "Tapez une phrase à faire deviner par vos amis",
+      "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
+    },
+    {
+      "label": "Texte du message \"Tapez un indice pour cette phrase (facultatif)\"",
+      "default": "Tapez un indice pour cette phrase (facultatif)",
+      "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
+    },
+    {
+      "label": "Texte du message \"Nombre minimum de tours avant que les solutions puissent être affichées :\"",
+      "default": "Nombre minimum de tours avant que les solutions puissent être affichées :",
+      "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
+    },
+    {
+      "label": "Texte du message \"Ne jamais afficher la solution\"",
+      "default": "Ne jamais afficher la solution",
+      "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
+    },
+    {
+      "label": "Le mot \"phrase\" au singulier",
+      "description": "Ce mot sera utilisé dans différentes parties de l'activité",
+      "default": "phrase"
+    },
+    {
+      "label": "Le mot \"phrase\" au pluriel",
+      "description": "Ce mot sera utilisé dans différentes parties de l'activité",
+      "default": "phrases"
+    },
+    {
+      "label": "Texte du message \"Tour\"",
+      "description": "@round sera remplacé par le numéro du tour actuel",
+      "default": "Tour @round"
+    },
+    {
+      "label": "Etiquette \"Temps écoulé\"",
+      "default": "Temps écoulé",
+      "description": "Étiquette indiquant le temps passé à deviner une phrase."
+    },
+    {
+      "label": "Etiquette du bouton \"Explication du score\"",
+      "default": "Explication du score"
+    },
+    {
+      "label": "Explication du score n° 1",
+      "description": "Explication du score quand le score maximum a été paramétré à 1 point",
+      "default": "Le score maximum pour cette activité est de 1 et vous obtenez ce point pour n'importe quel nombre de phrases devinées."
+    },
+    {
+      "label": "Explication du score n° 2",
+      "description": "Explication du score quand le score maximum est déterminé par le nombre total de phrases à deviner.",
+      "default": "Score = nombre de phrases devinées / nombre total de phrases à deviner."
+    },
+    {
+      "label": "Explication du score n° 3",
+      "default": "Score = nombre de phrases devinées / nombre de phrases contenant @words mots.",
+      "description": "@words sera remplacé par le nombre de mots par phrase sélectionnés par l'utilisateur sur l'écran initial"
+    },
+    {
+      "label": "Texte pour le titre de la page finale",
+      "default": "Résumé final"
+    },
+    {
+      "label": "Texte pour le nombre de phrases devinées (sur la page finale)",
+      "default": "Phrases devinées"
+    },
+    {
+      "label": "Texte pour le nombre de solutions demandées (sur la page finale)",
+      "default": "Solutions demandées"
+    },
+    {
+      "label": "Texte pour le temps total écoulé (sur la page finale)",
+      "default": "Temps total écoulé"
+    },
+    {
+      "label": "Texte pour nombre total de tours utilisés (sur la page finale)",
+      "default": "Tours utilisés"
+    },
+    {
+      "label": "Texte du message \"':ans' est une réponse exacte\"",
+      "default": "':ans' est une réponse exacte"
+    },
+    {
+      "label": "Texte du message \"':ans' est une réponse inexacte\"",
+      "default": "':ans' est une réponse inexacte"
+    },
+    {
+      "label": "Texte du message \"Réponse exacte\"",
+      "default": "Réponse exacte"
+    },
+    {
+      "label": "Texte du message \"Mauvaise réponse\"",
+      "default": "Mauvaise réponse"
+    },
+    {
+      "label": "Texte de la correction (technologie d'assistance)",
+      "default": "Réponse correcte :"
+    },
+    {
+      "label": "Texte du blanc (technologie d'assistance)",
+      "description": "Utilisez @num et @total pour désigner respectivement le blanc courant et le nombre total de blancs",
+      "default": "Blanc @num sur @total"
+    },
+    {
+      "label": "Texte qui indique qu'un blanc dispose d'un indice (technologie d'assistance)",
+      "default": "Indice disponible"
+    },
+    {
+      "label": "Intitulé de l'icône de l'indice",
+      "default": "Indice"
+    },
+    {
+      "label": "Options générales.",
+      "description": "Ces options vous permettent de paramétrer le déroulement de l'exercice.",
+      "fields": [
+        {
+          "label": "Noter cette activité sur 1 et donner un point pour n'importe quel nombre de phrases devinées",
+          "description": "Ne cochez pas cette option si vous souhaitez que cette activité soit notée par rapport au nombre total de phrases."
+        },
+        {
+          "label": "Sensible à la casse",
+          "description": "Tenir compte de l'utilisation des minuscules et majuscules dans les réponses."
+        },
+        {
+          "label": "Activer le choix du nombre de mots",
+          "description": "Cochez cette option pour permettre à l'utilisateur de sélectionner le nombre de mots (par phrase) à deviner. Ne cochez PAS cette option si vos phrases constituent une histoire !"
+        },
+        {
+          "label": "Activer le bouton \"Montrer la solution\""
+        },
+        {
+          "label": "Nombre de tours",
+          "description": "Nombre minimum de tours avant que les solutions puissent être affichées :",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Afficher les phrases devinées",
+          "description": "Cochez cette case pour ajouter chaque phrase devinée à une liste d'affichage après chaque tentative réussie. Cette option est utile si vos phrases constituent une histoire."
+        },
+        {
+          "label": "Ordre des phrases",
+          "description": "Sélectionnez l'ordre dans lequel les phrases seront affichées à l'utilisateur. Ne cochez PAS cette option si vos phrases constituent une histoire !",
+          "default": "normal",
+          "options": [
+            {
+              "label": "Ordre normal"
+            },
+            {
+              "label": "Ordre aléatoire"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Dialogue de confirmation de fin de partie",
+      "fields": [
+        {
+          "label": "Titre",
+          "default": "Terminé ?"
+        },
+        {
+          "label": "Texte",
+          "default": "Vous voulez vraiment arrêter cette partie ?"
+        },
+        {
+          "label": "Étiquette du bouton \"Annuler\"",
+          "default": "Annuler"
+        },
+        {
+          "label": "Étiquette du bouton \"Confirmer\"",
+          "default": "OK"
+        }
+      ]
+    }
+  ]
+}
