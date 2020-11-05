@@ -1,5 +1,23 @@
 [
   {
+    "name": "playMode",
+    "type": "select",
+    "label": "Play Mode",
+    "importance": "low",
+    "description": "Select your play mode",
+    "default": "availableSentences",
+    "options": [
+      {
+        "value": "availableSentences",
+        "label": "Use available sentences"
+      },
+      {
+        "value": "userSentence",
+        "label": "Allow user to enter their own sentence"
+      }
+    ]
+  },
+  {
     "name": "description",
     "type": "text",
     "widget": "html",
@@ -60,6 +78,15 @@
           "importance": "low",
           "description": "Tip text for this sentence (optional)",
           "optional": true
+        }
+      ]
+    },
+    "widget": "showWhen",
+    "showWhen": {
+      "rules": [
+        {
+          "field": "playMode",
+          "equals": "availableSentences"
         }
       ]
     }
@@ -139,7 +166,48 @@
     "type": "text",
     "default": "How many words do you want in your mystery sentence?",
     "common": true,
-    "optional": true
+    "optional": true,
+    "description": "Only used if \"Enable Number of words Choice\" is enabled"
+  },
+  {
+    "label": "Text for \"Type a sentence to be guessed by your friends\" message",
+    "importance": "low",
+    "name": "userSentenceDescriptionLabel",
+    "type": "text",
+    "default": "Type a sentence to be guessed by your friends",
+    "common": true,
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+  },
+  {
+    "label": "Text for \"Type a Tip for this sentence (optional)\" message",
+    "importance": "low",
+    "name": "userSentenceTipLabel",
+    "type": "text",
+    "default": "Type a Tip for this sentence (optional)",
+    "common": true,
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+  },
+  {
+    "label": "Text for \"Minimum number of rounds before Solutions can be displayed:\" message",
+    "importance": "low",
+    "name": "userSentencenumRoundsLabel",
+    "type": "text",
+    "default": "Minimum number of rounds before Solutions can be displayed:",
+    "common": true,
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+  },
+  {
+    "label": "Text for the \"Never show\" radio button choice",
+    "importance": "low",
+    "name": "userSentenceNeverShow",
+    "type": "text",
+    "default": "Never show",
+    "common": true,
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
   },
   {
     "name": "sentence",
@@ -344,14 +412,23 @@
     "importance": "low",
     "description": "These options will let you control how the task behaves.",
     "optional": true,
-    "fields": [
+    "fields": [      
       {
         "name": "singlePoint",
         "type": "boolean",
         "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
         "importance": "low",
         "description": "Uncheck this option if you want this activity to be scored against the total number of sentences.",
-        "default": false
+        "default": false,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        }
       },
       {
         "name": "caseSensitive",
@@ -368,7 +445,16 @@
         "name": "enableNumChoice",
         "type": "boolean",
         "default": false,
-        "optional": true
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        }
       },
       {
         "label": "Enable \"Show solution\" button",
@@ -376,7 +462,16 @@
         "name": "enableSolutionsButton",
         "type": "boolean",
         "default": false,
-        "optional": true
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        }
       },
       {
         "name": "numRounds",
@@ -388,12 +483,12 @@
         "default": 1,
         "min": 1,
         "widget": "showWhen",
-        "showWhen": {
-          "rules": [
-            {
-              "field": "enableSolutionsButton",
-              "equals": true
-            }
+        "showWhen": {               
+          "rules": [ 
+            {           
+            "field": "enableSolutionsButton",
+            "equals": true
+            }         
           ]
         } 
       },
@@ -403,8 +498,16 @@
         "name": "listGuessedSentences",
         "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story.",
         "type": "boolean",
-        "default": false,
-        "optional": true
+        "default": false,        
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        }
       },
       {
         "name": "sentencesOrder",
@@ -413,6 +516,15 @@
         "importance": "low",
         "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
         "default": "normal",
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        },
         "options": [
           {
             "value": "normal",

@@ -1,0 +1,291 @@
+{
+  "semantics": [
+    {
+      "label": "Play Mode",
+      "description": "Select your play mode",
+      "default": "availableSentences",
+      "options": [
+        {
+          "label": "Use available sentences"
+        },
+        {
+          "label": "Allow user to enter their own sentence"
+        }
+      ]
+    },
+    {
+      "label": "Task description",
+      "default": "Try to guess the mysterious sentence",
+      "description": "A guide telling the user how to do this task.",
+      "font": {}
+    },
+    {
+      "label": "Sentences",
+      "description": "Simply type the sentences to be guessed by the students, WITHOUT any asterisks. Recommended number of words per sentence: between 3 and 5.",
+      "widgets": [
+        {
+          "label": "Default"
+        }
+      ],
+      "field": {
+        "label": "Question",
+        "fields": [
+          {
+            "label": "Sentence"
+          },
+          {
+            "label": "Tip",
+            "description": "Tip text for this sentence (optional)"
+          }
+        ]
+      },
+      "showWhen": {
+        "rules": [
+          {}
+        ]
+      }
+    },
+    {
+      "label": "<span style=\"position: absolute;top: -40px;left: 0px;\">Tutorial and Examples: <a href=\"http://www.rezeau.org/drupal/\" target=\"_blank\" rel=\"noopener\">Papi Jo's Drupal test site</a></span>",
+      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
+    },
+    {
+      "label": "Text for \"Show solutions\" button",
+      "default": "Show solution"
+    },
+    {
+      "label": "Text for \"New sentence\" button",
+      "default": "Guess another sentence"
+    },
+    {
+      "label": "Text for \"End Game\" button",
+      "default": "End Game"
+    },
+    {
+      "label": "Text for \"Check\" button",
+      "default": "Check"
+    },
+    {
+      "label": "Text for \"Try again\" button",
+      "default": "Try again"
+    },
+    {
+      "label": "Text for \"Not enough rounds\" message",
+      "default": "The solution won't be available before round @round",
+      "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions"
+    },
+    {
+      "label": "Text for \"Fill in all the blanks\" message",
+      "default": "Please fill in all the blanks before checking your answer!"
+    },
+    {
+      "label": "Text for \"How many words do you want in your mystery sentence?\" message",
+      "default": "How many words do you want in your mystery sentence?",
+      "description": "Only used if \"Enable Number of words Choice\" is enabled"
+    },
+    {
+      "label": "Text for \"Type a sentence to be guessed by your friends\" message",
+      "default": "Type a sentence to be guessed by your friends",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+    },
+    {
+      "label": "Text for \"Type a Tip for this sentence (optional)\" message",
+      "default": "Type a Tip for this sentence (optional)",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+    },
+    {
+      "label": "Text for \"Minimum number of rounds before Solutions can be displayed:\" message",
+      "default": "Minimum number of rounds before Solutions can be displayed:",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+    },
+    {
+      "label": "Text for the \"Never show\" radio button choice",
+      "default": "Never show",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+    },
+    {
+      "label": "Text for \"sentence\" singular word",
+      "description": "This word will be used in various parts of the activity",
+      "default": "sentence"
+    },
+    {
+      "label": "Text for \"sentence\" plural word",
+      "description": "This word will be used in various parts of the activity",
+      "default": "sentences"
+    },
+    {
+      "label": "Text for \"Round\" message below sentences to be guessed",
+      "description": "@round will be replaced by the number of the current round",
+      "default": "Round @round"
+    },
+    {
+      "label": "Time spent text",
+      "default": "Time Spent",
+      "description": "Label for showing the time spent while guessing one sentence"
+    },
+    {
+      "label": "Score Explanation Button Label",
+      "default": "Show score explanation",
+      "description": "Label the 'Show score explanation' feedback text"
+    },
+    {
+      "label": "Score Explanation for the Single Point score",
+      "default": "The maximum score for this activity is 1 and you got the point for any number of sentences guessed."
+    },
+    {
+      "label": "Score Explanation for All Sentences",
+      "default": "Score = number of guessed sentences / number of sentences in this activity."
+    },
+    {
+      "label": "Score Explanation for All Sentences with selected number of words",
+      "default": "Score = number of guessed sentences / number of sentences containing @words words.",
+      "description": "@words will be replaced by the number of words per sentence selected by the user on the initial screen"
+    },
+    {
+      "label": "Text for the Summary page header",
+      "default": "Summary"
+    },
+    {
+      "label": "Text for the number of Sentences guessed (on the summary page)",
+      "default": "Sentences guessed"
+    },
+    {
+      "label": "Text for the number of Solutions viewed (on the summary page)",
+      "default": "Solutions viewed"
+    },
+    {
+      "label": "Text for the total time spent (on the summary page)",
+      "default": "Total Time Spent"
+    },
+    {
+      "label": "Text for the total number of rounds used (on the summary page)",
+      "default": "Total Rounds"
+    },
+    {
+      "label": "Text for \"':ans' is correct\" message",
+      "default": "':ans' is correct"
+    },
+    {
+      "label": "Text for \"':ans' is wrong\" message",
+      "default": "':ans' is wrong"
+    },
+    {
+      "label": "Text for \"Answered correctly\" message",
+      "default": "Answered correctly"
+    },
+    {
+      "label": "Text for \"Answered incorrectly\" message",
+      "default": "Answered incorrectly"
+    },
+    {
+      "label": "Assistive technology label for solution",
+      "default": "Correct answer:"
+    },
+    {
+      "label": "Assistive technology label for input field",
+      "description": "Use @num and @total to replace current cloze number and total cloze number",
+      "default": "Blank input @num of @total"
+    },
+    {
+      "label": "Assistive technology label for saying an input has a tip tied to it",
+      "default": "Tip available"
+    },
+    {
+      "label": "Tip icon label",
+      "default": "Tip"
+    },
+    {
+      "label": "Behavioural settings.",
+      "description": "These options will let you control how the task behaves.",
+      "fields": [
+        {
+          "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
+          "description": "Uncheck this option if you want this activity to be scored against the total number of sentences.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Case sensitive",
+          "description": "Makes sure the user input has to be exactly the same as the answer."
+        },
+        {
+          "label": "Enable Number of words Choice",
+          "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Enable \"Show solution\" button",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Number of rounds",
+          "description": "Minimum number of rounds before Solutions can be displayed:",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Display Guessed Sentences",
+          "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Sentences Order",
+          "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
+          "default": "normal",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          },
+          "options": [
+            {
+              "label": "Normal order"
+            },
+            {
+              "label": "Random order"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "End Game confirmation dialog",
+      "fields": [
+        {
+          "label": "Header text",
+          "default": "End Game?"
+        },
+        {
+          "label": "Body text",
+          "default": "Are you sure you wish to End this Game?"
+        },
+        {
+          "label": "Cancel button label",
+          "default": "Cancel"
+        },
+        {
+          "label": "Confirm button label",
+          "default": "OK"
+        }
+      ]
+    }
+  ]
+}

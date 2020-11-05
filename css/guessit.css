@@ -5,7 +5,8 @@
   position: relative;
   margin-bottom: 12px;
 }
-.h5p-guessit .h5p-text-input {
+.h5p-guessit .h5p-text-input,
+.h5p-guessit .h5p-text-input-user {
   font-family: "Lucida Console", Courier, monospace; 
   font-size: 1.2em;
   border-radius: 0.25em;
@@ -15,6 +16,9 @@
   overflow: hidden;
   white-space: nowrap;
   width: 6em;
+}
+.h5p-guessit .h5p-text-input-user {
+  width: 25em;
 }
 .h5p-guessit .h5p-text-input:focus {
   outline: none;
@@ -257,5 +261,22 @@
   font-family: 'H5PFontAwesome4';
   content: "\f08b"; 
 }
+.h5p-guessit-okbutton {
+    margin-top: 10px!important;
+    margin-left: 0!important;
+}
+.h5p-guessit-okbutton:before {
+  content: "\F058";
+}
+.h5p-guessit-usertipdescription {
+  margin-top: 1em;
+}
 
-
+.h5p-guessit-required:before {
+    content: "*";
+    color: #da0001;
+    margin-left: 0.2em;
+    margin-right: 0.25em;
+    position: relative;
+    top: -0.2em;
+}

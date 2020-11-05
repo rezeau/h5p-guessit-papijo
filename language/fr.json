@@ -1,6 +1,22 @@
 {
   "semantics": [
     {
+<<<<<<< HEAD
+=======
+      "label": "Mode",
+      "description": "Choisissez votre mode de jeu",
+      "default": "availableSentences",
+      "options": [
+        {
+          "label": "Utiliser les phrases disponibles ci-dessous"
+        },
+        {
+          "label": "Permettre au joueur de saisir sa propre phrase à faire deviner."
+        }
+      ]
+    },
+    {
+>>>>>>> author-mode
       "label": "Consigne",
       "default": "Devinez la phrase mystère mot par mot",
       "description": "La consigne indique à l'utilisateur comment faire l'activité. Vous pouvez modifier le texte de cette consigne.",
@@ -62,7 +78,32 @@
     },
     {
       "label": "Texte du message \"Combien de mots voulez-vous dans votre phrase mystère ?\"",
+<<<<<<< HEAD
       "default": "Combien de mots voulez-vous dans votre phrase mystère ?"
+=======
+      "default": "Combien de mots voulez-vous dans votre phrase mystère ?",
+      "description": "Utilisé uniquement si l'option \"Nombre de mots\" est activée"
+    },
+    {
+      "label": "Texte du message \"Tapez une phrase à faire deviner par vos amis\"",
+      "default": "Tapez une phrase à faire deviner par vos amis",
+      "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
+    },
+    {
+      "label": "Texte du message \"Tapez un indice pour cette phrase (facultatif)\"",
+      "default": "Tapez un indice pour cette phrase (facultatif)",
+      "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
+    },
+    {
+      "label": "Texte du message \"Nombre minimum de tours avant que les solutions puissent être affichées :\"",
+      "default": "Nombre minimum de tours avant que les solutions puissent être affichées :",
+      "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
+    },
+    {
+      "label": "Texte du message \"Ne jamais afficher la solution\"",
+      "default": "Ne jamais afficher la solution",
+      "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
+>>>>>>> author-mode
     },
     {
       "label": "Le mot \"phrase\" au singulier",
@@ -108,7 +149,11 @@
       "default": "Résumé final"
     },
     {
+<<<<<<< HEAD
       "label": "Texte pour le noombre de phrases devinées (sur la page finale)",
+=======
+      "label": "Texte pour le nombre de phrases devinées (sur la page finale)",
+>>>>>>> author-mode
       "default": "Phrases devinées"
     },
     {
