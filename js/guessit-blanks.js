@@ -1162,7 +1162,10 @@ H5P.GuessIt = (function ($, Question) {
       'class': 'h5p-guessit-summary-screen',
       'html': text
     }).appendTo($content);
-    this.$divGuessedSentences.prependTo($feedback)
+    
+    if (this.$divGuessedSentences) {
+      this.$divGuessedSentences.prependTo($feedback)
+    }
     
     this.$feedbackContainer = $('<div class="h5p-guessit feedback-container"/>')
       .appendTo($feedback);
