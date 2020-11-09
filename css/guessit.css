@@ -280,3 +280,8 @@
     position: relative;
     top: -0.2em;
 }
+.h5p-guessit-retry-button:before {
+    font-family: H5PFontAwesome4;
+    content: "\F021";
+    margin-right: .5em;
+}

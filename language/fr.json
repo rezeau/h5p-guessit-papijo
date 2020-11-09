@@ -38,6 +38,11 @@
             "description": "Indice pour cette phrase (facultatif)"
           }
         ]
+      },
+      "showWhen": {
+        "rules": [
+          {}
+        ]
       }
     },
     {
@@ -76,6 +81,11 @@
     {
       "label": "Texte du message \"Combien de mots voulez-vous dans votre phrase mystère ?\"",
       "default": "Combien de mots voulez-vous dans votre phrase mystère ?",
+      "description": "Utilisé uniquement si l'option \"Nombre de mots\" est activée"
+    },
+    {
+      "label": "Texte du message \"N'importe quel nombre de mots\"",
+      "default": "N'importe quel nombre",
       "description": "Utilisé uniquement si l'option \"Nombre de mots\" est activée"
     },
     {
@@ -196,7 +206,12 @@
       "fields": [
         {
           "label": "Noter cette activité sur 1 et donner un point pour n'importe quel nombre de phrases devinées",
-          "description": "Ne cochez pas cette option si vous souhaitez que cette activité soit notée par rapport au nombre total de phrases."
+          "description": "Ne cochez pas cette option si vous souhaitez que cette activité soit notée par rapport au nombre total de phrases.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         },
         {
           "label": "Sensible à la casse",
@@ -204,10 +219,20 @@
         },
         {
           "label": "Activer le choix du nombre de mots",
-          "description": "Cochez cette option pour permettre à l'utilisateur de sélectionner le nombre de mots (par phrase) à deviner. Ne cochez PAS cette option si vos phrases constituent une histoire !"
+          "description": "Cochez cette option pour permettre à l'utilisateur de sélectionner le nombre de mots (par phrase) à deviner. Ne cochez PAS cette option si vos phrases constituent une histoire !",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         },
         {
-          "label": "Activer le bouton \"Montrer la solution\""
+          "label": "Activer le bouton \"Montrer la solution\"",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         },
         {
           "label": "Nombre de tours",
@@ -220,12 +245,22 @@
         },
         {
           "label": "Afficher les phrases devinées",
-          "description": "Cochez cette case pour ajouter chaque phrase devinée à une liste d'affichage après chaque tentative réussie. Cette option est utile si vos phrases constituent une histoire."
+          "description": "Cochez cette case pour ajouter chaque phrase devinée à une liste d'affichage après chaque tentative réussie. Cette option est utile si vos phrases constituent une histoire.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         },
         {
           "label": "Ordre des phrases",
           "description": "Sélectionnez l'ordre dans lequel les phrases seront affichées à l'utilisateur. Ne cochez PAS cette option si vos phrases constituent une histoire !",
           "default": "normal",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          },
           "options": [
             {
               "label": "Ordre normal"

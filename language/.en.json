@@ -84,6 +84,11 @@
       "description": "Only used if \"Enable Number of words Choice\" is enabled"
     },
     {
+      "label": "Text for \"Any number of words\"",
+      "default": "Any number",
+      "description": "Only used if \"Enable Number of words Choice\" is enabled"
+    },
+    {
       "label": "Text for \"Type a sentence to be guessed by your friends\" message",
       "default": "Type a sentence to be guessed by your friends",
       "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""

@@ -1,5 +1,5 @@
 /*global H5P*/
-H5P.GuessIt = (function ($, Question) {
+H5P.GuessIt = (function ($, Question, JoubelUI) {
   /**
    * @constant
    * @default
@@ -77,6 +77,7 @@ H5P.GuessIt = (function ($, Question) {
       tipLabel: "Tip",
       scoreBarLabel: 'You got :num out of :total points',
       numWords: 'How many words do you want in your mystery sentence?',
+      anyNumber: 'Any number',
       summary: 'Summary',
       sentencesGuessed: 'Sentences guessed',
       solutionsViewed: 'Solutions viewed',
@@ -335,10 +336,24 @@ H5P.GuessIt = (function ($, Question) {
           }).click(function () {          
               self.$numberWords.addClass ('h5p-guessit-hide');
               self.numWords = item;
-              self.numQuestions = numSentencesWithWords[item];                                      
+              self.numQuestions = numSentencesWithWords[item];
               self.initTask();
             }).appendTo($optionButtons);
-        }
+        };
+        n = self.params.questions.length;
+        s = self.params.sentences;
+        item = self.params.anyNumber
+        setNumWords = H5P.JoubelUI.createButton({
+            'class': 'h5p-guessit-number-button',
+            'title': item,
+            'html': item +  ' [' + n + ' ' + s + ']',
+            'id': 'dc-number-0'
+          }).click(function () {          
+              self.$numberWords.addClass ('h5p-guessit-hide');
+              self.params.behaviour.enableNumChoice = false;
+              self.numQuestions = n;
+              self.initTask();
+            }).appendTo($optionButtons);
         
         // Hide content
         $content.find('.h5p-container').addClass('h5p-guessit h5p-guessit-hide');
@@ -1015,8 +1030,6 @@ H5P.GuessIt = (function ($, Question) {
     this.toggleAllInputs(true);
     this.done = false;
     
-    
-    
       // Hide current sentence and mark it as "used"
       this.$questions.eq(this.currentSentenceId).addClass('h5p-guessit-sentence-hidden used');    
       this.numQuestionsInWords[this.numWords] --
@@ -1069,9 +1082,10 @@ H5P.GuessIt = (function ($, Question) {
     // Remove all these now useless elements from DOM.
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');    
     
+    
     $('.h5p-no-frame, .h5p-guessit-description, .h5p-question-introduction, .h5p-question-content,'
       +' .h5p-question-scorebar, .h5p-question-feedback',
-      $content).remove();
+      $content).hide();
       
     this.totalRounds += this.counter.getcurrent();
     
@@ -1105,17 +1119,18 @@ H5P.GuessIt = (function ($, Question) {
         usedQuestions ++;
       }
     }  
-    
+      
     if (this.params.behaviour.singlePoint) {
       actualScore = 1;
       maxScore = 1;
       explainScore = this.params.scoreExplanationforSinglePoint; 
     } else {
       actualScore = this.nbSentencesGuessed;
-      maxScore = this.totalNumQuestions;
       if (!this.params.behaviour.enableNumChoice) {
+        maxScore = this.totalNumQuestions;
         explainScore = this.params.scoreExplanationforAllSentences;
       } else {           
+        maxScore = this.numQuestions;
         explainScore = this.params.scoreExplanationforSentencesWithNumberWords
           .replace('@words', this.numWords);
       }
@@ -1134,7 +1149,7 @@ H5P.GuessIt = (function ($, Question) {
       + '<td class="h5p-guessit-summary-table-row-score">'
       + this.nbSentencesGuessed
       + '&nbsp;<span class="h5p-guessit-summary-table-row-score-divider">/</span>&nbsp;'
-      + this.totalNumQuestions + '</td></tr>';
+      + maxScore + '</td></tr>';
     if (this.params.playMode == 'userSentence') {
         $outof = '';
     }
@@ -1188,6 +1203,18 @@ H5P.GuessIt = (function ($, Question) {
         this.totalTimeSpent = 0;
         self.getCurrentState();              
     }
+    
+    // Display reset button to enable user to do the task again.
+    
+    var $resetTaskButton = H5P.JoubelUI.createButton({
+        'class': 'h5p-guessit-retry-button',
+        'title': self.params.tryAgain,
+        'html': self.params.tryAgain
+      }).click(function () {         
+        var url = window.location.href; 
+        window.top.location.href = url;       
+      }).appendTo(this.$feedbackContainer);
+    
   }
   
   /**

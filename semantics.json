@@ -170,6 +170,16 @@
     "description": "Only used if \"Enable Number of words Choice\" is enabled"
   },
   {
+    "label": "Text for \"Any number of words\"",
+    "importance": "low",
+    "name": "anyNumber",
+    "type": "text",
+    "default": "Any number",
+    "common": true,
+    "optional": true,
+    "description": "Only used if \"Enable Number of words Choice\" is enabled"
+  },
+  {
     "label": "Text for \"Type a sentence to be guessed by your friends\" message",
     "importance": "low",
     "name": "userSentenceDescriptionLabel",
