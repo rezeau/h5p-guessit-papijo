@@ -67,6 +67,7 @@
   border: 1px solid #f7d0d0;
   color: #b71c1c;
 }
+
 .h5p-guessit .h5p-wrong:after {
   position: absolute;
   right: 0.5em;
@@ -173,10 +174,15 @@
   border: 1px #255c41 dashed;
   background-color: #d4f6e6;
   border-radius: 0.25em;
-  line-height: 0.4em;
   padding-left: 0.5em;
   font-size: 0.9em;
-} 
+  line-height: normal;
+}
+.h5p-guessit-listGuessedSentences p{
+  text-indent: -1.5em;
+  margin-left: 1.5em;
+}
+ 
 
 .h5p-guessit.h5p-frame.h5p-no-frame {
   background: #fefefe;
@@ -196,7 +202,7 @@
 
 .h5p-guessit-summary-screen {
   margin: auto;
-  max-width: 32em;
+  max-width: fit-content;
 }
 .h5p-guessit .h5p-guessit-summary-screen .h5p-guessit-summary-header {
   width: 100%;
@@ -285,3 +291,10 @@
     content: "\F021";
     margin-right: .5em;
 }
+.h5p-guessit-warning:before {
+  font-family: 'H5PFontAwesome4';
+  content: "\f071";
+  font-size: x-large;
+  top: 0.1em; 
+  color: #da0001;
+} 

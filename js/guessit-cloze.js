@@ -29,11 +29,11 @@
      *
      * @private
      * @param {string} answered
-     */
+     */                               
     var correct = function (answered) {
       if (behaviour.caseSensitive !== true) {
         answered = answered.toLowerCase();
-      }
+      }                                
       return (answered == answer);
     };                                
 
@@ -56,8 +56,7 @@
       $( '.h5p-guessit-markup', $wrapper ).remove();
       
       checkedAnswer = this.getUserAnswer();
-      var isCorrect = correct(checkedAnswer);      
-      
+      var isCorrect = correct(checkedAnswer);
       if (isCorrect) {
         $wrapper.addClass('h5p-correct');
         $input.attr('disabled', true)

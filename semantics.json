@@ -50,7 +50,7 @@
     "type": "list",
     "label": "Sentences",
     "importance": "high",
-    "description": "Simply type the sentences to be guessed by the students, WITHOUT any asterisks. Recommended number of words per sentence: between 3 and 5.",
+    "description": "Simply type the sentences/phrases/words to be guessed by the students. You may split word parts with a forward slash e.g. Anti/constitut/ion/al",
     "widgets": [
       {
         "name": "VerticalTabs",
@@ -493,14 +493,19 @@
         "default": 1,
         "min": 1,
         "widget": "showWhen",
-        "showWhen": {               
-          "rules": [ 
-            {           
-            "field": "enableSolutionsButton",
-            "equals": true
-            }         
+        "showWhen": {
+          "type": "and",
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            },
+            {
+              "field": "enableSolutionsButton",
+              "equals": true
+            }
           ]
-        } 
+        }
       },
       {
         "label": "Display Guessed Sentences",
@@ -508,13 +513,21 @@
         "name": "listGuessedSentences",
         "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story.",
         "type": "boolean",
+        "default": false
+      },
+      {
+        "label": "Display Tips for Guessed Sentences",
+        "importance": "low",
+        "name": "listGuessedTips",
+        "description": "Check this to add the Tip text to each Guessed Sentence. This option is useful if your tips are definitions for the phrases/words to be guessed.",
+        "type": "boolean",
         "default": false,        
         "widget": "showWhen",
         "showWhen": {
           "rules": [
             {
-              "field": "../playMode",
-              "equals": "availableSentences"
+              "field": "listGuessedSentences",
+              "equals": true
             }
           ]
         }
