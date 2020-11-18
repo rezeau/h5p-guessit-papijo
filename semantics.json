@@ -50,7 +50,7 @@
     "type": "list",
     "label": "Sentences",
     "importance": "high",
-    "description": "Simply type the sentences/phrases/words to be guessed by the students. You may split word parts with a forward slash e.g. Anti/constitut/ion/al",
+    "description": "Simply type the sentences/phrases/words to be guessed by the students. You may split word parts with a forward slash e.g. \"An anti/constitut/ion/al act\"",
     "widgets": [
       {
         "name": "VerticalTabs",
@@ -78,6 +78,14 @@
           "importance": "low",
           "description": "Tip text for this sentence (optional)",
           "optional": true
+        },
+        {
+          "name": "audio",
+          "type": "audio",
+          "label": "Audio",
+          "description": "Audio for this sentence",
+          "importance": "medium",
+          "widgetExtensions": ["AudioRecorder"]
         }
       ]
     },
@@ -265,7 +273,7 @@
     "importance": "low",
     "type": "text",
     "default": "Show score explanation",
-    "description": "Label the 'Show score explanation' feedback text",
+    "description": "Label for the 'Show score explanation' feedback text",
     "common": true,
     "optional": true 
   },
@@ -508,6 +516,33 @@
         }
       },
       {
+        "name": "displayAudio",
+        "type": "select",
+        "label": "When to display the audio buttons",
+        "importance": "low",
+        "description": "If a sentence has an audio attached to it, select WHEN you want to display the audio buttons.",
+        "default": "correct",
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        },
+        "options": [
+          {
+            "value": "correct",
+            "label": "Only when the blanks have been correctly filled in"
+          },
+          {
+            "value": "always",
+            "label": "Always"
+          }
+        ]
+      },
+      {
         "label": "Display Guessed Sentences",
         "importance": "low",
         "name": "listGuessedSentences",
@@ -516,21 +551,44 @@
         "default": false
       },
       {
-        "label": "Display Tips for Guessed Sentences",
+        "label": "Display audio and tip buttons in Guessed Sentences",
         "importance": "low",
-        "name": "listGuessedTips",
-        "description": "Check this to add the Tip text to each Guessed Sentence. This option is useful if your tips are definitions for the phrases/words to be guessed.",
-        "type": "boolean",
-        "default": false,        
+        "name": "listGuessedAudioAndTips",
+        "description": "Select how you want to display the audio and tip buttons in front of each sentence in the list of guessed sentences.",
+        "type": "select",
+        "default": "none",        
         "widget": "showWhen",
         "showWhen": {
+        "type": "and",
           "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            },
             {
               "field": "listGuessedSentences",
               "equals": true
             }
           ]
-        }
+        },
+        "options": [
+          {
+            "value": "none",
+            "label": "None"
+          },
+          {
+            "value": "audioAndTip",
+            "label": "Both audio and tip buttons"
+          },
+          {
+            "value": "tipOnly",
+            "label": "Tip button only"
+          },
+          {
+            "value": "audioOnly",
+            "label": "Audio button only"
+          }
+        ]
       },
       {
         "name": "sentencesOrder",

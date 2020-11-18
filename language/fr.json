@@ -21,7 +21,7 @@
     },
     {
       "label": "Phrases",
-      "description": "Tapez simplement les phrases à deviner par les utilisateurs, SANS aucun astérisque. Nombre de mots recommandé par phrase : entre 3 et 8.",
+      "description": "Tapez simplement les phrases à deviner par les utilisateurs, SANS aucun astérisque. Vous pouvez séparer des parties de mots avec une barre oblique. Ex.  trans/plant/er",
       "widgets": [
         {
           "label": "Default"
@@ -36,6 +36,10 @@
           {
             "label": "Indice",
             "description": "Indice pour cette phrase (facultatif)"
+          },
+          {
+            "label": "Audio",
+            "description": "Audio pour cette phrase (facultatif)"
           }
         ]
       },
@@ -130,16 +134,15 @@
     },
     {
       "label": "Etiquette du bouton \"Explication du score\"",
-      "default": "Explication du score"
+      "default": "Explication du score",
+      "description": "Etiquette pour le bouton \"Explication du score\""
     },
     {
       "label": "Explication du score n° 1",
-      "description": "Explication du score quand le score maximum a été paramétré à 1 point",
       "default": "Le score maximum pour cette activité est de 1 et vous obtenez ce point pour n'importe quel nombre de phrases devinées."
     },
     {
       "label": "Explication du score n° 2",
-      "description": "Explication du score quand le score maximum est déterminé par le nombre total de phrases à deviner.",
       "default": "Score = nombre de phrases devinées / nombre total de phrases à deviner."
     },
     {
@@ -239,18 +242,57 @@
           "description": "Nombre minimum de tours avant que les solutions puissent être affichées :",
           "showWhen": {
             "rules": [
+              {},
               {}
             ]
           }
         },
         {
-          "label": "Afficher les phrases devinées",
-          "description": "Cochez cette case pour ajouter chaque phrase devinée à une liste d'affichage après chaque tentative réussie. Cette option est utile si vos phrases constituent une histoire.",
+          "label": "Quand afficher les boutons Audio",
+          "description": "Si une phrase est accompagnée d'un son, sélectionnez QUAND vous voulez afficher les boutons audio.",
+          "default": "correct",
           "showWhen": {
             "rules": [
               {}
             ]
-          }
+          },
+          "options": [
+            {
+              "label": "Seulement lorsque les blancs ont été correctement remplis"
+            },
+            {
+              "label": "Toujours"
+            }
+          ]
+        },
+        {
+          "label": "Afficher les phrases devinées",
+          "description": "Cochez cette case pour ajouter chaque phrase devinée à une liste d'affichage après chaque tentative réussie. Cette option est utile si vos phrases constituent une histoire."
+        },
+        {
+          "label": "Afficher l'audio et les boutons d'indices dans les phrases devinées",
+          "description": "Sélectionnez la manière dont vous souhaitez afficher les boutons audio et les boutons d'indices devant chacune des phrases dans la liste des phrases devinées.",
+          "default": "none",
+          "showWhen": {
+            "rules": [
+              {},
+              {}
+            ]
+          },
+          "options": [
+            {
+              "label": "Aucun bouton"
+            },
+            {
+              "label": "Les boutons d'indice et audio"
+            },
+            {
+              "label": "Les boutons d'indice uniquement"
+            },
+            {
+              "label": "Les boutons Audio uniquement"
+            }
+          ]
         },
         {
           "label": "Ordre des phrases",

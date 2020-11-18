@@ -85,15 +85,31 @@
 }
 
 /* Header and footer blocks (title + evaluation, buttons) */
+
 .h5p-guessit .joubel-tip-container {
-  position: absolute;
-  right: 0.4em;
-  font-size: 1em;
-}
-.h5p-guessit .joubel-tip-container .joubel-icon-tip-normal {
-  line-height: 1em;
+  margin-right: 0.4em;
+    font-size: 0.72em;
+    top: 0.15em;
+    position: relative;
 }
 
+.h5p-guessit .joubel-tip-container .joubel-icon-tip-normal {
+  position: relative;
+  top: 0.1em;
+}
+.h5p-guessit .joubel-tip-container:hover,
+.h5p-guessit .h5p-audio-minimal-button:hover {
+  transform: scale(1.2);     
+}
+
+.h5p-guessit .joubel-tip-container .joubel-icon-tip-normal .h5p-icon-info:before {
+  font-family: 'H5PFontAwesome4';
+  content: "\f05a";
+  color: #1a73d9;
+  margin-left: 0.1em;
+  font-size: 1.5em;
+} 
+                                                                         
 .h5p-guessit .has-tip.h5p-correct:after,
 .h5p-guessit .has-tip.h5p-wrong:after {
   right: 2.25em;
@@ -105,11 +121,6 @@
 
 .h5p-guessit-sentence.h5p-guessit-sentence-hidden {
   display: none;
-}
-
-.h5p-guessit .joubel-tip-container {
-  position: relative;
-  margin-left: 10px;
 }
 
 .h5p-guessit.time-status {
@@ -154,13 +165,11 @@
   font-size: 0.8em;
 }
 
-.h5p-guessit .joubel-tip-container.hidden {
-  visibility: hidden;
+.h5p-guessit .joubel-tip-container.hidden,
+.h5p-guessit .h5p-guessit-audio-wrapper.hidden {
+  display: none;
 }
 
-.h5p-guessit .h5p-joubelui-button:first-child {
-  margin-left: 8px;
-}
 .h5p-guessit .h5p-question-scorebar.h5p-question-visible {
   display: none;
 }
@@ -172,11 +181,10 @@
 
 .h5p-guessit-listGuessedSentences {
   border: 1px #255c41 dashed;
-  background-color: #d4f6e6;
+  background-color: #e5f7ee;
   border-radius: 0.25em;
   padding-left: 0.5em;
   font-size: 0.9em;
-  line-height: normal;
 }
 .h5p-guessit-listGuessedSentences p{
   text-indent: -1.5em;
@@ -298,3 +306,56 @@
   top: 0.1em; 
   color: #da0001;
 } 
+
+/* Audio button styling */
+/*TODO: Make Audio use JoubelUI button */
+.h5p-guessit .h5p-audio-minimal-button {
+  border: none;
+  background: #1a73d9;
+  font-weight: normal;
+  padding: 0;
+  font-size: 1.1em;
+  width: 1.32em;
+  height: 1.32em;
+}
+
+.h5p-guessit .h5p-audio-minimal-button:focus,
+.h5p-guessit .h5p-audio-minimal-button:hover {
+  background: #1356a3;
+}
+
+.h5p-guessit .h5p-guessit-audio-wrapper {  
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.4em;
+}
+
+.h5p-guessit .h5p-guessit-audio-wrapper.h5p-audio-not-supported {
+  width: 100%;
+  height: 100%;
+  color: red;
+  font-size: 1em;
+  text-align: center;
+}
+
+.h5p-guessit .h5p-guessit-audio-wrapper.h5p-audio-not-supported .h5p-audio-not-supported-icon {
+  width: 1.5em;
+  height: 1.5em;
+  padding: 0.25em;
+  margin: 0 auto 1em auto;
+  border: 2px red solid;
+  border-radius: 50%;
+}
+
+.h5p-guessit .h5p-guessit-audio-wrapper.h5p-audio-not-supported .h5p-audio-not-supported-icon span,
+.h5p-guessit .h5p-guessit-audio-wrapper2.h5p-audio-not-supported .h5p-audio-not-supported-icon span {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background-image: url('../images/no-audio.svg');
+}
+
+.h5p-guessit .h5p-question-buttons.has-scorebar {
+  margin-left: 1em;
+}

@@ -1,5 +1,5 @@
 /*global H5P*/
-H5P.GuessIt = (function ($, Question, JoubelUI) {
+H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   /**
    * @constant
    * @default
@@ -75,6 +75,7 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
       sentences: 'sentences',
       timeSpent: "Time Spent",
       tipLabel: "Tip",
+      audioNotSupported: 'Your browser does not support this audio',
       scoreBarLabel: 'You got :num out of :total points',
       numWords: 'How many words do you want in your mystery sentence?',
       anyNumber: 'Any number',
@@ -98,7 +99,10 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
         listGuessedSentences: false,
         listGuessedTips: false,
         numRounds: 1,
-        caseSensitive: false,        
+        caseSensitive: false,
+        sentencesOrder: 'normal',
+        listGuessedAudioAndTips: 'none',
+        displayAudio: 'correct'        
       }
     }, params);
     
@@ -280,7 +284,6 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
       if (sentence == undefined) {
         return;
       }
-      //self.$userSentenceDescription.removeClass('h5p-guessit-warning')
       $content.find('.h5p-guessit-usersentencedescription').remove();
       self.params.questions[0].sentence = sentence;      
       self.params.questions[0].tip = $tip;
@@ -293,8 +296,7 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
     self.numQuestions = self.params.questions.length;
     
     // Using instructions as label for our text groups
-    //const labelId = 'h5p-GuessIt-listGuessedSentences';
-    const labelId = 'toto';
+    const labelId = 'guessitlabel';
         
     // Register task content area
     self.setContent(self.createQuestions(labelId), {
@@ -448,9 +450,9 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
       if (self.$timer == undefined) {
         self.initCounters();        
       }
-      self.setFeedback();                             
+      self.setFeedback();          
       if (!self.allBlanksFilledOut()) {
-        self.updateFeedbackContent(self.params.notFilledOut);
+        self.updateFeedbackContent(self.params.notFilledOut); 
         // Sets focus on first empty blank input.
         $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
         $currentInputs.each(function(index, val){
@@ -466,9 +468,13 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
         self.markResults();
         self.timer.stop();       
         var isFinished = (self.getScore() === self.getMaxScore());
+        
         if (isFinished) {
           var currentGuessedSentenceId = self.params.questions[self.currentSentenceId].ID
           self.sentencesGuessed.push(currentGuessedSentenceId);
+          self.$questions.eq(self.currentSentenceId)
+            .find('.h5p-guessit-audio-wrapper')
+            .removeClass('hidden');
           self.nbSentencesGuessed++;
           self.getCurrentState();
           if (self.sentencesFound  !== self.numQuestions - 1) {           
@@ -486,20 +492,35 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
           }
           
           if (self.params.behaviour.listGuessedSentences) {
-            var foundSentence = self.params.questions[self.currentSentenceId].sentence;
+            var currentSentence = self.params.questions[self.currentSentenceId];
+            var foundSentence = currentSentence.sentence;
             // Remove potential slashes before displaying final phrase
             if (foundSentence.indexOf("/") !== -1) {
               var patternReplace = /\//g;
-              foundSentence = foundSentence.replace(patternReplace, '')
+              foundSentence += ' <i class="fa fa-arrow-right" style="color:#4D9782;" ></i> ' + foundSentence.replace(patternReplace, '')
             }
-            var tip = '';
-            if (self.params.behaviour.listGuessedTips && self.params.questions[self.currentSentenceId].tip) {
-              tip = ' <i>(' + self.params.questions[self.currentSentenceId].tip + ')</i>'
-            }
-            foundSentence += tip;
-            self.sentencesList += '<p>' + foundSentence + '</p>';
+            
             self.$divGuessedSentences.removeClass ('h5p-guessit-hide');
-            self.$divGuessedSentences.html(self.sentencesList)
+            var $guessedSentence = $('<div>', {
+              'class': '',
+              'html': foundSentence
+              })
+              .appendTo(self.$divGuessedSentences);
+            
+            if (self.params.playMode == 'availableSentences') {
+              var showTipsAndAudio = self.params.behaviour.listGuessedAudioAndTips;               
+              // Add tip button before guessed sentence
+              var tip = currentSentence.tip;
+              if (showTipsAndAudio == 'audioAndTip' || showTipsAndAudio == 'tipOnly' && tip !== undefined) {
+                self.addTip(tip, $guessedSentence);
+              };
+            
+            // Add audio button before guessed sentence
+              var sound = currentSentence.audio;            
+              if (showTipsAndAudio == 'audioAndTip' || showTipsAndAudio == 'audioOnly'  && sound !== undefined) {
+                self.addAudio(sound, $guessedSentence, hidden = false);
+              }
+            }
           } 
         }
       }
@@ -615,7 +636,6 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
       this.currentSentenceClozes[i] = [];
     }
     
-    
     var closeNumber = 0;
     for (var i = 0; i < self.params.questions.length; i++) {
       var sentenceClozeNumber = 0;
@@ -661,19 +681,18 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
     
     self.hasClozes = clozeNumber > 0;
     this.$questions = $(html);
-    
-    // Set optional tip (for sentence)
-    var tipLabel = this.params.tipLabel;
-    var inputLabel = this.params.tipLabel;
+        
     this.$questions.each(function (index) {
+      // Set optional tip (for sentence)
       var tip = self.params.questions[index].tip;
-      if(tip !== undefined && tip.trim().length > 0) {
-        $(this).addClass('has-tip')
-          .prepend(H5P.JoubelUI.createTip(tip, {
-            tipLabel: tipLabel 
-          }));
-        inputLabel = inputLabel;
-      }
+      self.addTip(tip, $(this));
+     
+      // Set optional audio (for sentence)
+      if (self.params.playMode == 'availableSentences') {
+        var sound = self.params.questions[index].audio;
+        var hidden = self.params.behaviour.displayAudio == 'correct';
+        self.addAudio(sound, $(this), hidden);
+      }      
     });
     
     // Set input fields.
@@ -970,6 +989,7 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
     var $clonedQuestion = $('[data-content-id="' + this.contentId + '"].h5p-content .cloned');
     $clonedQuestion.find('.h5p-input-wrapper > input').attr('disabled', true);
     $clonedQuestion.find('.joubel-tip-container').addClass('hidden');
+    $clonedQuestion.find('.h5p-guessit-audio-wrapper').addClass('hidden');
   };
 
   /**
@@ -1242,8 +1262,8 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
       }).click(function () {         
         var url = window.location.href; 
         window.top.location.href = url;       
-      }).appendTo(this.$feedbackContainer);
-    
+      }).appendTo(this.$feedbackContainer)
+        .focus();
   }
   
   /**
@@ -1251,9 +1271,7 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
    * @public
    */
   GuessIt.prototype.hideButtons = function () {
-  
     this.toggleButtonVisibility(STATE_FINISHED);
-    
   };
 
   /**
@@ -1387,6 +1405,39 @@ H5P.GuessIt = (function ($, Question, JoubelUI) {
     completedEvent.setScoredResult(1, 1, self, true, true);
     completedEvent.data.statement.result.duration = 'PT' + (Math.round(this.timer.getTime() / 10) / 100) + 'S';
     this.trigger(completedEvent);
+  }
+
+  GuessIt.prototype.addTip = function (tip, question) {
+    var self = this;
+    var tipLabel = self.params.tipLabel;
+      if(tip !== undefined && tip.trim().length > 0) {
+        question.addClass('has-tip')
+          .prepend(H5P.JoubelUI.createTip(tip, {
+            tipLabel: tipLabel 
+          }));
+      };      
+      // Remove default bubble & shadow elements from the default H5P tip button since they are not used.
+      question.find('.h5p-icon-speech-bubble, .h5p-icon-shadow').remove();
+  }
+  
+  GuessIt.prototype.addAudio = function (sound, question, hidden) {
+    var self = this;
+    if(sound !== undefined) {
+        var $audioWrapper = $('<div>', {
+          'class': 'h5p-guessit-audio-wrapper'
+        });
+        if (hidden) {
+          $audioWrapper.addClass('hidden');
+        };
+        var audioDefaults = {
+          files: sound,
+          audioNotSupported: self.params.audioNotSupported
+        };
+        audio = new H5P.Audio(audioDefaults, self.contentId);
+        audio.attach($audioWrapper);        
+      }
+      // Prepend potential audio buttons to the sentence input fields.
+      question.prepend($audioWrapper);      
   }
 
   GuessIt.idCounter = 0;

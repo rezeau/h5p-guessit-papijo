@@ -21,7 +21,7 @@
     },
     {
       "label": "Sentences",
-      "description": "Simply type the sentences to be guessed by the students, WITHOUT any asterisks. Recommended number of words per sentence: between 3 and 5.",
+      "description": "Simply type the sentences/phrases/words to be guessed by the students. You may split word parts with a forward slash e.g. \"An anti/constitut/ion/al act\"",
       "widgets": [
         {
           "label": "Default"
@@ -36,6 +36,10 @@
           {
             "label": "Tip",
             "description": "Tip text for this sentence (optional)"
+          },
+          {
+            "label": "Audio",
+            "description": "Audio for this sentence"
           }
         ]
       },
@@ -131,7 +135,7 @@
     {
       "label": "Score Explanation Button Label",
       "default": "Show score explanation",
-      "description": "Label the 'Show score explanation' feedback text"
+      "description": "Label for the 'Show score explanation' feedback text"
     },
     {
       "label": "Score Explanation for the Single Point score",
@@ -238,18 +242,57 @@
           "description": "Minimum number of rounds before Solutions can be displayed:",
           "showWhen": {
             "rules": [
+              {},
               {}
             ]
           }
         },
         {
-          "label": "Display Guessed Sentences",
-          "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story.",
+          "label": "When to display the audio buttons",
+          "description": "If a sentence has an audio attached to it, select WHEN you want to display the audio buttons.",
+          "default": "correct",
           "showWhen": {
             "rules": [
               {}
             ]
-          }
+          },
+          "options": [
+            {
+              "label": "Only when the blanks have been correctly filled in"
+            },
+            {
+              "label": "Always"
+            }
+          ]
+        },
+        {
+          "label": "Display Guessed Sentences",
+          "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story."
+        },
+        {
+          "label": "Display audio and tip buttons in Guessed Sentences",
+          "description": "Select how you want to display the audio and tip buttons in front of each sentence in the list of guessed sentences.",
+          "default": "none",
+          "showWhen": {
+            "rules": [
+              {},
+              {}
+            ]
+          },
+          "options": [
+            {
+              "label": "None"
+            },
+            {
+              "label": "Both audio and tip buttons"
+            },
+            {
+              "label": "Tip button only"
+            },
+            {
+              "label": "Audio button only"
+            }
+          ]
         },
         {
           "label": "Sentences Order",
