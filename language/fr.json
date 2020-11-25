@@ -20,8 +20,8 @@
       ]
     },
     {
-      "label": "Enable \"Audio\"",
-      "description": "Enable \"Audio\" for the sentences to be guessed?",
+      "label": "Activer \"Audio\"",
+      "description": "Activer \"Audio\" pour les phrases à deviner ?",
       "showWhen": {
         "rules": [
           {}
@@ -70,8 +70,8 @@
       "description": "Ces options vous permettent de paramétrer le déroulement de l'exercice.",
       "fields": [
         {
-          "Activer le bouton \"Recommencer\""
-          "description": "Ajouter un bouton \"Recommencer\" à la fin du jeu. Cela permettra simplement de rafraîchir l'URL actuelle. Il se peut que cela ne fonctionne pas dans certains environnements, donc veuillez vérifier sur votre plateforme avant de l'activer !"
+          "label": "Activer le bouton \"Recommencer\"",
+          "description": "Ajouter un bouton \"Recommencer\" à la fin du jeu. Cela permettra simplement de rafraîchir l'URL actuelle. Veuillez vérifier sur votre plateforme avant de l'activer !"
         },
         {
           "label": "Noter cette activité sur 1 et donner un point pour n'importe quel nombre de phrases devinées",
