@@ -93,6 +93,8 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       userSentenceTipLabel: 'Type a Tip for this sentence (optional)',
       userSentenceNeverShow: 'Never Show',
       behaviour: {        
+        enableRetry: false,
+        enableAudio: false,
         singlePoint: false,
         enableNumChoice: false,
         enableSolutionsButton: false,
@@ -108,6 +110,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     
     // Delete empty questions. Should normally not happen, but... 
     // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.     
+    
     for (var i = this.params.questions.length - 1; i >= 0; i--) {
       if (!this.params.questions[i].sentence) {
         this.params.questions.length --;
@@ -1254,16 +1257,18 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     }
     
     // Display reset button to enable user to do the task again.
-    
-    var $resetTaskButton = H5P.JoubelUI.createButton({
-        'class': 'h5p-guessit-retry-button',
-        'title': self.params.tryAgain,
-        'html': self.params.tryAgain
-      }).click(function () {         
-        var url = window.location.href; 
-        window.top.location.href = url;       
-      }).appendTo(this.$feedbackContainer)
-        .focus();
+    // Provided a warning in the semantics file as to this method not guaranteed to work at all times!    
+    if (this.params.behaviour.enableRetry) {
+      var $resetTaskButton = H5P.JoubelUI.createButton({
+          'class': 'h5p-guessit-retry-button',
+          'title': self.params.tryAgain,
+          'html': self.params.tryAgain
+        }).click(function () {         
+          var url = top.location.href;
+          window.top.location.href = url;       
+        }).appendTo(this.$feedbackContainer)
+          .focus();
+    }
   }
   
   /**

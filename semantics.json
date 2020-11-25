@@ -1,22 +1,4 @@
-[
-  {
-    "name": "playMode",
-    "type": "select",
-    "label": "Play Mode",
-    "importance": "low",
-    "description": "Select your play mode",
-    "default": "availableSentences",
-    "options": [
-      {
-        "value": "availableSentences",
-        "label": "Use available sentences"
-      },
-      {
-        "value": "userSentence",
-        "label": "Allow user to enter their own sentence"
-      }
-    ]
-  },
+[ 
   {
     "name": "description",
     "type": "text",
@@ -24,7 +6,7 @@
     "label": "Task description",
     "importance": "medium",
     "default": "Try to guess the mysterious sentence",
-    "description": "A guide telling the user how to do this task.",
+    "description": "A guide telling the user how to do this task. If you see the flickering bug on the toolbar, set the Play Mode (below) to 'Allow user ... own sentence'. You can re-set it to 'Available Sentences' after editing this Task Description field",
     "optional": true,
     "tags": [
       "strong",
@@ -41,14 +23,52 @@
     ],
     "font": {
       "size": true,
+      "family": true,
       "color": true,
       "background": true
+    }
+  },
+  {
+    "name": "playMode",
+    "type": "select",
+    "label": "Play Mode",
+    "importance": "low",
+    "description": "Select your play mode",
+    "default": "availableSentences",
+    "options": [
+      {
+        "value": "availableSentences",
+        "label": "Use available sentences (below)"
+      },
+      {
+        "value": "userSentence",
+        "label": "Allow user to enter their own sentence"
+      }
+    ]
+  },
+  {
+    "name": "enableAudio",
+    "label": "Enable \"Audio\"",
+    "type": "boolean",
+    "importance": "low",
+    "default": false,
+    "description": "Enable \"Audio\" for the sentences to be guessed?",
+    "optional": true,
+    "widget": "showWhen",
+    "showWhen": {
+      "rules": [
+        {
+          "field": "playMode",
+          "equals": "availableSentences"
+        }
+      ]
     }
   },
   {
     "name": "questions",
     "type": "list",
     "label": "Sentences",
+    "entity": "sentence",
     "importance": "high",
     "description": "Simply type the sentences/phrases/words to be guessed by the students. You may split word parts with a forward slash e.g. \"An anti/constitut/ion/al act\"",
     "widgets": [
@@ -58,6 +78,7 @@
       }
     ],
     "min": 1,
+    "defaultNum": 1,
     "max": 31,
     "field": {
       "name": "question",
@@ -71,6 +92,28 @@
           "label": "Sentence",
           "importance": "high"
         },
+        {
+          "name": "audio",
+          "type": "audio",
+          "label": "Audio",
+          "description": "Audio for this sentence (optional)",
+          "importance": "low",
+          "optional": true,
+          "widget": "showWhen",
+          "showWhen": {
+            "type": "and",
+            "rules": [
+              {
+                "field": "../../playMode",
+                "equals": "availableSentences"
+              },
+              {
+                "field": "../../enableAudio",
+                "equals": true
+              }
+            ]
+          }
+        },
         {  
           "name": "tip",
           "label": "Tip",
@@ -78,14 +121,6 @@
           "importance": "low",
           "description": "Tip text for this sentence (optional)",
           "optional": true
-        },
-        {
-          "name": "audio",
-          "type": "audio",
-          "label": "Audio",
-          "description": "Audio for this sentence",
-          "importance": "medium",
-          "widgetExtensions": ["AudioRecorder"]
         }
       ]
     },
@@ -98,6 +133,211 @@
         }
       ]
     }
+  },
+  {
+    "name": "behaviour",
+    "type": "group",
+    "label": "Behavioural settings.",
+    "importance": "low",
+    "description": "These options will let you control how the task behaves.",
+    "optional": true,
+    "fields": [      
+      {
+        "name": "enableRetry",
+        "label": "Enable \"Retry\"",
+        "type": "boolean",
+        "importance": "low",
+        "default": false,
+        "description": "Add a \"Retry\" button when the game is over. This will simply refresh the current URL. It may not work in some environments, so please check on your platform before enabling it!",
+        "optional": true
+      },
+      {
+        "name": "singlePoint",
+        "type": "boolean",
+        "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
+        "importance": "low",
+        "description": "Uncheck this option if you want this activity to be scored against the total number of sentences.",
+        "default": false,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        }
+      },
+      {
+        "name": "caseSensitive",
+        "importance": "low",
+        "type": "boolean",
+        "default": false,
+        "label": "Case sensitive",
+        "description": "Makes sure the user input has to be exactly the same as the answer."
+      },
+      {
+        "label": "Enable Number of words Choice",
+        "importance": "low",
+        "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!",
+        "name": "enableNumChoice",
+        "type": "boolean",
+        "default": false,
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        }
+      },
+      {
+        "label": "Enable \"Show solution\" button",
+        "importance": "low",
+        "name": "enableSolutionsButton",
+        "type": "boolean",
+        "default": false,
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        }
+      },
+      {
+        "name": "numRounds",
+        "type": "number",
+        "label": "Number of rounds",
+        "description": "Minimum number of rounds before Solutions can be displayed:",
+        "importance": "low",
+        "optional": true,
+        "default": 1,
+        "min": 1,
+        "widget": "showWhen",
+        "showWhen": {
+          "type": "and",
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            },
+            {
+              "field": "enableSolutionsButton",
+              "equals": true
+            }
+          ]
+        }
+      },
+      {
+        "name": "displayAudio",
+        "type": "select",
+        "label": "When to display the audio buttons",
+        "importance": "low",
+        "description": "If a sentence has an audio attached to it, select WHEN you want to display the audio buttons.",
+        "default": "correct",
+        "widget": "showWhen",
+          "showWhen": {            
+            "rules": [              
+              {
+                "field": "../enableAudio",
+                "equals": true
+              }
+            ]
+          },
+        "options": [
+          {
+            "value": "correct",
+            "label": "Only when the blanks have been correctly filled in"
+          },
+          {
+            "value": "always",
+            "label": "Always"
+          }
+        ]
+      },
+      {
+        "label": "Display Guessed Sentences",
+        "importance": "low",
+        "name": "listGuessedSentences",
+        "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story.",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "label": "Display audio and tip buttons in Guessed Sentences",
+        "importance": "low",
+        "name": "listGuessedAudioAndTips",
+        "description": "Select how you want to display the audio and tip buttons in front of each sentence in the list of guessed sentences.",
+        "type": "select",
+        "default": "none",        
+        "widget": "showWhen",
+        "showWhen": {
+        "type": "and",
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            },
+            {
+              "field": "listGuessedSentences",
+              "equals": true
+            }
+          ]
+        },
+        "options": [
+          {
+            "value": "none",
+            "label": "None"
+          },
+          {
+            "value": "audioAndTip",
+            "label": "Both audio and tip buttons"
+          },
+          {
+            "value": "tipOnly",
+            "label": "Tip button only"
+          },
+          {
+            "value": "audioOnly",
+            "label": "Audio button only"
+          }
+        ]
+      },
+      {
+        "name": "sentencesOrder",
+        "type": "select",
+        "label": "Sentences Order",
+        "importance": "low",
+        "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
+        "default": "normal",
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences"
+            }
+          ]
+        },
+        "options": [
+          {
+            "value": "normal",
+            "label": "Normal order"
+          },
+          {
+            "value": "random",
+            "label": "Random order"
+          }
+        ]
+      }
+    ]
   },
   {
     "name": "info",
@@ -424,200 +664,12 @@
     "optional": true
   },
   {
-    "name": "behaviour",
-    "type": "group",
-    "label": "Behavioural settings.",
+    "name": "retry",
+    "type": "text",
+    "label": "Text for the retry button",
     "importance": "low",
-    "description": "These options will let you control how the task behaves.",
-    "optional": true,
-    "fields": [      
-      {
-        "name": "singlePoint",
-        "type": "boolean",
-        "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
-        "importance": "low",
-        "description": "Uncheck this option if you want this activity to be scored against the total number of sentences.",
-        "default": false,
-        "widget": "showWhen",
-        "showWhen": {
-          "rules": [
-            {
-              "field": "../playMode",
-              "equals": "availableSentences"
-            }
-          ]
-        }
-      },
-      {
-        "name": "caseSensitive",
-        "importance": "low",
-        "type": "boolean",
-        "default": false,
-        "label": "Case sensitive",
-        "description": "Makes sure the user input has to be exactly the same as the answer."
-      },
-      {
-        "label": "Enable Number of words Choice",
-        "importance": "low",
-        "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!",
-        "name": "enableNumChoice",
-        "type": "boolean",
-        "default": false,
-        "optional": true,
-        "widget": "showWhen",
-        "showWhen": {
-          "rules": [
-            {
-              "field": "../playMode",
-              "equals": "availableSentences"
-            }
-          ]
-        }
-      },
-      {
-        "label": "Enable \"Show solution\" button",
-        "importance": "low",
-        "name": "enableSolutionsButton",
-        "type": "boolean",
-        "default": false,
-        "optional": true,
-        "widget": "showWhen",
-        "showWhen": {
-          "rules": [
-            {
-              "field": "../playMode",
-              "equals": "availableSentences"
-            }
-          ]
-        }
-      },
-      {
-        "name": "numRounds",
-        "type": "number",
-        "label": "Number of rounds",
-        "description": "Minimum number of rounds before Solutions can be displayed:",
-        "importance": "low",
-        "optional": true,
-        "default": 1,
-        "min": 1,
-        "widget": "showWhen",
-        "showWhen": {
-          "type": "and",
-          "rules": [
-            {
-              "field": "../playMode",
-              "equals": "availableSentences"
-            },
-            {
-              "field": "enableSolutionsButton",
-              "equals": true
-            }
-          ]
-        }
-      },
-      {
-        "name": "displayAudio",
-        "type": "select",
-        "label": "When to display the audio buttons",
-        "importance": "low",
-        "description": "If a sentence has an audio attached to it, select WHEN you want to display the audio buttons.",
-        "default": "correct",
-        "widget": "showWhen",
-        "showWhen": {
-          "rules": [
-            {
-              "field": "../playMode",
-              "equals": "availableSentences"
-            }
-          ]
-        },
-        "options": [
-          {
-            "value": "correct",
-            "label": "Only when the blanks have been correctly filled in"
-          },
-          {
-            "value": "always",
-            "label": "Always"
-          }
-        ]
-      },
-      {
-        "label": "Display Guessed Sentences",
-        "importance": "low",
-        "name": "listGuessedSentences",
-        "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story.",
-        "type": "boolean",
-        "default": false
-      },
-      {
-        "label": "Display audio and tip buttons in Guessed Sentences",
-        "importance": "low",
-        "name": "listGuessedAudioAndTips",
-        "description": "Select how you want to display the audio and tip buttons in front of each sentence in the list of guessed sentences.",
-        "type": "select",
-        "default": "none",        
-        "widget": "showWhen",
-        "showWhen": {
-        "type": "and",
-          "rules": [
-            {
-              "field": "../playMode",
-              "equals": "availableSentences"
-            },
-            {
-              "field": "listGuessedSentences",
-              "equals": true
-            }
-          ]
-        },
-        "options": [
-          {
-            "value": "none",
-            "label": "None"
-          },
-          {
-            "value": "audioAndTip",
-            "label": "Both audio and tip buttons"
-          },
-          {
-            "value": "tipOnly",
-            "label": "Tip button only"
-          },
-          {
-            "value": "audioOnly",
-            "label": "Audio button only"
-          }
-        ]
-      },
-      {
-        "name": "sentencesOrder",
-        "type": "select",
-        "label": "Sentences Order",
-        "importance": "low",
-        "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
-        "default": "normal",
-        "widget": "showWhen",
-        "showWhen": {
-          "rules": [
-            {
-              "field": "../playMode",
-              "equals": "availableSentences"
-            }
-          ]
-        },
-        "options": [
-          {
-            "value": "normal",
-            "label": "Normal order"
-          },
-          {
-            "value": "random",
-            "label": "Random order"
-          }
-        ]
-      }
-    ]
+    "default": "Retry",
+    "common": true
   },
   {
     "label": "End Game confirmation dialog",
