@@ -1,0 +1,363 @@
+{
+  "semantics": [
+    {
+      "label": "Descrição da Tarefa",
+      "default": "Tente descobrir a Afirmação mistério",
+      "description": "Guia de instruções para o utilizador, de como realizar a tarefa. Se acontecer um bug na barra de tarefas, configurar o modo de jogo (abaixo) para 'Permitir ... escolher a afirmação'. Pode selecionar de novo 'Usar as Afirmações Disponíveis' após editar a Descrição da Tarefa",
+      "font": {}
+    },
+    {
+      "label": "Modo de Jogo",
+      "description": "Selecionar o modo de jogo",
+      "default": "availableSentences",
+      "options": [
+        {
+          "label": "Usar as afirmações disponíveis (abaixo)"
+        },
+        {
+          "label": "Permitir ao utilizador escolher a afirmação"
+        }
+      ]
+    },
+    {
+      "label": "Permitir \"Áudio\"",
+      "description": "Permitir \"Áudio\" para a afirmação a descobrir?",
+      "showWhen": {
+        "rules": [
+          {}
+        ]
+      }
+    },
+    {
+      "label": "Afirmações",
+      "entity": "sentence",
+      "description": "Escrever as afirmações/frases/palavras a ser descobertas pelos formandos. É possível dividir as palavras em partes com uma barra, ou seja, \"Um ato anti/constitu/cion/al\"",
+      "widgets": [
+        {
+          "label": "Por Defeito"
+        }
+      ],
+      "field": {
+        "label": "Questão",
+        "fields": [
+          {
+            "label": "Afirmação"
+          },
+          {
+            "label": "Áudio",
+            "description": "Áudio para esta afirmação (opcional)",
+            "showWhen": {
+              "rules": [
+                {},
+                {}
+              ]
+            }
+          },
+          {
+            "label": "Ajuda",
+            "description": "Texto de ajuda para esta afirmação (opcional)"
+          }
+        ]
+      },
+      "showWhen": {
+        "rules": [
+          {}
+        ]
+      }
+    },
+    {
+      "label": "Configurações de comportamento.",
+      "description": "Estas configurações permitem controlar o comportamento da tarefa.",
+      "fields": [
+        {
+          "label": "Permitir \"Tentar de Novo\"",
+          "description": "Adiciona, quando o jogo termina, o botão \"Tentar de Novo\". Apenas atualiza o endereço/URL. Pode não funcionar em alguns casos, portanto antes de permitir esta opção, verificar se funciona, na plataforma utilizada!"
+        },
+        {
+          "label": "Pontuar esta atividade com o valor unitário, para qualquer número de afirmações descobertas.",
+          "description": "Não selecionar esta opção, se pretender que a pontuação seja em percentagem do número total de afirmações ou frases.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Sensível a Maiúsculas/Minúsculas",
+          "description": "Tenha a certeza que o texto introduzido seja exatamente igual à resposta pretendida."
+        },
+        {
+          "label": "Permitir a escolha do número de palavras",
+          "description": "Selecionar esta opção para permitir ao utilizador selecionar um número determinado de palavras (por afirmação) a descobrir. Não selecionar esta opção se as ideas ou frases fazem parte de uma história!",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Permitir o botão \"Mostrar Solução\"",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Número de Tentativas",
+          "description": "Número Mínimo de tentativas antes que sejam visualizáveis as soluções:",
+          "showWhen": {
+            "rules": [
+              {},
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Quando mostrar os símbolos do Áudio",
+          "description": "Se a afirmação possui um Áudio associado, selecionar QUANDO se pretende mostrar o acesso ao mesmo.",
+          "default": "correct",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          },
+          "options": [
+            {
+              "label": "Apenas quando es espaços forem preenchidos"
+            },
+            {
+              "label": "Sempre"
+            }
+          ]
+        },
+        {
+          "label": "Mostrar as afirmações/frases descobertas",
+          "description": "Selecionar esta opção para adicionar a afirmação descoberta a uma lista, após cada tentativa com sucesso. Esta opção é útil se as afirmações/frases fazem parte de uma história."
+        },
+        {
+          "label": "Mostar os os botões de Áudio e Ajuda nas afirmações/frases descobertas",
+          "description": "Selecionar a forma de mostrar os botões de Áudio e de Ajuda, em frente a cada afirmação, na lista das afirmações descobertas.",
+          "default": "none",
+          "showWhen": {
+            "rules": [
+              {},
+              {}
+            ]
+          },
+          "options": [
+            {
+              "label": "Nenhum"
+            },
+            {
+              "label": "Ambos os botões(Áudio e Ajuda)"
+            },
+            {
+              "label": "Apenas o botão de Ajuda"
+            },
+            {
+              "label": "Apenas o botão de Áudio"
+            }
+          ]
+        },
+        {
+          "label": "Ordenação das Afirmações",
+          "description": "Selecionar a ordem pela qual as afirmações a descobrir são visualizadas pelo utilizador. Selecionar \"Normal\" se as afirmações formam uma história!",
+          "default": "normal",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          },
+          "options": [
+            {
+              "label": "Normal"
+            },
+            {
+              "label": "Aleatória"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "<span style=\"position: absolute;top: -40px;left: 0px;\">Tutoriais e Exemplos: <a href=\"http://www.rezeau.org/drupal/\" target=\"_blank\" rel=\"noopener\">Papi Jo's Drupal test site</a></span>",
+      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
+    },
+    {
+      "label": "Texto do botão \"Mostrar Solução\"",
+      "default": "Mostrar Solução"
+    },
+    {
+      "label": "Texto do botão \"Nova Afirmação\"",
+      "default": "Descobrir Nova Afirmação"
+    },
+    {
+      "label": "Texto do botão \"Terminar o Jogo\"",
+      "default": "Terminar o Jogo"
+    },
+    {
+      "label": "Texto do botão \"Verificar\"",
+      "default": "Verificar"
+    },
+    {
+      "label": "Texto do botão \"Tentar Novamente\"",
+      "default": "Tentar Novamente"
+    },
+    {
+      "label": "Texto para a mensagem \"Não Completou as Tentativas Suficientes\"",
+      "default": "A solução não será visualizada antes da @round ª tentativa",
+      "description": "@round deverá ser substituido pelo número mínimo de tentativas que condiciona a visualização da solução, parâmetro definido acima"
+    },
+    {
+      "label": "Texto para \"Preencher Todos os Espaços\"",
+      "default": "Por favor preencha todos os espaços antes de verificar as suas respostas!"
+    },
+    {
+      "label": "Texto para \"Quantas palavras deseja na sua afirmação mistério?\"",
+      "default": "Quantas palavras deseja na sua afirmação mistério?",
+      "description": "Aplicável apenas se \"Permitir a escolha do número de palavras\" foi selecionado."
+    },
+    {
+      "label": "Texto para \"Qualquer número de palavras\"",
+      "default": "Qualquer",
+      "description": "Aplicável apenas se \"Permitir a escolha do número de palavras\" foi selecionado."
+    },
+    {
+      "label": "Texto para \"Escreva a afirmação ou frase a ser descoberta pelos seus amigos\"",
+      "default": "Escreva a afirmação ou frase a ser descoberta pelos seus amigos",
+      "description": "Aplicável apenas se o Modo de jogo foi selecionado para \"Permitir ao utilizador escolher a afirmação\""
+    },
+    {
+      "label": "Texto para \"Escreva uma frase de Ajuda para a afirmação (opcional)\"",
+      "default": "Escreva uma frase de Ajuda para a afirmação (opcional)",
+      "description": "Aplicável apenas se o Modo de jogo foi selecionado para \"Permitir ao utilizador escolher a afirmação\""
+    },
+    {
+      "label": "Texto para \"Número Mínimo de tentativas antes que sejam visualizáveis as soluções:\"",
+      "default": "Número Mínimo de tentativas antes que sejam visualizáveis as soluções:",
+      "description": "Aplicável apenas se o Modo de jogo foi selecionado para \"Permitir ao utilizador escolher a afirmação\""
+    },
+    {
+      "label": "Texto do botão de seleção \"Não Mostrar\"",
+      "default": "Não Mostrar",
+      "description": "Aplicável apenas se o Modo de jogo foi selecionado para \"Permitir ao utilizador escolher a afirmação\""
+    },
+    {
+      "label": "Texto para \"Afirmação\", no singular",
+      "description": "Esta palavra será utilizada em várias partes da atividade",
+      "default": "Afirmação"
+    },
+    {
+      "label": "Texto para \"Afirmações\", no plural",
+      "description": "Esta palavra será utilizada em várias partes da atividade",
+      "default": "Afirmações"
+    },
+    {
+      "label": "Texto para a mensagem \"Tentativa\" abaixo das afirmações/frases a descobrir",
+      "description": "@round será substituido pelo número da tentativa atual",
+      "default": "@round ª Tentativa"
+    },
+    {
+      "label": "Texto relativo ao tempo decorrido",
+      "default": "Tempo Decorrido",
+      "description": "Legenda para mostar o tempo decorrido enquando tenta descobrir a afirmação"
+    },
+    {
+      "label": "Texto a visualizar no botão explicativo da pontuação obtida",
+      "default": "Mostrar Explicação da Pontuação",
+      "description": "Legenda do botão de Feedback 'Mostrar Explicação da Pontuação'"
+    },
+    {
+      "label": "Expicação da pontuação para o caso de ponto único pela atividade",
+      "default": "A pontuação máxima para esta atividade é 1 e obteve esse ponto independentemente do número de afirmações descobertas."
+    },
+    {
+      "label": "Expicação da pontuação para o caso de pontuação percentual",
+      "default": "Pontuação = número de afirmações descobertas / número de afirmações desta atividade."
+    },
+    {
+      "label": "Explicação da pontuação para todas as afirmações com o número selecionado de palavras",
+      "default": "Pontuação = número de afirmações descobertas / número de afirmações contendo @words palavras.",
+      "description": "@words will be replaced by the number of words per sentence selected by the user on the initial screen"
+    },
+    {
+      "label": "Texto para o cabeçalho da página de resumo",
+      "default": "Resumo"
+    },
+    {
+      "label": "Texto para o número de afirmações descobertas (na página resumo final)",
+      "default": "Afirmações Descobertas"
+    },
+    {
+      "label": "Texto para o número total de soluções visualizadas (na página resumo final)",
+      "default": "Soluções Visualizadas"
+    },
+    {
+      "label": "Texto para o tempo total dispendido (na página resumo final)",
+      "default": "Tempo Total Dispendido"
+    },
+    {
+      "label": "Texto para o número total de tentativas realizadas (na página resumo final)",
+      "default": "Total de Tentativas"
+    },
+    {
+      "label": "Texto para \"':ans' está correta\"",
+      "default": "':ans' está correta"
+    },
+    {
+      "label": "Texto para \"':ans' está incorreta\"",
+      "default": "':ans' está incorreta"
+    },
+    {
+      "label": "Texto para \"Respondido Corretamente\"",
+      "default": "Respondido Corretamente"
+    },
+    {
+      "label": "Texto para a mensagem de \"Resposta Incorreta\"",
+      "default": "Resposta Incorreta"
+    },
+    {
+      "label": "Texto de aviso para a Solução",
+      "default": "Resposta Correta:"
+    },
+    {
+      "label": "Texto de aviso para campo de entrada de variáveis",
+      "description": "Usar @num e @total para substituir o número de espaços e o total de espaços",
+      "default": "Espaço em branco @num de um total de @total"
+    },
+    {
+      "label": "Texto de aviso para um input com Ajuda associada",
+      "default": "Ajuda Disponível"
+    },
+    {
+      "label": "Texto do botão de Ajuda",
+      "default": "Ajuda"
+    },
+    {
+      "label": "Texto do botão para Tentar Novamente",
+      "default": "Tentar Novamente"
+    },
+    {
+      "label": "Confirmação de Término de Jogo",
+      "fields": [
+        {
+          "label": "Texto do Cabeçalho",
+          "default": "Terminar o Jogo?"
+        },
+        {
+          "label": "Texto de Confirmação",
+          "default": "Tem a certeza que deseja terminar este Jogo?"
+        },
+        {
+          "label": "Texto do botão de cancelamento",
+          "default": "Cancelar"
+        },
+        {
+          "label": "Texto do botão de confirmação",
+          "default": "Confirmar"
+        }
+      ]
+    }
+  ]
+}
