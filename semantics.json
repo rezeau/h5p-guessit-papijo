@@ -99,6 +99,7 @@
           "description": "Audio for this sentence (optional)",
           "importance": "low",
           "optional": true,
+          "widgetExtensions": ["AudioRecorder"],
           "widget": "showWhen",
           "showWhen": {
             "type": "and",
