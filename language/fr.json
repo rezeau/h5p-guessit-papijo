@@ -3,13 +3,11 @@
     {
       "label": "Consigne",
       "default": "Devinez la phrase mystère mot par mot",
-      "description": "La consigne indique à l'utilisateur comment faire l'activité. Vous pouvez modifier le texte de cette consigne.",
-      "font": {}
+      "description": "La consigne indique à l'utilisateur comment faire l'activité."
     },
     {
       "label": "Mode",
       "description": "Choisissez votre mode de jeu",
-      "default": "availableSentences",
       "options": [
         {
           "label": "Utiliser les phrases disponibles ci-dessous"
@@ -21,12 +19,7 @@
     },
     {
       "label": "Activer \"Audio\"",
-      "description": "Activer \"Audio\" pour les phrases à deviner ?",
-      "showWhen": {
-        "rules": [
-          {}
-        ]
-      }
+      "description": "Activer \"Audio\" pour les phrases à deviner ?"
     },
     {
       "label": "Phrases",
@@ -45,23 +38,12 @@
           },
           {
             "label": "Audio",
-            "description": "Audio pour cette phrase (facultatif)",
-            "showWhen": {
-              "rules": [
-                {},
-                {}
-              ]
-            }
+            "description": "Audio pour cette phrase (facultatif)"
           },
           {
             "label": "Indice",
             "description": "Indice pour cette phrase (facultatif)"
           }
-        ]
-      },
-      "showWhen": {
-        "rules": [
-          {}
         ]
       }
     },
@@ -75,12 +57,7 @@
         },
         {
           "label": "Noter cette activité sur 1 et donner un point pour n'importe quel nombre de phrases devinées",
-          "description": "Ne cochez pas cette option si vous souhaitez que cette activité soit notée par rapport au nombre total de phrases.",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "description": "Ne cochez pas cette option si vous souhaitez que cette activité soit notée par rapport au nombre total de phrases."
         },
         {
           "label": "Sensible à la casse",
@@ -88,40 +65,22 @@
         },
         {
           "label": "Activer le choix du nombre de mots",
-          "description": "Cochez cette option pour permettre à l'utilisateur de sélectionner le nombre de mots (par phrase) à deviner. Ne cochez PAS cette option si vos phrases constituent une histoire !",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "description": "Cochez cette option pour permettre à l'utilisateur de sélectionner le nombre de mots (par phrase) à deviner. Ne cochez PAS cette option si vos phrases constituent une histoire !"
         },
         {
-          "label": "Activer le bouton \"Montrer la solution\"",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "label": "Activer le bouton \"Montrer la solution\""
+        },
+        {
+          "label": "Activer le bouton \"Terminer la partie\"",
+          "description": "Cochez cette case si vous voulez permettre au joueur de quitter le jeu sans avoir deviné la phrase en cours."
         },
         {
           "label": "Nombre de tours",
-          "description": "Nombre minimum de tours avant que les solutions puissent être affichées :",
-          "showWhen": {
-            "rules": [
-              {},
-              {}
-            ]
-          }
+          "description": "Nombre minimum de tours avant que les boutons \"Montrer la solution\" ou \"Terminer la partie\"  puissent être affichées :"
         },
         {
           "label": "Quand afficher les boutons Audio",
           "description": "Si une phrase est accompagnée d'un son, sélectionnez QUAND vous voulez afficher les boutons audio.",
-          "default": "correct",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          },
           "options": [
             {
               "label": "Seulement lorsque les blancs ont été correctement remplis"
@@ -138,13 +97,6 @@
         {
           "label": "Afficher l'audio et les boutons d'indices dans les phrases devinées",
           "description": "Sélectionnez la manière dont vous souhaitez afficher les boutons audio et les boutons d'indices devant chacune des phrases dans la liste des phrases devinées.",
-          "default": "none",
-          "showWhen": {
-            "rules": [
-              {},
-              {}
-            ]
-          },
           "options": [
             {
               "label": "Aucun bouton"
@@ -164,11 +116,6 @@
           "label": "Ordre des phrases",
           "description": "Sélectionnez l'ordre dans lequel les phrases seront affichées à l'utilisateur. Ne cochez PAS cette option si vos phrases constituent une histoire !",
           "default": "normal",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          },
           "options": [
             {
               "label": "Ordre normal"
@@ -206,8 +153,8 @@
     },
     {
       "label": "Texte du message \"Pas assez de tours\"",
-      "default": "La solution ne sera pas disponible avant le tour @round",
-      "description": "@round sera remplacé par le nombre minimum de tours nécessaires avant d'afficher les solutions"
+      "default": "Cette option ne sera pas disponible avant le tour @round",
+      "description": "@round sera remplacé par le nombre minimum de tours nécessaires avant d'afficher les solutions ou terminer la partie"
     },
     {
       "label": "Texte du message \"Remplissez tous les blancs\"",

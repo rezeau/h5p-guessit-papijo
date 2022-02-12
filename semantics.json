@@ -6,7 +6,7 @@
     "label": "Task description",
     "importance": "medium",
     "default": "Try to guess the mysterious sentence",
-    "description": "A guide telling the user how to do this task. If you see the flickering bug on the toolbar, set the Play Mode (below) to 'Allow user ... own sentence'. You can re-set it to 'Available Sentences' after editing this Task Description field",
+    "description": "A guide telling the user how to do this task.",
     "optional": true,
     "tags": [
       "strong",
@@ -213,17 +213,16 @@
         }
       },
       {
-        "name": "numRounds",
-        "type": "number",
-        "label": "Number of rounds",
-        "description": "Minimum number of rounds before Solutions can be displayed:",
+        "label": "Enable \"End Game\" button",
         "importance": "low",
+        "name": "enableEndGameButton",
+        "type": "boolean",
+        "default": false,
+        "description": "Check this if you want to allow the player to quit the game without having guessed the current sentence",
         "optional": true,
-        "default": 1,
-        "min": 1,
         "widget": "showWhen",
         "showWhen": {
-          "type": "and",
+        "type": "and",
           "rules": [
             {
               "field": "../playMode",
@@ -231,6 +230,30 @@
             },
             {
               "field": "enableSolutionsButton",
+              "equals": false
+            }
+          ]
+        }
+      },
+      {
+        "name": "numRounds",
+        "type": "number",
+        "label": "Number of rounds before Solutions or End Game",
+        "description": "Minimum number of rounds before the \"Solutions\" or \"End Game\" buttons can be displayed:",
+        "importance": "low",
+        "optional": true,
+        "default": 1,
+        "min": 1,
+        "widget": "showWhen",
+        "showWhen": {
+          "type": "or",
+          "rules": [
+            {
+              "field": "enableSolutionsButton",
+              "equals": true
+            },
+            {
+              "field": "enableEndGameButton",
               "equals": true
             }
           ]
@@ -394,8 +417,8 @@
     "importance": "low",
     "name": "notEnoughRounds",
     "type": "text",
-    "default": "The solution won't be available before round @round",
-    "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions",
+    "default": "This option won't be available before round @round",
+    "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions or ending the game",
     "common": true,
     "optional": true
   },

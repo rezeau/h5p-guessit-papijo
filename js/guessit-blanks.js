@@ -9,6 +9,9 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   var STATE_SHOWING_SOLUTION = 'showing-solution';
   var STATE_FINISHED = 'finished';
   
+  const XAPI_ALTERNATIVE_EXTENSION = 'https://h5p.org/x-api/alternatives';
+  const XAPI_CASE_SENSITIVITY = 'https://h5p.org/x-api/case-sensitivity';
+  const XAPI_REPORTING_VERSION_EXTENSION = 'https://h5p.org/x-api/h5p-reporting-version';
   /**
    * @typedef {Object} Params
    *  Parameters/configuration object for GuessIt
@@ -62,7 +65,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       endGame: 'End Game',
       checkAnswer: "Check",
       notFilledOut: "Please fill in all the blanks before checking your answer!",
-      notEnoughRounds: "The solution won't be available before Round @round",
+      notEnoughRounds: "This option won't be available before Round @round",
       answerIsCorrect: "':ans' is correct",
       answerIsWrong: "':ans' is wrong",
       answeredCorrectly: "Answered correctly",
@@ -98,6 +101,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
         singlePoint: false,
         enableNumChoice: false,
         enableSolutionsButton: false,
+        enableEndGameButton: false,
         listGuessedSentences: false,
         listGuessedTips: false,
         numRounds: 1,
@@ -123,6 +127,8 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     this.totalNumQuestions = this.params.questions.length; 
     if (this.params.playMode == 'userSentence') {
       this.totalNumQuestions = 1;
+      this.params.behaviour.enableSolutionsButton = false;
+      this.params.behaviour.enableEndGameButton = false;
     }
     // Previous state
     this.contentData = contentData;                                                       
@@ -140,6 +146,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     // Init userAnswers
     this.userAnswers = [];
     this.sentencesList = '';
+    this.currentAnswer = '';
     this.totalTimeSpent = 0;
     this.totalRounds = 0;
     this.solutionsViewed = [];
@@ -147,7 +154,12 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     // Used by enableNumChoice 
     this.numWords = 0;
     this.numQuestions = 0;
-    
+    // used by XAPI
+    this.success = false;
+    this.totalTime = '';
+    if (this.params.behaviour.enableSolutionsButton) {
+      this.params.behaviour.enableEndGameButton = false;
+    }
     // Init currentSentence values
     this.sentenceClozeNumber = [];
 
@@ -258,7 +270,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
           'class': 'h5p-guessit-okbutton',
           'title': 'OK',
           'html': 'OK'
-        }).click(function () {          
+        }).click(function () {  
           $usersentence = ($("#usersentence").val());
           $tip = ($("#usertip").val());
           if ($usersentence !== '') {
@@ -466,13 +478,22 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
         });
           
       } else {
+        self.currentAnswer = '';
+        $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
+        $currentInputs.each(function(index, val){
+          if ($(this).val() !== '') {
+           self.currentAnswer += $(this).val() + ' ';
+          }
+        });
         self.toggleButtonVisibility(STATE_CHECKING);
         self.updateFeedbackContent('');
         self.markResults();
-        self.timer.stop();       
+        self.timer.stop();  
+        
         var isFinished = (self.getScore() === self.getMaxScore());
         
         if (isFinished) {
+               
           var currentGuessedSentenceId = self.params.questions[self.currentSentenceId].ID
           self.sentencesGuessed.push(currentGuessedSentenceId);
           self.$questions.eq(self.currentSentenceId)
@@ -554,17 +575,19 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       && Object.keys(this.previousState).length !== 0);
     
     self.addButton('end-game', self.params.endGame, function () {
+      if (!self.allowSolution(self.params.endGame)) {
+        return;
+      }
       self.showFinalPage();
     }, true, {}, {           
-        confirmationDialog: {                      
+        confirmationDialog: {
           enable: self.confirmEndGameEnabled,
           l10n: self.params.confirmEndGame,
           instance: self,
           $parentElement: $container
         }
-      });  
-    this.hideButton('end-game');
-    
+      });
+      
     // End game button NO CONFIRMATION NEEDED 
     self.addButton('end-game2', self.params.endGame, function () {
       self.showFinalPage();
@@ -834,9 +857,13 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     
     if ((state === STATE_CHECKING && !isFinished) || state === STATE_SHOWING_SOLUTION) {
       this.showButton('try-again');
+      if (this.params.behaviour.enableEndGameButton) {     
+        this.showButton('end-game');
+      }
     }
     else {
       this.hideButton('try-again');
+      this.hideButton('end-game');
     }
 
     if (state === STATE_ONGOING) {
@@ -853,9 +880,10 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   /**
    * Check if solution is allowed. Warn user if not
    */
-  GuessIt.prototype.allowSolution = function () {
-      if (!this.minRoundsReached()) {
-        var minRoundsText = this.params.notEnoughRounds
+  GuessIt.prototype.allowSolution = function (option) {
+    var isFinished = (this.getScore() === this.getMaxScore());
+      if (!isFinished && !this.minRoundsReached()) {
+        var minRoundsText = option + ' : ' + this.params.notEnoughRounds
           .replace('@round', this.params.behaviour.numRounds);
         this.updateFeedbackContent(minRoundsText);
         this.read(minRoundsText);
@@ -875,6 +903,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     return (this.counter.getcurrent() > this.params.behaviour.numRounds - 1)
   };
 
+ 
   /**
    * Enable incorrect words for retrying them.
    */
@@ -925,7 +954,8 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * Displays the correct answers
    */
   GuessIt.prototype.showCorrectAnswers = function () {
-    if (!this.allowSolution()) {
+    var self = this;
+    if (!this.allowSolution(self.params.showSolutions)) {
       return;
     }
     
@@ -1072,9 +1102,9 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     }
     
     this.hideButton('new-sentence');
+    
     this.hideButton('end-game');
     this.answered = false;
-    //this.removeFeedback();
     this.clearAnswers();
     this.removeMarkedResults();
     this.toggleButtonVisibility(STATE_ONGOING);
@@ -1125,15 +1155,16 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   };
   
   GuessIt.prototype.showFinalPage = function () {    
-    var self = this;                                                           
+    var self = this;  
+    this.hideButton('end-game');
+    this.hideButton('try-again');
     var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     
     // Needed to display 'h5p-guessit-summary-screen' centered!
     $content.removeClass('h5p-no-frame');
     
     // Remove all these now useless elements from DOM.
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');    
-    
+    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');      
     
     $('.h5p-no-frame, .h5p-guessit-description, .h5p-question-introduction, .h5p-question-content,'
       +' .h5p-question-scorebar, .h5p-question-feedback',
@@ -1162,7 +1193,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       ret += "" + secs + ' ' + $second;
       return ret;
     }
-    var totalTime = fancyTimeFormat(time);
+    this.totalTime = fancyTimeFormat(time);
     
     // Calculate the number of sentences that have been guessed.
     var usedQuestions = 1;
@@ -1187,12 +1218,14 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
           .replace('@words', this.numWords);
       }
     }
-    
-    // Push score to XAPI 
-    self.triggerXAPIScored(actualScore, maxScore, 'completed');
-    self.triggerXAPI('answered');
-                                                                                                        
-    this.hideButton('end-game');
+       
+    if (actualScore === maxScore) {
+      this.success = true;
+    } 
+    this.actualScore = actualScore;
+    this.maxScore = maxScore;
+    // We only trigger XAPI at the end of the activity
+    self.triggerAnswered();
     this.hideButton('end-game2');
     this.hideButton('new-sentence');
     this.$timer.remove();
@@ -1218,7 +1251,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       + '<td class="h5p-guessit-summary-table-row-score">' + this.nbSsolutionsViewed + '</td></tr>'
       
       + '<tr><td colspan="3" class="h5p-guessit-summary-table-row-category">' 
-      + this.params.totalTimeSpent + '<span style = "float: right;">' + totalTime +  '</span></td>'
+      + this.params.totalTimeSpent + ' :<span style = "float: right;">&nbsp;' + this.totalTime +  '</span></td>'
       + '<td class="">' + '</td>'
       + '<td class="">' + '</td></tr>'        
       + '</table>';
@@ -1280,6 +1313,62 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   };
 
   /**
+   * Trigger xAPI answered event
+   */
+  GuessIt.prototype.triggerAnswered = function () {
+    this.answered = true;
+    var xAPIEvent = this.createXAPIEventTemplate('answered');
+    this.addQuestionToXAPI(xAPIEvent);
+    this.addResponseToXAPI(xAPIEvent);
+    this.trigger(xAPIEvent);
+  };
+
+  /**
+   * Get xAPI data.
+   * Contract used by report rendering engine.
+   *
+   * @see contract at {@link https://h5p.org/documentation/developers/contracts#guides-header-6}
+   */
+  GuessIt.prototype.getXAPIData = function () {
+    var xAPIEvent = this.createXAPIEventTemplate('answered');
+    this.addQuestionToXAPI(xAPIEvent);
+    this.addResponseToXAPI(xAPIEvent);
+    return {
+      statement: xAPIEvent.data.statement
+    };
+  };
+
+  /**
+   * Generate xAPI object definition used in xAPI statements.
+   * @return {Object}
+   */
+  GuessIt.prototype.getxAPIDefinition = function () {
+    var definition = {};
+    definition.description = {
+      'en-US': this.params.sentencesGuessed
+    };
+    definition.type = 'http://adlnet.gov/expapi/activities/cmi.interaction';
+    definition.interactionType = 'long-fill-in';
+    return definition;
+  };
+
+  /**
+   * Add the question itselt to the definition part of an xAPIEvent
+   */
+  GuessIt.prototype.addQuestionToXAPI = function (xAPIEvent) {
+    var definition = xAPIEvent.getVerifiedStatementValue(['object', 'definition']);
+    $.extend(true, definition, this.getxAPIDefinition());
+
+    // Set reporting module version if alternative extension is used
+    if (this.hasAlternatives) {
+      const context = xAPIEvent.getVerifiedStatementValue(['context']);
+      context.extensions = context.extensions || {};
+      context.extensions[XAPI_REPORTING_VERSION_EXTENSION] = '1.1.0';
+    }
+  };
+
+
+  /**
    * Parse the solution text (text between the asterisks)
    *
    * @param {string} solutionText
@@ -1290,6 +1379,35 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     return {
       solutions: solutionText.split()
     };
+  };
+  /**
+   * Add the response part to an xAPI event
+   *
+   * @param {H5P.XAPIEvent} xAPIEvent
+   *  The xAPI event we will add a response to
+   * change last param to this.isPassed() TODO!
+   */
+  GuessIt.prototype.addResponseToXAPI = function (xAPIEvent) {// todo score
+    xAPIEvent.setScoredResult(this.actualScore, this.maxScore, this,
+    true, this.success);
+    xAPIEvent.data.statement.result.response = this.getxAPIResponse(this.params.questions);
+  };
+
+  /**
+   * Generate xAPI user response, used in xAPI statements.
+   * @return {string} User answers separated by the "[,]" pattern
+   */
+  GuessIt.prototype.getxAPIResponse = function (questions) {
+    let guessedSentences = '';
+    // TODO add tried sentences? + add timespent & nb turns & solutions asked for each or all???
+    this.sentencesGuessed.forEach(function(item){
+      guessedSentences += (!guessedSentences ? '' : '\n') + questions[item].sentence;
+    })
+    guessedSentences += '\n------------------------\n' 
+      + this.params.totalRounds + ' : ' + this.totalRounds + '\n' 
+      + this.params.solutionsViewed + ' : ' + this.nbSsolutionsViewed;
+       
+    return guessedSentences;
   };
 
   /**
@@ -1318,12 +1436,16 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   GuessIt.prototype.getScore = function () {
     var self = this;
     var correct = 0;
+    
     for (var i = 0; i < self.clozes.length; i++) {
       if (self.clozes[i].correct()) {
         correct++;
       }
-      this.userAnswers[i] = self.clozes[i].getUserAnswer();
+      if (self.clozes[i].getUserAnswer() !== '') {
+        //this.userAnswers[i] = self.clozes[i].getUserAnswer();
+      }
     }
+    
     return correct;
   };
 
@@ -1403,7 +1525,21 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   GuessIt.prototype.disableInput = function () {
     this.$questions.find('input').attr('disabled', true);
   };
-
+  /**
+   * Generate xAPI object definition used in xAPI statements.
+   * @return {Object}
+   */
+  /*
+  GuessIt.prototype.getxAPIDefinition = function () {
+    var definition = {};
+    definition.description = {
+      'en-US': this.params.description
+    };
+    definition.type = 'http://adlnet.gov/expapi/activities/cmi.interaction';
+    definition.interactionType = 'fill-in';
+    return definition;
+  };
+*/
   GuessIt.prototype.eventCompleted = function () {
    // Create and trigger xAPI event 'completed'
     var completedEvent = this.createXAPIEventTemplate('completed');

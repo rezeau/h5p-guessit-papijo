@@ -3,13 +3,11 @@
     {
       "label": "Task description",
       "default": "Try to guess the mysterious sentence",
-      "description": "A guide telling the user how to do this task. If you see the flickering bug on the toolbar, set the Play Mode (below) to 'Allow user ... own sentence'. You can re-set it to 'Available Sentences' after editing this Task Description field",
-      "font": {}
+      "description": "A guide telling the user how to do this task."
     },
     {
       "label": "Play Mode",
       "description": "Select your play mode",
-      "default": "availableSentences",
       "options": [
         {
           "label": "Use available sentences (below)"
@@ -21,12 +19,7 @@
     },
     {
       "label": "Enable \"Audio\"",
-      "description": "Enable \"Audio\" for the sentences to be guessed?",
-      "showWhen": {
-        "rules": [
-          {}
-        ]
-      }
+      "description": "Enable \"Audio\" for the sentences to be guessed?"
     },
     {
       "label": "Sentences",
@@ -45,23 +38,12 @@
           },
           {
             "label": "Audio",
-            "description": "Audio for this sentence (optional)",
-            "showWhen": {
-              "rules": [
-                {},
-                {}
-              ]
-            }
+            "description": "Audio for this sentence (optional)"
           },
           {
             "label": "Tip",
             "description": "Tip text for this sentence (optional)"
           }
-        ]
-      },
-      "showWhen": {
-        "rules": [
-          {}
         ]
       }
     },
@@ -75,12 +57,7 @@
         },
         {
           "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
-          "description": "Uncheck this option if you want this activity to be scored against the total number of sentences.",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "description": "Uncheck this option if you want this activity to be scored against the total number of sentences."
         },
         {
           "label": "Case sensitive",
@@ -88,40 +65,22 @@
         },
         {
           "label": "Enable Number of words Choice",
-          "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!"
         },
         {
-          "label": "Enable \"Show solution\" button",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "label": "Enable \"Show solution\" button"
         },
         {
-          "label": "Number of rounds",
-          "description": "Minimum number of rounds before Solutions can be displayed:",
-          "showWhen": {
-            "rules": [
-              {},
-              {}
-            ]
-          }
+          "label": "Enable \"End Game\" button",
+          "description": "Check this if you want to allow the player to quit the game without having guessed the current sentence"
+        },
+        {
+          "label": "Number of rounds before Solutions or End Game",
+          "description": "Minimum number of rounds before the \"Solutions\" or \"End Game\" buttons can be displayed:"
         },
         {
           "label": "When to display the audio buttons",
           "description": "If a sentence has an audio attached to it, select WHEN you want to display the audio buttons.",
-          "default": "correct",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          },
           "options": [
             {
               "label": "Only when the blanks have been correctly filled in"
@@ -138,13 +97,6 @@
         {
           "label": "Display audio and tip buttons in Guessed Sentences",
           "description": "Select how you want to display the audio and tip buttons in front of each sentence in the list of guessed sentences.",
-          "default": "none",
-          "showWhen": {
-            "rules": [
-              {},
-              {}
-            ]
-          },
           "options": [
             {
               "label": "None"
@@ -163,12 +115,6 @@
         {
           "label": "Sentences Order",
           "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
-          "default": "normal",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          },
           "options": [
             {
               "label": "Normal order"
@@ -206,8 +152,8 @@
     },
     {
       "label": "Text for \"Not enough rounds\" message",
-      "default": "The solution won't be available before round @round",
-      "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions"
+      "default": "This option won't be available before round @round",
+      "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions or ending the game"
     },
     {
       "label": "Text for \"Fill in all the blanks\" message",

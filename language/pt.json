@@ -3,8 +3,7 @@
     {
       "label": "Descrição da Tarefa",
       "default": "Tente descobrir a Afirmação mistério",
-      "description": "Guia de instruções para o utilizador, de como realizar a tarefa. Se acontecer um bug na barra de tarefas, configurar o modo de jogo (abaixo) para 'Permitir ... escolher a afirmação'. Pode selecionar de novo 'Usar as Afirmações Disponíveis' após editar a Descrição da Tarefa",
-      "font": {}
+      "description": "Guia de instruções para o utilizador, de como realizar a tarefa."
     },
     {
       "label": "Modo de Jogo",
@@ -21,12 +20,7 @@
     },
     {
       "label": "Permitir \"Áudio\"",
-      "description": "Permitir \"Áudio\" para a afirmação a descobrir?",
-      "showWhen": {
-        "rules": [
-          {}
-        ]
-      }
+      "description": "Permitir \"Áudio\" para a afirmação a descobrir?"
     },
     {
       "label": "Afirmações",
@@ -45,23 +39,12 @@
           },
           {
             "label": "Áudio",
-            "description": "Áudio para esta afirmação (opcional)",
-            "showWhen": {
-              "rules": [
-                {},
-                {}
-              ]
-            }
+            "description": "Áudio para esta afirmação (opcional)"
           },
           {
             "label": "Ajuda",
             "description": "Texto de ajuda para esta afirmação (opcional)"
           }
-        ]
-      },
-      "showWhen": {
-        "rules": [
-          {}
         ]
       }
     },
@@ -75,12 +58,7 @@
         },
         {
           "label": "Pontuar esta atividade com o valor unitário, para qualquer número de afirmações descobertas.",
-          "description": "Não selecionar esta opção, se pretender que a pontuação seja em percentagem do número total de afirmações ou frases.",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "description": "Não selecionar esta opção, se pretender que a pontuação seja em percentagem do número total de afirmações ou frases."
         },
         {
           "label": "Sensível a Maiúsculas/Minúsculas",
@@ -88,40 +66,22 @@
         },
         {
           "label": "Permitir a escolha do número de palavras",
-          "description": "Selecionar esta opção para permitir ao utilizador selecionar um número determinado de palavras (por afirmação) a descobrir. Não selecionar esta opção se as ideas ou frases fazem parte de uma história!",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "description": "Selecionar esta opção para permitir ao utilizador selecionar um número determinado de palavras (por afirmação) a descobrir. Não selecionar esta opção se as ideas ou frases fazem parte de uma história!"
         },
         {
-          "label": "Permitir o botão \"Mostrar Solução\"",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "label": "Permitir o botão \"Mostrar Solução\""
         },
         {
-          "label": "Número de Tentativas",
-          "description": "Número Mínimo de tentativas antes que sejam visualizáveis as soluções:",
-          "showWhen": {
-            "rules": [
-              {},
-              {}
-            ]
-          }
+          "label": "Enable \"End Game\" button",
+          "description": "Check this if you want to allow the player to quit the game without having guessed the current sentence"
+        },
+        {
+          "label": "Number of rounds before Solutions or End Game",
+          "description": "Minimum number of rounds before the \"Solutions\" or \"End Game\" buttons can be displayed:"
         },
         {
           "label": "Quando mostrar os símbolos do Áudio",
           "description": "Se a afirmação possui um Áudio associado, selecionar QUANDO se pretende mostrar o acesso ao mesmo.",
-          "default": "correct",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          },
           "options": [
             {
               "label": "Apenas quando es espaços forem preenchidos"
@@ -137,14 +97,7 @@
         },
         {
           "label": "Mostar os os botões de Áudio e Ajuda nas afirmações/frases descobertas",
-          "description": "Selecionar a forma de mostrar os botões de Áudio e de Ajuda, em frente a cada afirmação, na lista das afirmações descobertas.",
-          "default": "none",
-          "showWhen": {
-            "rules": [
-              {},
-              {}
-            ]
-          },
+          "description": "Selecionar a forma de mostrar os botões de Áudio e de Ajuda, em frente a cada afirmação, na lista das afirmações descobertas.",          
           "options": [
             {
               "label": "Nenhum"
@@ -163,12 +116,6 @@
         {
           "label": "Ordenação das Afirmações",
           "description": "Selecionar a ordem pela qual as afirmações a descobrir são visualizadas pelo utilizador. Selecionar \"Normal\" se as afirmações formam uma história!",
-          "default": "normal",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          },
           "options": [
             {
               "label": "Normal"
@@ -205,9 +152,9 @@
       "default": "Tentar Novamente"
     },
     {
-      "label": "Texto para a mensagem \"Não Completou as Tentativas Suficientes\"",
-      "default": "A solução não será visualizada antes da @round ª tentativa",
-      "description": "@round deverá ser substituido pelo número mínimo de tentativas que condiciona a visualização da solução, parâmetro definido acima"
+      "label": "Text for \"Not enough rounds\" message",
+      "default": "This option won't be available before round @round",
+      "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions or ending the game"
     },
     {
       "label": "Texto para \"Preencher Todos os Espaços\"",
