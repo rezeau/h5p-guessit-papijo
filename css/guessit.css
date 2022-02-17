@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@300&display=swap');
 .h5p-guessit {
 }
 .h5p-guessit .h5p-input-wrapper {
@@ -7,7 +8,7 @@
 }
 .h5p-guessit .h5p-text-input,
 .h5p-guessit .h5p-text-input-user {
-  font-family: "Lucida Console", Courier, monospace; 
+  font-family: 'Roboto Mono', 'Lucida Console', Courier, monospace;
   font-size: 1.2em;
   border-radius: 0.25em;
   border: 1px solid #a0a0a0;
@@ -39,7 +40,7 @@
 
 /* Correctly answered input */
 .h5p-guessit .h5p-correct .h5p-text-input {
-  background: #9dd8bb;
+  background: #9dd8bb70;
   border: 1px solid #9dd8bb;
   color: #255c41;
 }
