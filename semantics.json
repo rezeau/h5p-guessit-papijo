@@ -47,6 +47,15 @@
     ]
   },
   {
+    "name": "wordle",
+    "label": "Wordle Option: Guess a 5-letter word",
+    "type": "boolean",
+    "importance": "low",
+    "default": false,
+    "description": "Wordle Option: Guess a 5-letter word",
+    "optional": true
+  },
+  {
     "name": "enableAudio",
     "label": "Enable \"Audio\"",
     "type": "boolean",
@@ -56,10 +65,15 @@
     "optional": true,
     "widget": "showWhen",
     "showWhen": {
+      "type": "and",
       "rules": [
         {
           "field": "playMode",
           "equals": "availableSentences"
+        },
+        {
+          "field": "wordle",
+          "equals": false
         }
       ]
     }
@@ -127,10 +141,69 @@
     },
     "widget": "showWhen",
     "showWhen": {
+      "type": "and",
       "rules": [
         {
           "field": "playMode",
-          "equals": "availableSentences"
+          "equals": "availableSentences",
+          "field": "wordle",
+          "equals":false
+        }
+      ]
+    }
+  },
+  {
+    "name": "questionsW",
+    "type": "list",
+    "label": "Words",
+    "entity": "word",
+    "importance": "high",
+    "description": "Simply type the 5-letter words to be guessed by the students.",
+    "widgets": [
+      {
+        "name": "VerticalTabs",
+        "label": "Default"
+      }
+    ],
+    "min": 1,
+    "defaultNum": 1,
+    "max": 31,
+    "field": {
+      "name": "question",
+      "type": "group",
+      "label": "Word",
+      "importance": "high",
+      "fields": [
+        {
+          "name": "sentence",
+          "type": "text",
+          "label": "Word",
+          "importance": "high",
+          "description": "You can only use ONE lower-case 5-letter word for Wordle.",
+          "regexp": {
+            "pattern": "^\\p{Ll}{5}$",
+            "modifiers": "u"
+          }
+        },
+        {  
+          "name": "tip",
+          "label": "Tip",
+          "type": "text",
+          "importance": "low",
+          "description": "Tip text for this sentence (optional)",
+          "optional": true
+        }
+      ]
+    },
+    "widget": "showWhen",
+    "showWhen": {
+      "type": "and",
+      "rules": [
+        {
+          "field": "playMode",
+          "equals": "availableSentences",
+          "field": "wordle",
+          "equals":true
         }
       ]
     }
@@ -175,7 +248,16 @@
         "type": "boolean",
         "default": false,
         "label": "Case sensitive",
-        "description": "Makes sure the user input has to be exactly the same as the answer."
+        "description": "Makes sure the user input has to be exactly the same as the answer.",
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../wordle",
+              "equals": false
+            }
+          ]
+        }
       },
       {
         "label": "Enable Number of words Choice",
@@ -187,7 +269,12 @@
         "optional": true,
         "widget": "showWhen",
         "showWhen": {
+          "type": "and",
           "rules": [
+            {
+              "field": "../wordle",
+              "equals": false
+            },
             {
               "field": "../playMode",
               "equals": "availableSentences"
@@ -267,8 +354,8 @@
         "description": "If a sentence has an audio attached to it, select WHEN you want to display the audio buttons.",
         "default": "correct",
         "widget": "showWhen",
-          "showWhen": {            
-            "rules": [              
+          "showWhen": {
+            "rules": [
               {
                 "field": "../enableAudio",
                 "equals": true
@@ -311,6 +398,10 @@
             },
             {
               "field": "listGuessedSentences",
+              "equals": true
+            },
+            {
+              "field": "../enableAudio",
               "equals": true
             }
           ]

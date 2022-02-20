@@ -108,13 +108,15 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
         caseSensitive: false,
         sentencesOrder: 'normal',
         listGuessedAudioAndTips: 'none',
-        displayAudio: 'correct'        
+        displayAudio: 'correct'
       }
     }, params);
     
     // Delete empty questions. Should normally not happen, but... 
     // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.     
-    
+    if (this.params.wordle) {
+      this.params.questions = this.params.questionsW;
+    }
     for (var i = this.params.questions.length - 1; i >= 0; i--) {
       if (!this.params.questions[i].sentence) {
         this.params.questions.length --;
@@ -122,7 +124,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     }
     // JR added an ID field (needed for save state + numberchoice).
     for (i = 0; i < this.params.questions.length; i++) {
-      this.params.questions[i]["ID"] = i;      
+      this.params.questions[i]["ID"] = i;
     }
     this.totalNumQuestions = this.params.questions.length; 
     if (this.params.playMode == 'userSentence') {
@@ -131,7 +133,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       this.params.behaviour.enableEndGameButton = false;
     }
     // Previous state
-    this.contentData = contentData;                                                       
+    this.contentData = contentData;
     if (this.contentData !== undefined && this.contentData.previousState !== undefined) {
       this.previousState = this.contentData.previousState;
     }
@@ -285,7 +287,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
             self.registerDomElements($usersentence);
           } else { // User sentence is empty.
             // Empty potential value of usertip.
-            $("#usertip").val(null);            
+            $("#usertip").val(null);
             // Empty user sentence and reset focus on input field
             $("#usersentence").val(null);
             $("#usersentence").focus(); 
@@ -674,6 +676,11 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       if (question.indexOf("&#039;") >= 0) {
          question = question.replace("&#039;", "'");
       }
+      // If wordle add forward slashes between each letter
+      if (this.params.wordle) {
+        question = question.replace(/(.{1})(.{1})(.{1})(.{1})(.{1})/, "$1/$2/$3/$4/$5");
+      }
+      
       // Split sentence by blank spaces and potential forward slashes.
       var patternSplit = /(?:\s|\/)+/; // TODO
       var patternReplace = /(\s|\/)/g;
@@ -685,7 +692,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       question = self.handleGuessIt(question, function (solution) {
         // Create new cloze
         var defaultUserAnswer = '';
-        var cloze = new GuessIt.Cloze(solution, self.params.behaviour, defaultUserAnswer, {
+        var cloze = new GuessIt.Cloze(solution, self.params.behaviour, defaultUserAnswer, self.params.wordle, {
           answeredCorrectly: self.params.answeredCorrectly,
           answeredIncorrectly: self.params.answeredIncorrectly,
           solutionLabel: self.params.solutionLabel,
@@ -722,25 +729,71 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     });
     
     // Set input fields.
+    /*
     this.$questions.find('input').each(function (i) {
       n = self.allClozes[i][1];
       t = self.allClozes[i][2];
       self.clozes[i].setInput($(this), '', function () {
       }, n, t);
     }).keydown(function (event) {
+      if (self.params.wordle) {
+        var $this = $(this);
+        let $inputs, isLastInput;
+        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
+        isLastInput = $this.is($inputs[$inputs.length - 1]);
+        var enterPressed = (event.keyCode === 13);
+        var backTabPressed = (event.keyCode === 8);
+        var spacePressed = (event.keyCode === 32);
+        var tabPressed = (event.keyCode === 9);
+        if (!isLastInput && spacePressed || tabPressed) {
+          return false;
+        }
+      }
+    }).keyup(function (event) {
       var $this = $(this);
+      var enterPressed = (event.keyCode === 13);
+      var spacePressed = (event.keyCode === 32);
+      var backTabPressed = (event.keyCode === 8);
+      var tabPressed = (event.keyCode === 9);
+      var rightArrowPressed = (event.keyCode === 39);
+      var $inputs, isLastInput;
+      $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
+      isLastInput = $this.is($inputs[$inputs.length - 1]);
+      if (self.params.wordle) {
+        if (isLastInput && enterPressed || tabPressed) {
+          //alert('ok');
+        }
+        if (event.keyCode < 65 && !backTabPressed && !isLastInput) {
+          return false;
+        }
+        
+        isFirstInput = $this.is($inputs[0]);
+        if (backTabPressed) {
+          if (isFirstInput) {
+            return false;
+          } else {
+            // Find previous input to empty and focus
+            $inputs.eq($inputs.index($this) - 1).val('').focus();
+            return;
+          }
+        }
+      }
+      if (self.params.wordle && !isLastInput) {
+        // Find next input to focus
+        //$inputs.eq($inputs.index($this) + 1).focus();
+      }
       
+      // ************************************* end wordle ********************
       // Needed to init timer & counter if enableNumChoice == false
       if (self.$timer == undefined) {
         self.initCounters();
       }
       
       // Adjust width of text input field to match value
-      self.autoGrowTextField($this);
-
-      var $inputs, isLastInput;
-      var enterPressed = (event.keyCode === 13);
-      var spacePressed = (event.keyCode === 32);
+      if (!self.params.wordle) {
+        self.autoGrowTextField($this);
+      }
+      
       
       if (enterPressed || spacePressed) {
         // Figure out which inputs are left to answer in current sentence.
@@ -768,6 +821,78 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
 
         return false; // Prevent form submission on enter key
       }
+// END KEYUP
+    }).on('change', function () {
+      self.answered = true;
+      self.triggerXAPI('interacted');
+    });
+
+    self.on('resize', function () {
+      self.resetGrowTextField();
+    });
+    
+    return this.$questions;
+    
+  };
+*/
+    // Set input fields.
+    this.$questions.find('input').each(function (i) {
+      n = self.allClozes[i][1];
+      t = self.allClozes[i][2];
+      self.clozes[i].setInput($(this), '', function () {
+      }, n, t);
+    }).keydown(function (event) {
+      var $this = $(this);
+      
+      // Needed to init timer & counter if enableNumChoice == false
+      if (self.$timer == undefined) {
+        self.initCounters();
+      }
+      
+      // Adjust width of text input field to match value
+      self.autoGrowTextField($this);
+
+      var $inputs, isLastInput;
+      var enterPressed = (event.keyCode === 13);
+      var spacePressed = (event.keyCode === 32);
+      var tabPressed = (event.keyCode === 9);
+      
+      if (enterPressed || spacePressed || tabPressed) {
+        // Figure out which inputs are left to answer in current sentence.
+        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
+        // Figure out if this is the last input.
+        isLastInput = $this.is($inputs[$inputs.length - 1]);
+      }
+      if ((isLastInput && !self.shiftPressed) || (enterPressed && isLastInput)) {
+        // Focus first button on next tick        
+        setTimeout(function () {
+          self.focusButton();
+        }, 10);
+      }
+      if (enterPressed || spacePressed || tabPressed) {
+        if (isLastInput) {
+          // Check answers
+          $this.trigger('blur');
+        }
+        else {
+          // Do not move forward if current blank is empty!
+          if ($inputs.eq($inputs.index($this)).val() !== '') {
+          // Find next input to focus
+          $inputs.eq($inputs.index($this) + 1).focus();
+          } else {
+            return false;
+          }
+        }
+
+        return false; // Prevent form submission on enter key
+      }
+      /*
+      if (tabPressed || enterPressed || spacePressed && !isLastInput) {
+        if ($inputs.eq($inputs.index($this)).val() === '') {
+          return false;
+        }
+      }
+      */
       
     }).on('change', function () {
       self.answered = true;
@@ -781,6 +906,8 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     return this.$questions;
     
   };
+
+
 
   /**
    *
@@ -916,6 +1043,21 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       }
     }    
   };
+  /**
+   * Enable incorrect words for retrying them.
+   */
+  GuessIt.prototype.resetBlanks = function () {
+    var self = this;
+    for (var i = 0; i < self.clozes.length; i++) {
+      var ok = self.clozes[i].checkCorrect();
+      if (!ok) {
+        self.clozes[i].resetBlank();
+        self.clozes[i].setUserInput('');
+        self.clozes[i].resetAriaLabel();
+      }
+    }    
+  };
+
 
   /**
    * Check if all blanks are filled out
@@ -934,8 +1076,12 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    */
   GuessIt.prototype.markResults = function () {
     var self = this;
+    let currentSentence = '';
+    if (self.params.wordle) {
+      currentSentence = self.params.questions[self.currentSentenceId].sentence;
+    }
     for (var i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
-      this.currentSentenceClozes[this.currentSentenceId][i].checkAnswer(this.defaultDiacriticsRemovalMap);
+      this.currentSentenceClozes[this.currentSentenceId][i].checkAnswer(currentSentence);
     }
     this.trigger('resize');
   };
@@ -1008,7 +1154,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     this.answered = false;
     this.hideSolutions();
     this.removeFeedback();
-    this.$questions.find('.h5p-input-wrapper').removeClass('h5p-wrong h5p-wrong-wordparts');
+    //this.$questions.find('.h5p-input-wrapper').removeClass('h5p-wrong h5p-wrong-wordparts');
     this.enableInCorrectInputs();
     this.toggleButtonVisibility(STATE_ONGOING);
     this.resetGrowTextField();
@@ -1023,6 +1169,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     $clonedQuestion.find('.h5p-input-wrapper > input').attr('disabled', true);
     $clonedQuestion.find('.joubel-tip-container').addClass('hidden');
     $clonedQuestion.find('.h5p-guessit-audio-wrapper').addClass('hidden');
+    this.resetBlanks();
   };
 
   /**

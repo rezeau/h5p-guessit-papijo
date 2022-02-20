@@ -16,8 +16,16 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  width: 6em;
 }
+
+.h5p-guessit .h5p-text-input.wordle {
+  font-size: 1.2em;
+  border: 1px solid #a0a0a0;
+  padding: 0.1875em 0.5em 0.1875em 0.5em;
+  width: 1em!important;
+  text-align: center;
+}
+
 .h5p-guessit .h5p-text-input-user {
   width: 25em;
 }
@@ -39,7 +47,8 @@
 }
 
 /* Correctly answered input */
-.h5p-guessit .h5p-correct .h5p-text-input {
+.h5p-guessit .h5p-correct .h5p-text-input,
+.h5p-guessit .h5p-correct-wordle .h5p-text-input {
   background: #9dd8bb70;
   border: 1px solid #9dd8bb;
   color: #255c41;
@@ -63,7 +72,8 @@
 }
 
 /* Wrongly answered input */
-.h5p-guessit .h5p-wrong .h5p-text-input {
+.h5p-guessit .h5p-wrong .h5p-text-input,
+.h5p-guessit .h5p-wrong-wordle .h5p-text-input {
   background-color: #f7d0d0;
   border: 1px solid #f7d0d0;
   color: #b71c1c;
@@ -77,6 +87,13 @@
   text-decoration: none;
   content: "\f00d";
   color: #b71c1c;
+}
+
+/* Misplaced letter in Wordle */
+.h5p-guessit .h5p-misplaced .h5p-text-input {
+  background-color: #ffff99;
+  border: 1px solid #aaaa53;
+  color: #777732;
 }
 
 /* Actual text paragraphs */

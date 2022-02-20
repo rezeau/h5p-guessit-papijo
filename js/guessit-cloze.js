@@ -11,11 +11,11 @@
    * @param {string} l10n.solutionLabel Assistive technology label for cloze solution
    * @param {string} l10n.inputLabel Assistive technology label for cloze input
    */
-  GuessIt.Cloze = function (solution, behaviour, defaultUserAnswer, l10n) {
+  GuessIt.Cloze = function (solution, behaviour, defaultUserAnswer, wordle, l10n) {
     var self = this;
     var $input, $wrapper;
     var answers = solution.solutions;
-    var answer = answers.join('/');   
+    var answer = answers.join('/');
     var checkedAnswer = null;
     var inputLabel = l10n.inputLabel;
     
@@ -29,14 +29,24 @@
      *
      * @private
      * @param {string} answered
-     */                               
+     */
     var correct = function (answered) {
       if (behaviour.caseSensitive !== true) {
         answered = answered.toLowerCase();
-      }                                
+      }
       return (answered == answer);
-    };                                
+    };
 
+    /**
+     * Check if the answer is correct.
+     *
+     * @private
+     * @param {string} answered
+     */
+    var misplaced = function (answered, currentSentence) {
+      return (currentSentence.includes(answered));
+    };
+    
     /**
      * Check if filled out.
      *
@@ -49,24 +59,41 @@
     };
 
     /**
-     * Check the cloze and mark it as wrong or correct.
+     * Check the cloze and mark it as wrong or correct (or partially correct, i.e.in wordle word but wrong position).
      */
-    this.checkAnswer = function () {
+    this.checkAnswer = function (currentSentence) {
+      console.log('currentSentence = ' + currentSentence + ' wordle ' + wordle);
       // Remove potentially existing markup element.
       $( '.h5p-guessit-markup', $wrapper ).remove();
-      
       checkedAnswer = this.getUserAnswer();
+      
       var isCorrect = correct(checkedAnswer);
+      let isMisplaced = false;
+      if (!isCorrect && wordle) {
+        isMisplaced = misplaced(checkedAnswer, currentSentence);
+      }
       if (isCorrect) {
-        $wrapper.addClass('h5p-correct');
+        if (!wordle) {
+          $wrapper.addClass('h5p-correct');
+        } else {
+          $wrapper.addClass('h5p-correct-wordle');
+        }
         $input.attr('disabled', true)
           .attr('aria-label', inputLabel + '. ' + l10n.answeredCorrectly);
       }
-      else {                                       
-        if (checkedAnswer) {
+      else {
+        if (checkedAnswer && !wordle) {
           this.markUp(checkedAnswer);
         }
-        $wrapper.addClass('h5p-wrong');
+        if (isMisplaced) {
+          $wrapper.addClass('h5p-misplaced');
+        } else {
+          if (wordle) {
+            $wrapper.addClass('h5p-wrong-wordle');
+          } else {
+            $wrapper.addClass('h5p-wrong');
+          }
+        }
         $input.attr('aria-label', inputLabel + '. ' + l10n.answeredIncorrectly);        
       }
     };
@@ -77,7 +104,7 @@
     this.checkCorrect = function () {
       checkedAnswer = this.getUserAnswer();
       var isCorrect = correct(checkedAnswer);
-      return isCorrect;      
+      return isCorrect;
     };
 
     /**
@@ -94,6 +121,16 @@
      */
     this.enableInput = function () {
       this.toggleInput(true);
+    };
+    /**
+     * Enables input.
+     * @method enableInput
+     */
+    this.resetBlank = function () {
+      $wrapper.removeClass('h5p-misplaced');
+      $wrapper.removeClass('h5p-wrong-wordle');
+      $wrapper.removeClass('h5p-wrong');
+      $( '.h5p-guessit-markup', $wrapper ).remove();
     };
 
     /**
@@ -187,7 +224,7 @@
       // Place the markup line below the studentAnswer by 18px.
       var offset = $wrapper.offset();
       offset.top = 22;
-      offset.left = 0;      
+      offset.left = 0;
       $('<span>', {
         'aria-hidden': true,
         'class': 'h5p-guessit-markup',
@@ -226,17 +263,28 @@
         .replace('@total', totalCloze);
         
       $input.attr('aria-label', inputLabel);
+      // If Wordle accept only one character... or on keydown go to next input?
+      if (wordle) {
+        $input.attr('maxlength','1');
+        $input.addClass('wordle');
+      }
       
       $input.keyup(function () {
         if (checkedAnswer !== null && checkedAnswer !== self.getUserAnswer()) {
           // The Answer has changed since last check
           checkedAnswer = null;
           $wrapper.removeClass('h5p-wrong');
+          if (wordle) {
+            $wrapper.removeClass('h5p-wrong-wordle');
+            $wrapper.removeClass('h5p-misplaced');
+          }
+          
           $input.attr('aria-label', inputLabel);
           if (afterFocus !== undefined) {
             afterFocus();
           }
         }
+        
       });
     };
 
@@ -278,6 +326,7 @@
     };
     
     this.removeDiacritics = function (str) {
+      console.log('removeDiacritics str = ' + str);
     
     // IMPORTANT: this js file must be encoded in UTF-8 no BOM(65001)
     // If it's not, then use the unicode codes at https://web.archive.org/web/20120918093154/http://lehelk.com/2011/05/06/script-to-remove-diacritics/ 
@@ -297,6 +346,7 @@
       for(var i = 0; i < changes.length; i++) {
           str = str.replace(changes[i].letters, changes[i].base);
       }
+        console.log('*********** removeDiacritics str = ' + str);
       return str;
     };
   };
