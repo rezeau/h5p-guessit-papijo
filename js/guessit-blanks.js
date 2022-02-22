@@ -1,16 +1,13 @@
-/*global H5P*/
-H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
+H5P.GuessIt = (function ($, Question) {
   /**
    * @constant
    * @default
    */
-  var STATE_ONGOING = 'ongoing';
-  var STATE_CHECKING = 'checking';
-  var STATE_SHOWING_SOLUTION = 'showing-solution';
-  var STATE_FINISHED = 'finished';
-  
-  const XAPI_ALTERNATIVE_EXTENSION = 'https://h5p.org/x-api/alternatives';
-  const XAPI_CASE_SENSITIVITY = 'https://h5p.org/x-api/case-sensitivity';
+  const STATE_ONGOING = 'ongoing';
+  const STATE_CHECKING = 'checking';
+  const STATE_SHOWING_SOLUTION = 'showing-solution';
+  const STATE_FINISHED = 'finished';
+
   const XAPI_REPORTING_VERSION_EXTENSION = 'https://h5p.org/x-api/h5p-reporting-version';
   /**
    * @typedef {Object} Params
@@ -42,8 +39,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * @param {Object} contentData Task specific content data
    */
   function GuessIt(params, id, contentData) {
-    var self = this;
-    var $wrapper;
+    let self = this;
     // Inheritance. User for CSS!
     Question.call(self, 'guessit');
 
@@ -55,7 +51,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       description: "Task description",
       questions: [
         {
-           "sentence": "Papi Jo is the best!"
+          "sentence": "Papi Jo is the best!"
         }
       ],
       playMode: 'availableSentences',
@@ -95,7 +91,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       userSentencenumRoundsLabel: 'Minimum number of rounds before Solutions can be displayed:',
       userSentenceTipLabel: 'Type a Tip for this sentence (optional)',
       userSentenceNeverShow: 'Never Show',
-      behaviour: {        
+      behaviour: {
         enableRetry: false,
         enableAudio: false,
         singlePoint: false,
@@ -111,23 +107,23 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
         displayAudio: 'correct'
       }
     }, params);
-    
-    // Delete empty questions. Should normally not happen, but... 
-    // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.     
+
+    // Delete empty questions. Should normally not happen, but...
+    // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.
     if (this.params.wordle) {
       this.params.questions = this.params.questionsW;
     }
-    for (var i = this.params.questions.length - 1; i >= 0; i--) {
+    for (let i = this.params.questions.length - 1; i >= 0; i--) {
       if (!this.params.questions[i].sentence) {
         this.params.questions.length --;
       }
     }
     // JR added an ID field (needed for save state + numberchoice).
-    for (i = 0; i < this.params.questions.length; i++) {
+    for (let i = 0; i < this.params.questions.length; i++) {
       this.params.questions[i]["ID"] = i;
     }
-    this.totalNumQuestions = this.params.questions.length; 
-    if (this.params.playMode == 'userSentence') {
+    this.totalNumQuestions = this.params.questions.length;
+    if (this.params.playMode === 'userSentence') {
       this.totalNumQuestions = 1;
       this.params.behaviour.enableSolutionsButton = false;
       this.params.behaviour.enableEndGameButton = false;
@@ -137,14 +133,14 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     if (this.contentData !== undefined && this.contentData.previousState !== undefined) {
       this.previousState = this.contentData.previousState;
     }
-      
+
     // Clozes
     this.clozes = [];
-    this.numQuestionsInWords = []
+    this.numQuestionsInWords = [];
     this.sentencesFound = 0;
     this.sentencesGuessed = [];
     this.nbSentencesGuessed = 0;
-    
+
     // Init userAnswers
     this.userAnswers = [];
     this.sentencesList = '';
@@ -153,7 +149,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     this.totalRounds = 0;
     this.solutionsViewed = [];
     this.nbSsolutionsViewed = 0;
-    // Used by enableNumChoice 
+    // Used by enableNumChoice
     this.numWords = 0;
     this.numQuestions = 0;
     // used by XAPI
@@ -167,9 +163,9 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
 
     // Keep track tabbing forward or backwards
     this.shiftPressed = false;
-    
+
     this.confirmEndGameEnabled = true;
-    
+
     H5P.$body.keydown(function (event) {
       if (event.keyCode === 16) {
         self.shiftPressed = true;
@@ -184,273 +180,278 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   // Inheritance
   GuessIt.prototype = Object.create(Question.prototype);
   GuessIt.prototype.constructor = GuessIt;
-  
+
   /**
    * Registers this question type's DOM elements before they are attached.
-   * Called from H5P.Question.                            
+   * Called from H5P.Question.
    */
   GuessIt.prototype.registerDomElements = function (sentence) {
-    var self = this;
+    let self = this;
     this.$taskdescription = $('<div>', {
       'class': 'h5p-guessit h5p-guessit-description',
       'html': this.params.description
-      })
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
+    });
+    let $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     $content.addClass ('h5p-guessit h5p-frame');
-    
+
     // We must remove current $taskdescription if student did not fill in the input form correctly.
-    if (this.params.playMode == 'userSentence') {
+    if (this.params.playMode === 'userSentence') {
       $content.find('.h5p-guessit-description').remove();
     }
-    
+
     this.$taskdescription.prependTo($content);
-    
+
     // Special case of userSentence mode.
-    if (this.params.playMode == 'userSentence') {
-      var label = self.params.userSentenceDescriptionLabel;
+    if (this.params.playMode === 'userSentence') {
+      let label = self.params.userSentenceDescriptionLabel;
       this.$userSentenceDescription = $('<div>', {
-          'class': 'h5p-guessit h5p-guessit-usersentencedescription h5p-guessit-required',
-          'html': label
-          });
+        'class': 'h5p-guessit h5p-guessit-usersentencedescription h5p-guessit-required',
+        'html': label
+      });
       if (this.warning) {
         this.$userSentenceDescription
           .removeClass('h5p-guessit-required')
           .addClass('h5p-guessit-warning');
       }
-      
+
       this.$userTipDescription = $('<div>', {
-          'class': 'h5p-guessit-usertipdescription',
-          'html': self.params.userSentenceTipLabel
-          });
-      
-      self.params.behaviour.enableNumChoice = false; 
-      var usersentence = document.createElement('input');
+        'class': 'h5p-guessit-usertipdescription',
+        'html': self.params.userSentenceTipLabel
+      });
+
+      self.params.behaviour.enableNumChoice = false;
+      let usersentence = document.createElement('input');
       usersentence.setAttribute("type", "text");
-      usersentence.setAttribute("id", "usersentence");          
+      usersentence.setAttribute("id", "usersentence");
       usersentence.setAttribute("class", "h5p-text-input-user");
-      
-      var usertip = document.createElement('input');
+
+      let usertip = document.createElement('input');
       usertip.setAttribute("type", "text");
-      usertip.setAttribute("id", "usertip");          
+      usertip.setAttribute("id", "usertip");
       usertip.setAttribute("class", "h5p-text-input-user");
-      
-      this.$userSentenceDescription.appendTo(this.$taskdescription);                      
+
+      this.$userSentenceDescription.appendTo(this.$taskdescription);
       this.$userSentence = $('<div>', {
         'class': 'h5p-guessit h5p-guessit-options h5p-userSentence',
         'html': usersentence
-        });
+      });
       this.$userSentence.appendTo(this.$userSentenceDescription);
-      usersentence.focus();      
-      
-      this.$userTipDescription.appendTo(this.$userSentence);      
+      usersentence.focus();
+
+      this.$userTipDescription.appendTo(this.$userSentence);
       this.$userTip = $('<div>', {
         'class': 'h5p-userTip',
         'html': usertip
-        });
+      });
       this.$userTip.appendTo(this.$userTipDescription);
-      
+
       // Validate user sentence & possibly other options...
-      var $optionButtons = $('<div>', {
-          'class': 'h5p-guessit-optionsbuttons',
-          'html': '<div>' + this.params.userSentencenumRoundsLabel + '</div>'
-        }).appendTo(this.$userTip);
-        
-      var radios = ['2', '5', '10', '15', '20', this.params.userSentenceNeverShow];
-      var i = 0;       
-      for (var value of radios) {      
-        user = 'userId-' + i;
+      const $optionButtons = $('<div>', {
+        'class': 'h5p-guessit-optionsbuttons',
+        'html': '<div>' + this.params.userSentencenumRoundsLabel + '</div>'
+      }).appendTo(this.$userTip);
+
+      let radios = ['2', '5', '10', '15', '20', this.params.userSentenceNeverShow];
+      let i = 0;
+      for (let value of radios) {
+        let user = 'userId-' + i;
         $optionButtons
           .append(`<input type="radio" id = "${user}" name="rounds" value="${value}">`)
           .append(`<label for="${value}">${value}</label></div>`);
-         i++;            
+        i++;
       }
       $optionButtons.append('<br>');
-      // Set the 'Never show' 'userId-5' radio button checked.      
-      $("input[id = 'userId-5']").prop('checked',true);      
-      
-      var usersentenceok = H5P.JoubelUI.createButton({
-          'class': 'h5p-guessit-okbutton',
-          'title': 'OK',
-          'html': 'OK'
-        }).click(function () {  
-          $usersentence = ($("#usersentence").val());
-          $tip = ($("#usertip").val());
-          if ($usersentence !== '') {
-            var numRnds = $("input[name='rounds']:checked").val();              
-            if ( !$("input[id = 'userId-5']").is(':checked') ) {
-              self.params.behaviour.enableSolutionsButton = true;
-              self.params.behaviour.numRounds = numRnds;
-            } else {
-              self.params.behaviour.enableSolutionsButton = false;
-            }
-            self.warning = false;
-            self.registerDomElements($usersentence);
-          } else { // User sentence is empty.
-            // Empty potential value of usertip.
-            $("#usertip").val(null);
-            // Empty user sentence and reset focus on input field
-            $("#usersentence").val(null);
-            $("#usersentence").focus(); 
-            // Used to display a warning icon if sentence is empty or not OK.
-            self.warning = true;
-            // Return to registerDomElements with null sentence. 
-            self.registerDomElements();
-          }  
-        }).appendTo($optionButtons);
+      // Set the 'Never show' 'userId-5' radio button checked.
+      $("input[id = 'userId-5']").prop('checked', true);
 
-      if (sentence == undefined) {
+      let $tip;
+      H5P.JoubelUI.createButton({
+        'class': 'h5p-guessit-okbutton',
+        'title': 'OK',
+        'html': 'OK'
+      }).click(function () {
+        let $usersentence = ($("#usersentence").val());
+        $tip = ($("#usertip").val());
+        if ($usersentence !== '') {
+          let numRnds = $("input[name='rounds']:checked").val();
+          if ( !$("input[id = 'userId-5']").is(':checked') ) {
+            self.params.behaviour.enableSolutionsButton = true;
+            self.params.behaviour.numRounds = numRnds;
+          }
+          else {
+            self.params.behaviour.enableSolutionsButton = false;
+          }
+          self.warning = false;
+          self.registerDomElements($usersentence);
+        }
+        else { // User sentence is empty.
+          // Empty potential value of usertip.
+          $("#usertip").val(null);
+          // Empty user sentence and reset focus on input field
+          $("#usersentence").val(null);
+          $("#usersentence").focus();
+          // Used to display a warning icon if sentence is empty or not OK.
+          self.warning = true;
+          // Return to registerDomElements with null sentence.
+          self.registerDomElements();
+        }
+      }).appendTo($optionButtons);
+
+      if (sentence === undefined) {
         return;
       }
       $content.find('.h5p-guessit-usersentencedescription').remove();
-      self.params.questions[0].sentence = sentence;      
+      self.params.questions[0].sentence = sentence;
       self.params.questions[0].tip = $tip;
       self.params.questions.length = 1;
     }
-    
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
-    var $containerParents = $content.parents('.h5p-container');
+
+    $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
+    // todo let $containerParents = $content.parents('.h5p-container');
 
     self.numQuestions = self.params.questions.length;
-    
+
     // Using instructions as label for our text groups
-    const labelId = 'guessitlabel';
-        
+    let labelId = 'guessitlabel';
+
     // Register task content area
     self.setContent(self.createQuestions(labelId), {
-    }); 
-    
+    });
+
     // Init buttons for selecting number of words (if enabled in params.behaviour).
     if (this.params.behaviour.enableNumChoice) {
-        
+
       // Put in array the number of words of all the questions
-      var numWords = [];                          
-      for (i = 0; i < this.params.questions.length; i++) {
-        numWords[i] = this.sentenceClozeNumber[i];      
+      let numWords = [];
+      for (let i = 0; i < this.params.questions.length; i++) {
+        numWords[i] = this.sentenceClozeNumber[i];
       }
       // https://stackoverflow.com/questions/5667888/counting-the-occurrences-frequency-of-array-elements
-      var a = numWords;
-      result = { };
-      for(var i = 0; i < a.length; ++i) {
-          if(!result[a[i]])
-              result[a[i]] = 0;
-          ++result[a[i]];
-      } 
-      
-      var nbDifferentNums = Object.keys(result).length;
+      let a = numWords;
+      let result = { };
+      for (let i = 0; i < a.length; ++i) {
+        if (!result[a[i]])
+          result[a[i]] = 0;
+        ++result[a[i]];
+      }
+
+      let nbDifferentNums = Object.keys(result).length;
       // Do not ask user for nb words in sentences if there is no choice!
       if (nbDifferentNums > 1) {
-        this.numQuestionsInWords = result;      
+        this.numQuestionsInWords = result;
         this.$numberWords = $('<div>', {
           'class': 'h5p-guessit h5p-guessit-options',
           'html': this.params.numWords
         });
-        
-        var $optionButtons = $('<div>', {
+
+        let $optionButtons = $('<div>', {
           'class': 'h5p-guessit-optionsbuttons'
         }).appendTo(this.$numberWords);
         this.$numberWords.appendTo(this.$taskdescription);
-        
-        if (nbDifferentNums > 1) { 
-        // Remove duplicates from numWords array 
-        let uniquenumWords = [...new Set(numWords)];
-        // Sort uniquenumWords array 
-        uniquenumWords.sort();
-        // Get last item from uniquenumWords array
-        var limit = uniquenumWords.slice(-1).pop()
-        // Init iteratation
-        var numSentencesWithWords = [];
-        
-        uniquenumWords.forEach(iterateNW);      
-        // Iterate uniquenumWords array 
-        function iterateNW(item) {
-          var n = self.numQuestionsInWords[item];
-          numSentencesWithWords[item] = n;
-          var s = self.params.sentence;
-          if (n > 1) {
-            s = self.params.sentences;
-          }
-          var setNumWords = H5P.JoubelUI.createButton({
-            'class': 'h5p-guessit-number-button',
-            'title': item,
-            'html': item + ' [' + n + ' ' + s + ']',
-            'id': 'dc-number-' + item
-          }).click(function () {          
+
+        if (nbDifferentNums > 1) {
+        // Remove duplicates from numWords array
+          let uniquenumWords = [...new Set(numWords)];
+          // Sort uniquenumWords array
+          uniquenumWords.sort();
+          // Get last item from uniquenumWords array
+          uniquenumWords.slice(-1).pop();
+          // Init iteratation
+          let numSentencesWithWords = [];
+
+          uniquenumWords.forEach(iterateNW);
+          // Iterate uniquenumWords array
+          function iterateNW(item) {
+            let n = self.numQuestionsInWords[item];
+            numSentencesWithWords[item] = n;
+            let s = self.params.sentence;
+            if (n > 1) {
+              s = self.params.sentences;
+            }
+            H5P.JoubelUI.createButton({
+              'class': 'h5p-guessit-number-button',
+              'title': item,
+              'html': item + ' [' + n + ' ' + s + ']',
+              'id': 'dc-number-' + item
+            }).click(function () {
               self.$numberWords.addClass ('h5p-guessit-hide');
               self.numWords = item;
               self.numQuestions = numSentencesWithWords[item];
               self.initTask();
             }).appendTo($optionButtons);
-        };
-        n = self.params.questions.length;
-        s = self.params.sentences;
-        item = self.params.anyNumber
-        setNumWords = H5P.JoubelUI.createButton({
+          }
+          let n = self.params.questions.length;
+          let s = self.params.sentences;
+          let item = self.params.anyNumber;
+          H5P.JoubelUI.createButton({
             'class': 'h5p-guessit-number-button',
             'title': item,
             'html': item +  ' [' + n + ' ' + s + ']',
             'id': 'dc-number-0'
-          }).click(function () {          
-              self.$numberWords.addClass ('h5p-guessit-hide');
-              self.params.behaviour.enableNumChoice = false;
-              self.numQuestions = n;
-              self.initTask();
-            }).appendTo($optionButtons);
-        
-        // Hide content
-        $content.find('.h5p-container').addClass('h5p-guessit h5p-guessit-hide');
+          }).click(function () {
+            self.$numberWords.addClass ('h5p-guessit-hide');
+            self.params.behaviour.enableNumChoice = false;
+            self.numQuestions = n;
+            self.initTask();
+          }).appendTo($optionButtons);
+
+          // Hide content
+          $content.find('.h5p-container').addClass('h5p-guessit h5p-guessit-hide');
         }
-      } else {                
+      }
+      else {
         this.params.behaviour.enableNumChoice = false;
-        self.numQuestions = self.params.questions.length;                    
+        self.numQuestions = self.params.questions.length;
         self.initTask();
       }
-    } else {
-      self.numQuestions = self.params.questions.length;                    
+    }
+    else {
+      self.numQuestions = self.params.questions.length;
       self.initTask();
-    }   
-    
+    }
+
     if (self.params.behaviour.listGuessedSentences) {
       this.$divGuessedSentences = $('<div>', {
         'class': 'h5p-guessit-listGuessedSentences h5p-guessit-hide'
-        }).appendTo(this.$taskdescription);
+      }).appendTo(this.$taskdescription);
       // Retrieve potentially previously saved list.
-      self.setH5PUserState();                                                     
-      if (self.sentencesList !== '') {               
+      self.setH5PUserState();
+      if (self.sentencesList !== '') {
         self.$divGuessedSentences.removeClass ('h5p-guessit-hide');
-        self.$divGuessedSentences.html(self.sentencesList)
+        self.$divGuessedSentences.html(self.sentencesList);
       }
-    }   
-    
+    }
+
     // ... and buttons
     self.registerButtons();
-    
-    if (this.params.playMode == 'userSentence') {
-      var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
+
+    if (this.params.playMode === 'userSentence') {
+      $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
       $content.find('.h5p-userSentence').addClass('h5p-guessit h5p-guessit-hide');
-      var $container = $content.children('.h5p-container');
-      var $userQuestion = $('<div>', {
+      let $container = $content.children('.h5p-container');
+      $('<div>', {
         'class': 'h5p-question-content',
         'html': this.$questions
       }).prependTo($container);
     }
-    
+
     // Sets focus on first input when starting game.
-    $(document).ready(function() {
-      self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();      
+    $(document).ready(function () {
+      self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();
     });
-    
+
   };
 
   /**
    * Create all the buttons for the task
    */
-  GuessIt.prototype.registerButtons = function (JOUBELUI) {
-    var self = this;
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
-    var $containerParents = $content.parents('.h5p-container');
+  GuessIt.prototype.registerButtons = function () {
+    let self = this;
+    let $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
+    let $containerParents = $content.parents('.h5p-container');
 
     // select find container to attach dialogs to
-    var $container;
+    let $container;
     if ($containerParents.length !== 0) {
       // use parent highest up if any
       $container = $containerParents.last();
@@ -461,142 +462,145 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     else  {
       $container = $(document.body);
     }
-    
+
     // Check answer button
     self.addButton('check-answer', self.params.checkAnswer, function () {
-      if (self.$timer == undefined) {
-        self.initCounters();        
+      if (self.$timer === undefined) {
+        self.initCounters();
       }
-      self.setFeedback();          
+      self.setFeedback();
       if (!self.allBlanksFilledOut()) {
-        self.updateFeedbackContent(self.params.notFilledOut); 
+        self.updateFeedbackContent(self.params.notFilledOut);
         // Sets focus on first empty blank input.
-        $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
-        $currentInputs.each(function(index, val){
-          if ($(this).val() == '') {
+        let $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
+        $currentInputs.each(function () {
+          if ($(this).val() === '') {
             $(this).focus();
             return false; // breaks
           }
         });
-          
-      } else {
+
+      }
+      else {
         self.currentAnswer = '';
-        $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
-        $currentInputs.each(function(index, val){
+        let $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
+        $currentInputs.each(function () {
           if ($(this).val() !== '') {
-           self.currentAnswer += $(this).val() + ' ';
+            self.currentAnswer += $(this).val() + ' ';
           }
         });
         self.toggleButtonVisibility(STATE_CHECKING);
         self.updateFeedbackContent('');
         self.markResults();
-        self.timer.stop();  
-        
-        var isFinished = (self.getScore() === self.getMaxScore());
-        
+        self.timer.stop();
+
+        let isFinished = (self.getScore() === self.getMaxScore());
+
         if (isFinished) {
-               
-          var currentGuessedSentenceId = self.params.questions[self.currentSentenceId].ID
+
+          let currentGuessedSentenceId = self.params.questions[self.currentSentenceId].ID;
           self.sentencesGuessed.push(currentGuessedSentenceId);
           self.$questions.eq(self.currentSentenceId)
             .find('.h5p-guessit-audio-wrapper')
             .removeClass('hidden');
           self.nbSentencesGuessed++;
           self.getCurrentState();
-          if (self.sentencesFound  !== self.numQuestions - 1) {           
+          if (self.sentencesFound  !== self.numQuestions - 1) {
             self.showButton('new-sentence');
             setTimeout(function () {
               self.focusButton();
-              }, 20);          
-            self.showButton('end-game');          
-          } else {
+            }, 20);
+            self.showButton('end-game');
+          }
+          else {
             // button end-game2 does not ask for confirmation
             setTimeout(function () {
               self.focusButton();
-              }, 20);
+            }, 20);
             self.showButton('end-game2');
           }
-          
+
           if (self.params.behaviour.listGuessedSentences) {
-            var currentSentence = self.params.questions[self.currentSentenceId];
-            var foundSentence = currentSentence.sentence;
+            let currentSentence = self.params.questions[self.currentSentenceId];
+            let foundSentence = currentSentence.sentence;
             // Remove potential slashes before displaying final phrase
             if (foundSentence.indexOf("/") !== -1) {
-              var patternReplace = /\//g;
-              foundSentence += ' <i class="fa fa-arrow-right" style="color:#4D9782;" ></i> ' + foundSentence.replace(patternReplace, '')
+              let patternReplace = /\//g;
+              foundSentence += ' <i class="fa fa-arrow-right" style="color:#4D9782;" ></i> ' + foundSentence.replace(patternReplace, '');
             }
-            
+
             self.$divGuessedSentences.removeClass ('h5p-guessit-hide');
-            var $guessedSentence = $('<div>', {
+            let $guessedSentence = $('<div>', {
               'class': '',
               'html': foundSentence
-              })
+            })
               .appendTo(self.$divGuessedSentences);
-            
-            if (self.params.playMode == 'availableSentences') {
-              var showTipsAndAudio = self.params.behaviour.listGuessedAudioAndTips;               
+
+            if (self.params.playMode === 'availableSentences') {
+              let showTipsAndAudio = self.params.behaviour.listGuessedAudioAndTips;
               // Add tip button before guessed sentence
-              var tip = currentSentence.tip;
-              if (showTipsAndAudio == 'audioAndTip' || showTipsAndAudio == 'tipOnly' && tip !== undefined) {
+              let tip = currentSentence.tip;
+              if (showTipsAndAudio === 'audioAndTip' || showTipsAndAudio === 'tipOnly' && tip !== undefined) {
                 self.addTip(tip, $guessedSentence);
-              };
-            
-            // Add audio button before guessed sentence
-              var sound = currentSentence.audio;            
-              if (showTipsAndAudio == 'audioAndTip' || showTipsAndAudio == 'audioOnly'  && sound !== undefined) {
-                self.addAudio(sound, $guessedSentence, hidden = false);
+              }
+
+              // Add audio button before guessed sentence
+              let sound = currentSentence.audio;
+              if (showTipsAndAudio === 'audioAndTip' || showTipsAndAudio === 'audioOnly'  && sound !== undefined) {
+                self.addAudio(sound, $guessedSentence, false);
               }
             }
-          } 
+          }
         }
       }
     });
 
     // Try again button
-      self.addButton('try-again', self.params.tryAgain, function () {
-        self.updateFeedbackContent('');
-        self.reTry();
-        self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();
-      });
-    
+    self.addButton('try-again', self.params.tryAgain, function () {
+      self.updateFeedbackContent('');
+      self.reTry();
+      self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();
+    });
+
     // Show solution button
     self.addButton('show-solution', self.params.showSolutions, function () {
       self.showCorrectAnswers(false);
     }, self.params.behaviour.enableSolutionsButton);
-    
-    // New Sentence button    
-    $newSentenceButton = self.addButton('new-sentence', self.params.newSentence, function () {
+
+    // New Sentence button
+    self.addButton('new-sentence', self.params.newSentence, function () {
       self.newSentence();
       self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();
-    }, true);  
+    }, true);
     this.hideButton('new-sentence');
     this.hideButton('end-game');
-    
-    // End game button  
-    var isValidState = (this.previousState !== undefined 
+
+    // End game button
+    /* todo
+    let isValidState = (this.previousState !== undefined
       && Object.keys(this.previousState).length !== 0);
-    
+*/
     self.addButton('end-game', self.params.endGame, function () {
       if (!self.allowSolution(self.params.endGame)) {
         return;
       }
       self.showFinalPage();
-    }, true, {}, {           
-        confirmationDialog: {
-          enable: self.confirmEndGameEnabled,
-          l10n: self.params.confirmEndGame,
-          instance: self,
-          $parentElement: $container
-        }
-      });
-      
-    // End game button NO CONFIRMATION NEEDED 
+    }, true, {}, {
+      confirmationDialog: {
+        enable: self.confirmEndGameEnabled,
+        l10n: self.params.confirmEndGame,
+        instance: self,
+        $parentElement: $container
+      }
+    });
+
+    // End game button NO CONFIRMATION NEEDED
     self.addButton('end-game2', self.params.endGame, function () {
       self.showFinalPage();
-    }, true);  
+    }, true);
     this.hideButton('end-game2');
     self.toggleButtonVisibility(STATE_ONGOING);
-            
+
   };
 
   /**
@@ -611,18 +615,18 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    */
   GuessIt.prototype.handleGuessIt = function (question, handler) {
     // Go through the text and run handler on all asterisk
-    var clozeEnd, clozeStart = question.indexOf('*');
-    var self = this;
+    let clozeEnd, clozeStart = question.indexOf('*');
+    let self = this;
     while (clozeStart !== -1 && clozeEnd !== -1) {
       clozeStart++;
       clozeEnd = question.indexOf('*', clozeStart);
       if (clozeEnd === -1) {
         continue; // No end
       }
-      var clozeContent = question.substring(clozeStart, clozeEnd);
-      var replacer = '';
+      let clozeContent = question.substring(clozeStart, clozeEnd);
+      let replacer = '';
       if (clozeContent.length) {
-        replacer = handler(self.parseSolution(clozeContent));        
+        replacer = handler(self.parseSolution(clozeContent));
         clozeEnd++;
       }
       else {
@@ -634,7 +638,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       // Find the next cloze
       clozeStart = question.indexOf('*', clozeEnd);
     }
-    
+
     return question;
   };
 
@@ -642,57 +646,56 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * Create questitons html for DOM
    */
   GuessIt.prototype.createQuestions = function (labelId) {
-    var self = this;
-    
-    var html = '';
-    var clozeNumber = 0;
+    let self = this;
+
+    let html = '';
+    let clozeNumber = 0;
     this.currentSentenceClozes = [];
     this.allClozes = [];
-    
+
     // Restore previous state (i.e. previsously guessed sentences).
-    self.setH5PUserState(); 
-    
+    self.setH5PUserState();
+
     // Needed for random order (and numchoice)
     self.sentencesGuessed.sort();
-    
+
     //https://stackoverflow.com/questions/9425009/remove-multiple-elements-from-array-in-javascript-jquery
-    for (var i = self.sentencesGuessed.length -1; i >= 0; i--) {
-      self.params.questions.splice(self.sentencesGuessed[i],1);
+    for (let i = self.sentencesGuessed.length - 1; i >= 0; i--) {
+      self.params.questions.splice(self.sentencesGuessed[i], 1);
     }
-    
-    for(var i = 0; i < self.params.questions.length; i++) {
+
+    for (let i = 0; i < self.params.questions.length; i++) {
       this.currentSentenceClozes[i] = [];
     }
-    
-    var closeNumber = 0;
-    for (var i = 0; i < self.params.questions.length; i++) {
-      var sentenceClozeNumber = 0;
-      
+
+    for (let i = 0; i < self.params.questions.length; i++) {
+      let sentenceClozeNumber = 0;
+
       // Remove extra blank spaces
-      self.params.questions[i].sentence = self.params.questions[i].sentence.replace(/\s+/g,' ').trim();      
-      
-      var question = self.params.questions[i].sentence;
+      self.params.questions[i].sentence = self.params.questions[i].sentence.replace(/\s+/g, ' ').trim();
+
+      let question = self.params.questions[i].sentence;
       // Replace potential apostrophe entity with apostrophe character!
       if (question.indexOf("&#039;") >= 0) {
-         question = question.replace("&#039;", "'");
+        question = question.replace("&#039;", "'");
       }
       // If wordle add forward slashes between each letter
       if (this.params.wordle) {
         question = question.replace(/(.{1})(.{1})(.{1})(.{1})(.{1})/, "$1/$2/$3/$4/$5");
       }
-      
+
       // Split sentence by blank spaces and potential forward slashes.
-      var patternSplit = /(?:\s|\/)+/; // TODO
-      var patternReplace = /(\s|\/)/g;
+      let patternSplit = /(?:\s|\/)+/; // TODO
+      let patternReplace = /(\s|\/)/g;
       this.sentenceClozeNumber[i] = question.split(patternSplit).length;
-      var replacement = '* *';
+      let replacement = '* *';
       question = '*' + question.replace(patternReplace, replacement) + '*';
-      
+
       // Go through the question text and replace all the asterisks with input fields
       question = self.handleGuessIt(question, function (solution) {
         // Create new cloze
-        var defaultUserAnswer = '';
-        var cloze = new GuessIt.Cloze(solution, self.params.behaviour, defaultUserAnswer, self.params.wordle, {
+        let defaultUserAnswer = '';
+        let cloze = new GuessIt.Cloze(solution, self.params.behaviour, defaultUserAnswer, self.params.wordle, {
           answeredCorrectly: self.params.answeredCorrectly,
           answeredIncorrectly: self.params.answeredIncorrectly,
           solutionLabel: self.params.solutionLabel,
@@ -700,229 +703,162 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
           inputHasTipLabel: self.params.inputHasTipLabel,
           tipLabel: self.params.tipLabel
         });
-        
-        self.clozes.push(cloze);        
+
+        self.clozes.push(cloze);
         self.currentSentenceClozes[i].push(cloze);
         // Array used by input Arial text
-        self.allClozes.push([clozeNumber, sentenceClozeNumber, self.sentenceClozeNumber[i]]);        
-        sentenceClozeNumber ++
+        self.allClozes.push([clozeNumber, sentenceClozeNumber, self.sentenceClozeNumber[i]]);
+        sentenceClozeNumber ++;
         clozeNumber ++;
         return cloze;
       });
       html += '<div class = "h5p-guessit-sentence h5p-guessit-sentence-hidden" id=role="group" aria-labelledby="' + labelId + '">' + question + '</div>';
     }
-    
+
     self.hasClozes = clozeNumber > 0;
     this.$questions = $(html);
-        
+
     this.$questions.each(function (index) {
       // Set optional tip (for sentence)
-      var tip = self.params.questions[index].tip;
+      let tip = self.params.questions[index].tip;
       self.addTip(tip, $(this));
-     
+
       // Set optional audio (for sentence)
-      if (self.params.playMode == 'availableSentences') {
-        var sound = self.params.questions[index].audio;
-        var hidden = self.params.behaviour.displayAudio == 'correct';
+      if (self.params.playMode === 'availableSentences') {
+        let sound = self.params.questions[index].audio;
+        let hidden = self.params.behaviour.displayAudio === 'correct';
         self.addAudio(sound, $(this), hidden);
-      }      
+      }
     });
-    
+
     // Set input fields.
-    /*
     this.$questions.find('input').each(function (i) {
-      n = self.allClozes[i][1];
-      t = self.allClozes[i][2];
+      let n = self.allClozes[i][1];
+      let t = self.allClozes[i][2];
       self.clozes[i].setInput($(this), '', function () {
       }, n, t);
-    }).keydown(function (event) {
-      if (self.params.wordle) {
-        var $this = $(this);
-        let $inputs, isLastInput;
-        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
-        isLastInput = $this.is($inputs[$inputs.length - 1]);
-        var enterPressed = (event.keyCode === 13);
-        var backTabPressed = (event.keyCode === 8);
-        var spacePressed = (event.keyCode === 32);
-        var tabPressed = (event.keyCode === 9);
-        if (!isLastInput && spacePressed || tabPressed) {
-          return false;
-        }
-      }
     }).keyup(function (event) {
-      var $this = $(this);
-      var enterPressed = (event.keyCode === 13);
-      var spacePressed = (event.keyCode === 32);
-      var backTabPressed = (event.keyCode === 8);
-      var tabPressed = (event.keyCode === 9);
-      var rightArrowPressed = (event.keyCode === 39);
-      var $inputs, isLastInput;
-      $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
-      isLastInput = $this.is($inputs[$inputs.length - 1]);
       if (self.params.wordle) {
-        if (isLastInput && enterPressed || tabPressed) {
-          //alert('ok');
-        }
-        if (event.keyCode < 65 && !backTabPressed && !isLastInput) {
-          return false;
-        }
-        
-        isFirstInput = $this.is($inputs[0]);
+        let $this = $(this);
+        let $inputs;
+        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
+        let backTabPressed = (event.keyCode === 8);
         if (backTabPressed) {
-          if (isFirstInput) {
-            return false;
-          } else {
-            // Find previous input to empty and focus
+          let i = 0;
+          if ($inputs.eq($inputs.index($this - 1) ).val() && !$inputs.eq($inputs.index($this) - 1).is(':disabled')) {
             $inputs.eq($inputs.index($this) - 1).val('').focus();
-            return;
+          }
+          // If previous blank is marked as correct: move backward to next incorrect blank.
+          else {
+            for (i = $inputs.index($this); i > 0; i--) {
+              if (!$inputs.eq($inputs.index($this) - i).is(':disabled')) {
+                break;
+              }
+            }
+            $inputs.eq($inputs.index($this) - i).val('').focus();
           }
         }
-      }
-      if (self.params.wordle && !isLastInput) {
-        // Find next input to focus
-        //$inputs.eq($inputs.index($this) + 1).focus();
-      }
-      
-      // ************************************* end wordle ********************
-      // Needed to init timer & counter if enableNumChoice == false
-      if (self.$timer == undefined) {
-        self.initCounters();
-      }
-      
-      // Adjust width of text input field to match value
-      if (!self.params.wordle) {
-        self.autoGrowTextField($this);
-      }
-      
-      
-      if (enterPressed || spacePressed) {
-        // Figure out which inputs are left to answer in current sentence.
-        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
-        // Figure out if this is the last input.
-        isLastInput = $this.is($inputs[$inputs.length - 1]);
-      }
-      
-      if ((isLastInput && !self.shiftPressed) || (enterPressed && isLastInput)) {
-        // Focus first button on next tick        
-        setTimeout(function () {
-          self.focusButton();
-        }, 10);
-      }
-
-      if (enterPressed || spacePressed) {
-        if (isLastInput) {
-          // Check answers
-          $this.trigger('blur');
+        let letter = $inputs.eq($inputs.index($this)).val();
+        let acceptedEntry = /[a-zàáâãäåæçéèêëìíîïñòóôõöøùúûüýÿ]/.test(letter);
+        if (letter && acceptedEntry) {
+          let i = 0;
+          // If next blank is not empty: move forward to next empty blank.
+          if ($inputs.eq($inputs.index($this) + 1).val() ) {
+            for (i = $inputs.index($this); i < $inputs.length; i++) {
+              if (!$inputs.eq($inputs.index($this) + i).val()) {
+                i--;
+                break;
+              }
+            }
+          }
+          $inputs.eq($inputs.index($this) + 1 + i).focus();
+          return;
         }
         else {
-          // Find next input to focus
-          $inputs.eq($inputs.index($this) + 1).focus();
+          $inputs.eq($inputs.index($this)).val('');
+          return false;
         }
-
-        return false; // Prevent form submission on enter key
       }
-// END KEYUP
-    }).on('change', function () {
-      self.answered = true;
-      self.triggerXAPI('interacted');
-    });
-
-    self.on('resize', function () {
-      self.resetGrowTextField();
-    });
-    
-    return this.$questions;
-    
-  };
-*/
-    // Set input fields.
-    this.$questions.find('input').each(function (i) {
-      n = self.allClozes[i][1];
-      t = self.allClozes[i][2];
-      self.clozes[i].setInput($(this), '', function () {
-      }, n, t);
     }).keydown(function (event) {
-      var $this = $(this);
-      
+      let $this = $(this);
+
       // Needed to init timer & counter if enableNumChoice == false
-      if (self.$timer == undefined) {
+      if (self.$timer === undefined) {
         self.initCounters();
       }
-      
+
       // Adjust width of text input field to match value
       self.autoGrowTextField($this);
 
-      var $inputs, isLastInput;
-      var enterPressed = (event.keyCode === 13);
-      var spacePressed = (event.keyCode === 32);
-      var tabPressed = (event.keyCode === 9);
-      
-      if (enterPressed || spacePressed || tabPressed) {
-        // Figure out which inputs are left to answer in current sentence.
-        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
-        // Figure out if this is the last input.
-        isLastInput = $this.is($inputs[$inputs.length - 1]);
-      }
-      if ((isLastInput && !self.shiftPressed) || (enterPressed && isLastInput)) {
-        // Focus first button on next tick        
-        setTimeout(function () {
-          self.focusButton();
-        }, 10);
-      }
-      if (enterPressed || spacePressed || tabPressed) {
-        if (isLastInput) {
-          // Check answers
-          $this.trigger('blur');
-        }
-        else {
-          // Do not move forward if current blank is empty!
-          if ($inputs.eq($inputs.index($this)).val() !== '') {
-          // Find next input to focus
-          $inputs.eq($inputs.index($this) + 1).focus();
-          } else {
-            return false;
-          }
-        }
+      let $inputs, isLastInput;
+      let enterPressed = (event.keyCode === 13);
+      let spacePressed = (event.keyCode === 32);
+      let tabPressed = (event.keyCode === 9);
+      // Figure out which inputs are left to answer in current sentence.
+      $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
+      // Figure out if this is the last input.
 
-        return false; // Prevent form submission on enter key
-      }
-      /*
-      if (tabPressed || enterPressed || spacePressed && !isLastInput) {
+      if (enterPressed || spacePressed || tabPressed) {
+        isLastInput = $this.is($inputs[$inputs.length - 1]);
         if ($inputs.eq($inputs.index($this)).val() === '') {
           return false;
         }
       }
-      */
-      
+
+      // If Wordle: test if all blanks have been filled in to enable going to Check button!
+      if (self.params.wordle && !isLastInput && (enterPressed || tabPressed)) {
+        for (let i = 0; i < $inputs.length; i++) {
+          if (!$inputs.eq($inputs.index($this) + i).val()) {
+            break;
+          }
+          isLastInput = true;
+        }
+      }
+      if ((isLastInput && !self.shiftPressed) || (enterPressed && isLastInput)) {
+        // Focus first button on next tick
+        setTimeout(function () {
+          self.focusButton();
+        }, 10);
+      }
+
+      if (enterPressed || spacePressed || tabPressed) {
+        // Do not move forward if current blank is empty!
+        if ($inputs.eq($inputs.index($this)).val() !== '') {
+          // Find next input to focus
+          $inputs.eq($inputs.index($this) + 1).focus();
+        }
+        else {
+          return false;
+        }
+        return false; // Prevent form submission on enter/tab/space keys
+
+      }
     }).on('change', function () {
       self.answered = true;
       self.triggerXAPI('interacted');
     });
-
     self.on('resize', function () {
       self.resetGrowTextField();
     });
-    
+
     return this.$questions;
-    
+
   };
-
-
 
   /**
    *
    */
   GuessIt.prototype.autoGrowTextField = function ($input) {
-    var self = this;
-    var fontSize = parseInt($input.css('font-size'), 10);
-    var minEm = 3;
-    var minPx = fontSize * minEm;
-    var rightPadEm = 3.25;
-    var rightPadPx = fontSize * rightPadEm;
-    var static_min_pad = 0.5 * fontSize;
-     
+    let self = this;
+    let fontSize = parseInt($input.css('font-size'), 10);
+    let minEm = 3;
+    let minPx = fontSize * minEm;
+    let rightPadEm = 3.25;
+    let rightPadPx = fontSize * rightPadEm;
+    let static_min_pad = 0.5 * fontSize;
+
     setTimeout(function () {
-      var tmp = $('<div>', {
+      let tmp = $('<div>', {
         'text': $input.val()
       });
       tmp.css({
@@ -934,8 +870,8 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
         'width': 'initial'
       });
       $input.parent().append(tmp);
-      var width = tmp.width();
-      var parentWidth = self.$questions.width();
+      let width = tmp.width();
+      let parentWidth = self.$questions.width();
       tmp.remove();
       if (width <= minPx) {
         // Apply min width
@@ -956,7 +892,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * Resize all text field growth to current size.
    */
   GuessIt.prototype.resetGrowTextField = function () {
-    var self = this;
+    let self = this;
 
     this.$questions.find('input').each(function () {
       self.autoGrowTextField($(this));
@@ -969,9 +905,9 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * Using CSS-rules to conditionally show/hide using the data-attribute [data-state]
    */
   GuessIt.prototype.toggleButtonVisibility = function (state) {
-  
-    var isFinished = (this.getScore() === this.getMaxScore());
-    
+
+    let isFinished = (this.getScore() === this.getMaxScore());
+
     // The show solutions button is hidden if all answers are correct
     if (this.params.behaviour.enableSolutionsButton) {
       if (state === STATE_CHECKING && !isFinished) {
@@ -981,10 +917,10 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
         this.hideButton('show-solution');
       }
     }
-    
+
     if ((state === STATE_CHECKING && !isFinished) || state === STATE_SHOWING_SOLUTION) {
       this.showButton('try-again');
-      if (this.params.behaviour.enableEndGameButton) {     
+      if (this.params.behaviour.enableEndGameButton) {
         this.showButton('end-game');
       }
     }
@@ -1001,22 +937,22 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     }
 
     this.trigger('resize');
-    
+
   };
 
   /**
    * Check if solution is allowed. Warn user if not
    */
   GuessIt.prototype.allowSolution = function (option) {
-    var isFinished = (this.getScore() === this.getMaxScore());
-      if (!isFinished && !this.minRoundsReached()) {
-        var minRoundsText = option + ' : ' + this.params.notEnoughRounds
-          .replace('@round', this.params.behaviour.numRounds);
-        this.updateFeedbackContent(minRoundsText);
-        this.read(minRoundsText);
-        this.hideButton('show-solution');
-        return false;
-      }
+    let isFinished = (this.getScore() === this.getMaxScore());
+    if (!isFinished && !this.minRoundsReached()) {
+      let minRoundsText = option + ' : ' + this.params.notEnoughRounds
+        .replace('@round', this.params.behaviour.numRounds);
+      this.updateFeedbackContent(minRoundsText);
+      this.read(minRoundsText);
+      this.hideButton('show-solution');
+      return false;
+    }
     return true;
   };
 
@@ -1027,35 +963,35 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * @return {boolean} Returns true if all GuessIt are filled out.
    */
   GuessIt.prototype.minRoundsReached = function () {
-    return (this.counter.getcurrent() > this.params.behaviour.numRounds - 1)
+    return (this.counter.getcurrent() > this.params.behaviour.numRounds - 1);
   };
 
- 
+
   /**
    * Enable incorrect words for retrying them.
    */
   GuessIt.prototype.enableInCorrectInputs = function () {
-    var self = this;
-    for (var i = 0; i < self.clozes.length; i++) {
-      var ok = self.clozes[i].checkCorrect();
+    let self = this;
+    for (let i = 0; i < self.clozes.length; i++) {
+      let ok = self.clozes[i].checkCorrect();
       if (!ok) {
         self.clozes[i].enableInput();
       }
-    }    
+    }
   };
   /**
-   * Enable incorrect words for retrying them.
+   * When retrying guessing clean blanks of colours and markup.
    */
   GuessIt.prototype.resetBlanks = function () {
-    var self = this;
-    for (var i = 0; i < self.clozes.length; i++) {
-      var ok = self.clozes[i].checkCorrect();
+    let self = this;
+    for (let i = 0; i < self.clozes.length; i++) {
+      let ok = self.clozes[i].checkCorrect();
       if (!ok) {
         self.clozes[i].resetBlank();
         self.clozes[i].setUserInput('');
         self.clozes[i].resetAriaLabel();
       }
-    }    
+    }
   };
 
 
@@ -1070,17 +1006,17 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       return !cloze.filledOut();
     });
   };
-  
+
   /**
    * Mark which answers are correct and which are wrong and disable fields if retry is off.
    */
   GuessIt.prototype.markResults = function () {
-    var self = this;
+    let self = this;
     let currentSentence = '';
     if (self.params.wordle) {
       currentSentence = self.params.questions[self.currentSentenceId].sentence;
     }
-    for (var i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
+    for (let i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
       this.currentSentenceClozes[this.currentSentenceId][i].checkAnswer(currentSentence);
     }
     this.trigger('resize');
@@ -1100,19 +1036,19 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * Displays the correct answers
    */
   GuessIt.prototype.showCorrectAnswers = function () {
-    var self = this;
+    let self = this;
     if (!this.allowSolution(self.params.showSolutions)) {
       return;
     }
-    
+
     if (this.solutionsViewed [this.currentSentenceId] !== true) {
       this.solutionsViewed [this.currentSentenceId] = true;
       this.nbSsolutionsViewed++;
     }
     this.toggleButtonVisibility(STATE_SHOWING_SOLUTION);
     this.hideSolutions();
-    
-    for (var i = 0; i < this.clozes.length; i++) {
+
+    for (let i = 0; i < this.clozes.length; i++) {
       this.clozes[i].showSolution();
     }
     this.trigger('resize');
@@ -1125,7 +1061,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * @param  {boolean} enabled True if fields should allow input, otherwise false
    */
   GuessIt.prototype.toggleAllInputs = function (enabled) {
-    for (var i = 0; i < this.clozes.length; i++) {
+    for (let i = 0; i < this.clozes.length; i++) {
       this.clozes[i].toggleInput(enabled);
     }
   };
@@ -1161,11 +1097,11 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     this.done = false;
     this.timer.play();
     this.counter.increment();
-    
+
     // Clone sentence & feedback
-    var $currentQuestion = this.$questions.eq(this.currentSentenceId) 
+    let $currentQuestion = this.$questions.eq(this.currentSentenceId);
     $currentQuestion.clone(false).addClass('cloned').removeClass('has-tip').insertBefore(this.$questions.eq(this.currentSentenceId));
-    var $clonedQuestion = $('[data-content-id="' + this.contentId + '"].h5p-content .cloned');
+    let $clonedQuestion = $('[data-content-id="' + this.contentId + '"].h5p-content .cloned');
     $clonedQuestion.find('.h5p-input-wrapper > input').attr('disabled', true);
     $clonedQuestion.find('.joubel-tip-container').addClass('hidden');
     $clonedQuestion.find('.h5p-guessit-audio-wrapper').addClass('hidden');
@@ -1176,21 +1112,21 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * Display a new sentence to be guessed.
    * @public
    */
-  GuessIt.prototype.newSentence = function () {    
-    var self = this;
+  GuessIt.prototype.newSentence = function () {
+    let self = this;
     this.sentencesFound ++;
-    var $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
+    let $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
     $content.find('.cloned').remove();
-    var s = self.params.sentence + ' '; 
+    let s = self.params.sentence + ' ';
     // Capitalize initial letter
-    s = s.charAt(0).toUpperCase() + s.slice(1); 
-    self.$progress.text(s + (this.sentencesFound + 1) +'/' + this.numQuestions)
-    self.initTask();    
+    s = s.charAt(0).toUpperCase() + s.slice(1);
+    self.$progress.text(s + (this.sentencesFound + 1) + '/' + this.numQuestions);
+    self.initTask();
   };
 
   GuessIt.prototype.initCounters = function () {
-    var self = this; 
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content .h5p-question-content');
+    let self = this;
+    let $content = $('[data-content-id="' + self.contentId + '"].h5p-content .h5p-question-content');
     // Timer part.
     this.$timer = $('<div/>', {
       class: 'h5p-guessit time-status',
@@ -1200,12 +1136,12 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
         '<span role="definition"  class="h5p-time-spent" >0:00</span>'
     });
     this.timer = new GuessIt.Timer(this.$timer.find('.h5p-time-spent'));
-    
+
     this.$timer.appendTo($content);
     //this.$timer.addClass ('h5p-guessit-hide');
     this.timer.play();
     // Counter part.
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
+    $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     const counterText = self.params.round
       .replace('@round', '<span class="h5p-counter">1</span>');
 
@@ -1218,28 +1154,28 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     this.$counter.appendTo(this.$timer);
     this.counter.increment();
     // No point displaying progress in userSentence mode!
-    if (this.params.playMode == 'availableSentences') {
-      var s = self.params.sentence + ' ';
+    if (this.params.playMode === 'availableSentences') {
+      let s = self.params.sentence + ' ';
       s = s.charAt(0).toUpperCase() + s.slice(1);
       this.$progress = $('<div>', {
         class: 'counter-status',
         tabindex: -1,
-        text: s + 1 +'/' + this.numQuestions
+        text: s + 1 + '/' + this.numQuestions
       });
       this.$progress.appendTo(this.$timer);
     }
-    
-  }
+
+  };
 
   GuessIt.prototype.initTask = function () {
-    var self = this;
-    var $content = $('[data-content-id="' + this.contentId + '"].h5p-content');                                                 
+    let self = this;
+    let $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
     $content.find('.h5p-container').removeClass('h5p-guessit-hide');
-    
+
     // TODO move this trigger ?
     this.triggerXAPI('attempted');
-    
-    if (self.timer !== undefined) {      
+
+    if (self.timer !== undefined) {
       this.totalTimeSpent += this.timer.getTime();
       this.totalRounds += this.counter.getcurrent();
       this.$timer.removeClass ('h5p-guessit-hide');
@@ -1247,9 +1183,9 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
       this.timer.play();
       this.counter.reset();
     }
-    
+
     this.hideButton('new-sentence');
-    
+
     this.hideButton('end-game');
     this.answered = false;
     this.clearAnswers();
@@ -1258,117 +1194,123 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     this.resetGrowTextField();
     this.toggleAllInputs(true);
     this.done = false;
-    
-      // Hide current sentence and mark it as "used"
-      this.$questions.eq(this.currentSentenceId).addClass('h5p-guessit-sentence-hidden used');    
-      this.numQuestionsInWords[this.numWords] --
-      var acceptedQuestions = [];
-      
-      if (this.params.behaviour.enableNumChoice) {      
-        for (i = 0; i < this.params.questions.length; i++) {      
-          if (this.sentenceClozeNumber[i] == this.numWords && !this.$questions.eq(i).hasClass('used')) {
-            acceptedQuestions[i] = i;
-          }
-        }        
-      } else {
-        for (i = 0; i < this.numQuestions; i++) {
-          if (!this.$questions.eq(i).hasClass('used')) {
-            acceptedQuestions[i] = i;
-          }
+
+    // Hide current sentence and mark it as "used"
+    this.$questions.eq(this.currentSentenceId).addClass('h5p-guessit-sentence-hidden used');
+    this.numQuestionsInWords[this.numWords] --;
+    let acceptedQuestions = [];
+    let i;
+    if (this.params.behaviour.enableNumChoice) {
+      for (i = 0; i < this.params.questions.length; i++) {
+        if (this.sentenceClozeNumber[i] === this.numWords && !this.$questions.eq(i).hasClass('used')) {
+          acceptedQuestions[i] = i;
         }
       }
-      
-      // https://alligator.io/js/filter-array-method/
-      acceptedQuestions = acceptedQuestions.filter(function(number) {
-        return number !== null;
-      });          
-      if (this.params.playMode == 'userSentence') {
-        acceptedQuestions = [0];
+    }
+    else {
+      for (i = 0; i < this.numQuestions; i++) {
+        if (!this.$questions.eq(i).hasClass('used')) {
+          acceptedQuestions[i] = i;
+        }
       }
-      if (this.params.behaviour.sentencesOrder == 'normal')   {
-        this.currentSentenceId = acceptedQuestions[0]
-      } else { 
-        // https://www.w3resource.com/javascript-exercises/javascript-array-exercise-35.php
-        // Note ~~ equivalent of Math.floor See http://rocha.la/JavaScript-bitwise-operators-in-practice
-        this.currentSentenceId = acceptedQuestions[~~(Math.random()*acceptedQuestions.length)]
-      }
-      this.$questions.eq(this.currentSentenceId).removeClass('h5p-guessit-sentence-hidden');
-     
-    if (this.params.playMode == 'userSentence') {
-      this.currentSentenceId = 0; 
+    }
+
+    // https://alligator.io/js/filter-array-method/
+    acceptedQuestions = acceptedQuestions.filter(function (number) {
+      return number !== null;
+    });
+    if (this.params.playMode === 'userSentence') {
+      acceptedQuestions = [0];
+    }
+    if (this.params.behaviour.sentencesOrder === 'normal')   {
+      this.currentSentenceId = acceptedQuestions[0];
+    }
+    else {
+      // https://www.w3resource.com/javascript-exercises/javascript-array-exercise-35.php
+      // Note ~~ equivalent of Math.floor See http://rocha.la/JavaScript-bitwise-operators-in-practice
+      this.currentSentenceId = acceptedQuestions[~~(Math.random() * acceptedQuestions.length)];
+    }
+    this.$questions.eq(this.currentSentenceId).removeClass('h5p-guessit-sentence-hidden');
+
+    if (this.params.playMode === 'userSentence') {
+      this.currentSentenceId = 0;
       this.$questions.eq(this.currentSentenceId).removeClass('h5p-guessit-sentence-hidden');
     }
-    
+
   };
-  
-  GuessIt.prototype.showFinalPage = function () {    
-    var self = this;  
+
+  GuessIt.prototype.showFinalPage = function () {
+    let self = this;
     this.hideButton('end-game');
     this.hideButton('try-again');
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
-    
+    let $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
+
     // Needed to display 'h5p-guessit-summary-screen' centered!
     $content.removeClass('h5p-no-frame');
-    
+
     // Remove all these now useless elements from DOM.
-    var $content = $('[data-content-id="' + self.contentId + '"].h5p-content');      
-    
+    $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
+
     $('.h5p-no-frame, .h5p-guessit-description, .h5p-question-introduction, .h5p-question-content,'
-      +' .h5p-question-scorebar, .h5p-question-feedback',
-      $content).hide();
-      
+      + ' .h5p-question-scorebar, .h5p-question-feedback',
+    $content).hide();
+
     this.totalRounds += this.counter.getcurrent();
-    
+
     // Calculate and nicely format total time spent.
-    this.totalTimeSpent += this.timer.getTime();  
-    var time = this.totalTimeSpent / 1000   
+    this.totalTimeSpent += this.timer.getTime();
+    let time = this.totalTimeSpent / 1000;
     // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds#3733257
-    function fancyTimeFormat(time) {   
+    function fancyTimeFormat(time) {
       // Hours, minutes and seconds
-      var hrs = ~~(time / 3600);
-      var mins = ~~((time % 3600) / 60);
-      var secs = ~~time % 60;
-      var ret = "";
+      let hrs = ~~(time / 3600);
+      let mins = ~~((time % 3600) / 60);
+      let secs = ~~time % 60;
+      let ret = "";
       // Using international SI abreviations.
       const $hour = 'h';
-      const $minute = 'min';      
+      const $minute = 'min';
       const $second = 's';
       if (hrs > 0) {
-          ret += "" + hrs + $hour + (mins < 10 ? "0" : "");
+        ret += "" + hrs + $hour + (mins < 10 ? "0" : "");
       }
       ret += "" + mins + ' ' + $minute + ' ' + (secs < 10 ? "0" : "");
       ret += "" + secs + ' ' + $second;
       return ret;
     }
     this.totalTime = fancyTimeFormat(time);
-    
+
     // Calculate the number of sentences that have been guessed.
-    var usedQuestions = 1;
-    for (i = 0; i < this.params.questions.length; i++) {
+    let usedQuestions = 1;
+    for (let i = 0; i < this.params.questions.length; i++) {
       if (this.$questions.eq(i).hasClass('used')) {
         usedQuestions ++;
       }
-    }  
-      
+    }
+    let actualScore;
+    let maxScore;
+    let explainScore;
     if (this.params.behaviour.singlePoint) {
       actualScore = 1;
       maxScore = 1;
-      explainScore = this.params.scoreExplanationforSinglePoint; 
-    } else {
+      explainScore = this.params.scoreExplanationforSinglePoint;
+    }
+    else {
       actualScore = this.nbSentencesGuessed;
       if (!this.params.behaviour.enableNumChoice) {
         maxScore = this.totalNumQuestions;
         explainScore = this.params.scoreExplanationforAllSentences;
-      } else {           
+      }
+      else {
         maxScore = this.numQuestions;
         explainScore = this.params.scoreExplanationforSentencesWithNumberWords
           .replace('@words', this.numWords);
       }
     }
-       
+
     if (actualScore === maxScore) {
       this.success = true;
-    } 
+    }
     this.actualScore = actualScore;
     this.maxScore = maxScore;
     // We only trigger XAPI at the end of the activity
@@ -1376,81 +1318,81 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
     this.hideButton('end-game2');
     this.hideButton('new-sentence');
     this.$timer.remove();
-    $outof = '<td class="h5p-guessit-summary-table-row-category">' + this.params.sentencesGuessed + '</td>'
+    let $outof = '<td class="h5p-guessit-summary-table-row-category">' + this.params.sentencesGuessed + '</td>'
       + '<td class="h5p-guessit-summary-table-row-symbol h5p-guessit-check">&nbsp;</td>'
       + '<td class="h5p-guessit-summary-table-row-score">'
       + this.nbSentencesGuessed
       + '&nbsp;<span class="h5p-guessit-summary-table-row-score-divider">/</span>&nbsp;'
       + maxScore + '</td></tr>';
-    if (this.params.playMode == 'userSentence') {
-        $outof = '';
+    if (this.params.playMode === 'userSentence') {
+      $outof = '';
     }
-    var text = '<div class="h5p-guessit-summary-header">'
+    let text = '<div class="h5p-guessit-summary-header">'
       + this.params.summary + '</div>'
       + '<table class="h5p-guessit-summary-table">'
       + $outof
       + '<tr><td class="h5p-guessit-summary-table-row-category">' + this.params.totalRounds + '</td>'
       + '<td class="h5p-guessit-summary-table-row-symbol"></td>'
       + '<td class="h5p-guessit-summary-table-row-score">' + this.totalRounds + '</td></tr>'
-      
+
       + '<tr><td class="h5p-guessit-summary-table-row-category">' + this.params.solutionsViewed + '</td>'
       + '<td class="h5p-guessit-summary-table-row-symbol"></td>'
       + '<td class="h5p-guessit-summary-table-row-score">' + this.nbSsolutionsViewed + '</td></tr>'
-      
-      + '<tr><td colspan="3" class="h5p-guessit-summary-table-row-category">' 
+
+      + '<tr><td colspan="3" class="h5p-guessit-summary-table-row-category">'
       + this.params.totalTimeSpent + ' :<span style = "float: right;">&nbsp;' + this.totalTime +  '</span></td>'
       + '<td class="">' + '</td>'
-      + '<td class="">' + '</td></tr>'        
+      + '<td class="">' + '</td></tr>'
       + '</table>';
-      
-    var $content = $('[data-content-id="' + self.contentId + '"] .h5p-container');
-    
-    var $feedback = $('<div>', {
+
+    $content = $('[data-content-id="' + self.contentId + '"] .h5p-container');
+
+    let $feedback = $('<div>', {
       'class': 'h5p-guessit-summary-screen',
       'html': text
     }).appendTo($content);
-    
+
     if (this.$divGuessedSentences) {
-      this.$divGuessedSentences.prependTo($feedback)
+      this.$divGuessedSentences.prependTo($feedback);
     }
-    
+
     this.$feedbackContainer = $('<div class="h5p-guessit feedback-container"/>')
       .appendTo($feedback);
-    if (this.params.playMode == 'availableSentences') {
-      scoreBarLabel = this.params.scoreBarLabel.replace('@score', actualScore).replace('@total', maxScore);
-      scoreBar = H5P.JoubelUI.createScoreBar(maxScore, scoreBarLabel, explainScore, this.params.scoreExplanationButtonLabel);
+    if (this.params.playMode === 'availableSentences') {
+      let scoreBarLabel = this.params.scoreBarLabel.replace('@score', actualScore).replace('@total', maxScore);
+      let scoreBar = H5P.JoubelUI.createScoreBar(maxScore, scoreBarLabel, explainScore, this.params.scoreExplanationButtonLabel);
       scoreBar.setMaxScore(maxScore);
       scoreBar.setScore(actualScore);
       scoreBar.appendTo(this.$feedbackContainer);
     }
     this.trigger('resize');
-    
+
     // Reset all user state elements.
-    if (usedQuestions == this.params.questions.length) {
-        this.sentencesList = '';
-        this.sentencesGuessed.length = 0;
-        this.nbSentencesGuessed = 0;
-        this.totalRounds = 0;
-        this.nbSsolutionsViewed = 0;
-        this.totalTimeSpent = 0;
-        self.getCurrentState();              
+    if (usedQuestions === this.params.questions.length) {
+      this.sentencesList = '';
+      this.sentencesGuessed.length = 0;
+      this.nbSentencesGuessed = 0;
+      this.totalRounds = 0;
+      this.nbSsolutionsViewed = 0;
+      this.totalTimeSpent = 0;
+      self.getCurrentState();
     }
-    
+
     // Display reset button to enable user to do the task again.
-    // Provided a warning in the semantics file as to this method not guaranteed to work at all times!    
+    // Provided a warning in the semantics file as to this method not guaranteed to work at all times!
     if (this.params.behaviour.enableRetry) {
-      var $resetTaskButton = H5P.JoubelUI.createButton({
-          'class': 'h5p-guessit-retry-button',
-          'title': self.params.tryAgain,
-          'html': self.params.tryAgain
-        }).click(function () {         
-          var url = top.location.href;
-          window.top.location.href = url;       
-        }).appendTo(this.$feedbackContainer)
-          .focus();
+      H5P.JoubelUI.createButton({
+        'class': 'h5p-guessit-retry-button',
+        'title': self.params.tryAgain,
+        'html': self.params.tryAgain
+      }).click(function () {
+        let url = top.location.href;
+        window.top.location.href = url;
+      }).appendTo(this.$feedbackContainer)
+        .focus();
     }
-  }
-  
+  };
+
   /**
    * Hides all buttons.
    * @public
@@ -1464,7 +1406,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    */
   GuessIt.prototype.triggerAnswered = function () {
     this.answered = true;
-    var xAPIEvent = this.createXAPIEventTemplate('answered');
+    let xAPIEvent = this.createXAPIEventTemplate('answered');
     this.addQuestionToXAPI(xAPIEvent);
     this.addResponseToXAPI(xAPIEvent);
     this.trigger(xAPIEvent);
@@ -1477,7 +1419,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * @see contract at {@link https://h5p.org/documentation/developers/contracts#guides-header-6}
    */
   GuessIt.prototype.getXAPIData = function () {
-    var xAPIEvent = this.createXAPIEventTemplate('answered');
+    let xAPIEvent = this.createXAPIEventTemplate('answered');
     this.addQuestionToXAPI(xAPIEvent);
     this.addResponseToXAPI(xAPIEvent);
     return {
@@ -1490,7 +1432,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * @return {Object}
    */
   GuessIt.prototype.getxAPIDefinition = function () {
-    var definition = {};
+    let definition = {};
     definition.description = {
       'en-US': this.params.sentencesGuessed
     };
@@ -1503,7 +1445,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * Add the question itselt to the definition part of an xAPIEvent
    */
   GuessIt.prototype.addQuestionToXAPI = function (xAPIEvent) {
-    var definition = xAPIEvent.getVerifiedStatementValue(['object', 'definition']);
+    let definition = xAPIEvent.getVerifiedStatementValue(['object', 'definition']);
     $.extend(true, definition, this.getxAPIDefinition());
 
     // Set reporting module version if alternative extension is used
@@ -1536,7 +1478,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    */
   GuessIt.prototype.addResponseToXAPI = function (xAPIEvent) {// todo score
     xAPIEvent.setScoredResult(this.actualScore, this.maxScore, this,
-    true, this.success);
+      true, this.success);
     xAPIEvent.data.statement.result.response = this.getxAPIResponse(this.params.questions);
   };
 
@@ -1547,13 +1489,13 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   GuessIt.prototype.getxAPIResponse = function (questions) {
     let guessedSentences = '';
     // TODO add tried sentences? + add timespent & nb turns & solutions asked for each or all???
-    this.sentencesGuessed.forEach(function(item){
+    this.sentencesGuessed.forEach(function (item) {
       guessedSentences += (!guessedSentences ? '' : '\n') + questions[item].sentence;
-    })
-    guessedSentences += '\n------------------------\n' 
-      + this.params.totalRounds + ' : ' + this.totalRounds + '\n' 
+    });
+    guessedSentences += '\n------------------------\n'
+      + this.params.totalRounds + ' : ' + this.totalRounds + '\n'
       + this.params.solutionsViewed + ' : ' + this.nbSsolutionsViewed;
-       
+
     return guessedSentences;
   };
 
@@ -1571,7 +1513,6 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * @returns {Number} Max points
    */
   GuessIt.prototype.getMaxScore = function () {
-    var self = this;
     return this.sentenceClozeNumber[this.currentSentenceId];
   };
 
@@ -1581,10 +1522,10 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * @returns {Number} Points
    */
   GuessIt.prototype.getScore = function () {
-    var self = this;
-    var correct = 0;
-    
-    for (var i = 0; i < self.clozes.length; i++) {
+    let self = this;
+    let correct = 0;
+
+    for (let i = 0; i < self.clozes.length; i++) {
       if (self.clozes[i].correct()) {
         correct++;
       }
@@ -1592,7 +1533,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
         //this.userAnswers[i] = self.clozes[i].getUserAnswer();
       }
     }
-    
+
     return correct;
   };
 
@@ -1635,7 +1576,7 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * @returns {object} object containing content for each cloze
    */
   GuessIt.prototype.getCurrentState = function () {
-    var state = {};
+    let state = {};
     state.sentencesList = this.sentencesList;
     state.sentencesGuessed = this.sentencesGuessed;
     state.nbSentencesGuessed = this.nbSentencesGuessed;
@@ -1649,17 +1590,16 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
    * Sets answers to current user state
    */
   GuessIt.prototype.setH5PUserState = function () {
-    var self = this;
-    var isValidState = (this.previousState !== undefined 
+    let isValidState = (this.previousState !== undefined
       && Object.keys(this.previousState).length !== 0);
-    
+
     // Check that stored user state is valid
     if (!isValidState) {
       return;
-    } 
+    }
     this.sentencesList = this.previousState.sentencesList;
     this.sentencesGuessed = this.previousState.sentencesGuessed;
-    this.nbSentencesGuessed = this.previousState.nbSentencesGuessed;    
+    this.nbSentencesGuessed = this.previousState.nbSentencesGuessed;
     this.totalRounds = this.previousState.totalRounds;
     this.nbSsolutionsViewed = this.previousState.nbSsolutionsViewed;
     this.totalTimeSpent = this.previousState.totalTimeSpent;
@@ -1688,45 +1628,45 @@ H5P.GuessIt = (function ($, Question, Audio, JoubelUI) {
   };
 */
   GuessIt.prototype.eventCompleted = function () {
-   // Create and trigger xAPI event 'completed'
-    var completedEvent = this.createXAPIEventTemplate('completed');
+    // Create and trigger xAPI event 'completed'
+    let completedEvent = this.createXAPIEventTemplate('completed');
     completedEvent.setScoredResult(1, 1, self, true, true);
     completedEvent.data.statement.result.duration = 'PT' + (Math.round(this.timer.getTime() / 10) / 100) + 'S';
     this.trigger(completedEvent);
-  }
+  };
 
   GuessIt.prototype.addTip = function (tip, question) {
-    var self = this;
-    var tipLabel = self.params.tipLabel;
-      if(tip !== undefined && tip.trim().length > 0) {
-        question.addClass('has-tip')
-          .prepend(H5P.JoubelUI.createTip(tip, {
-            tipLabel: tipLabel 
-          }));
-      };      
-      // Remove default bubble & shadow elements from the default H5P tip button since they are not used.
-      question.find('.h5p-icon-speech-bubble, .h5p-icon-shadow').remove();
-  }
-  
+    let self = this;
+    let tipLabel = self.params.tipLabel;
+    if (tip !== undefined && tip.trim().length > 0) {
+      question.addClass('has-tip')
+        .prepend(H5P.JoubelUI.createTip(tip, {
+          tipLabel: tipLabel
+        }));
+    }
+    // Remove default bubble & shadow elements from the default H5P tip button since they are not used.
+    question.find('.h5p-icon-speech-bubble, .h5p-icon-shadow').remove();
+  };
+
   GuessIt.prototype.addAudio = function (sound, question, hidden) {
-    var self = this;
-    if(sound !== undefined) {
-        var $audioWrapper = $('<div>', {
-          'class': 'h5p-guessit-audio-wrapper'
-        });
-        if (hidden) {
-          $audioWrapper.addClass('hidden');
-        };
-        var audioDefaults = {
-          files: sound,
-          audioNotSupported: self.params.audioNotSupported
-        };
-        audio = new H5P.Audio(audioDefaults, self.contentId);
-        audio.attach($audioWrapper);        
+    let self = this;
+    if (sound !== undefined) {
+      let $audioWrapper = $('<div>', {
+        'class': 'h5p-guessit-audio-wrapper'
+      });
+      if (hidden) {
+        $audioWrapper.addClass('hidden');
       }
+      let audioDefaults = {
+        files: sound,
+        audioNotSupported: self.params.audioNotSupported
+      };
+      let audio = new H5P.Audio(audioDefaults, self.contentId);
+      audio.attach($audioWrapper);
       // Prepend potential audio buttons to the sentence input fields.
-      question.prepend($audioWrapper);      
-  }
+      question.prepend($audioWrapper);
+    }
+  };
 
   GuessIt.idCounter = 0;
 

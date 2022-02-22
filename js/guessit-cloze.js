@@ -12,13 +12,13 @@
    * @param {string} l10n.inputLabel Assistive technology label for cloze input
    */
   GuessIt.Cloze = function (solution, behaviour, defaultUserAnswer, wordle, l10n) {
-    var self = this;
-    var $input, $wrapper;
-    var answers = solution.solutions;
-    var answer = answers.join('/');
-    var checkedAnswer = null;
-    var inputLabel = l10n.inputLabel;
-    
+    const self = this;
+    let $input, $wrapper;
+    let answers = solution.solutions;
+    let answer = answers.join('/');
+    let checkedAnswer = null;
+    let inputLabel = l10n.inputLabel;
+
     if (behaviour.caseSensitive !== true) {
       // Convert possible solutions into lowercase
       answer = answer.toLowerCase();
@@ -30,11 +30,11 @@
      * @private
      * @param {string} answered
      */
-    var correct = function (answered) {
+    const correct = function (answered) {
       if (behaviour.caseSensitive !== true) {
         answered = answered.toLowerCase();
       }
-      return (answered == answer);
+      return (answered === answer);
     };
 
     /**
@@ -43,17 +43,17 @@
      * @private
      * @param {string} answered
      */
-    var misplaced = function (answered, currentSentence) {
+    const misplaced = function (answered, currentSentence) {
       return (currentSentence.includes(answered));
     };
-    
+
     /**
      * Check if filled out.
      *
      * @param {boolean}
      */
     this.filledOut = function () {
-      var answered = this.getUserAnswer();
+      const answered = this.getUserAnswer();
       // Blank can be correct and is interpreted as filled out.
       return (answered !== '' || correct(answered));
     };
@@ -62,12 +62,11 @@
      * Check the cloze and mark it as wrong or correct (or partially correct, i.e.in wordle word but wrong position).
      */
     this.checkAnswer = function (currentSentence) {
-      console.log('currentSentence = ' + currentSentence + ' wordle ' + wordle);
       // Remove potentially existing markup element.
       $( '.h5p-guessit-markup', $wrapper ).remove();
       checkedAnswer = this.getUserAnswer();
-      
-      var isCorrect = correct(checkedAnswer);
+
+      const isCorrect = correct(checkedAnswer);
       let isMisplaced = false;
       if (!isCorrect && wordle) {
         isMisplaced = misplaced(checkedAnswer, currentSentence);
@@ -75,7 +74,8 @@
       if (isCorrect) {
         if (!wordle) {
           $wrapper.addClass('h5p-correct');
-        } else {
+        }
+        else {
           $wrapper.addClass('h5p-correct-wordle');
         }
         $input.attr('disabled', true)
@@ -87,23 +87,25 @@
         }
         if (isMisplaced) {
           $wrapper.addClass('h5p-misplaced');
-        } else {
+        }
+        else {
           if (wordle) {
             $wrapper.addClass('h5p-wrong-wordle');
-          } else {
+          }
+          else {
             $wrapper.addClass('h5p-wrong');
           }
         }
-        $input.attr('aria-label', inputLabel + '. ' + l10n.answeredIncorrectly);        
+        $input.attr('aria-label', inputLabel + '. ' + l10n.answeredIncorrectly);
       }
     };
-    
+
     /**
      * Check the cloze and mark it as wrong or correct.
      */
     this.checkCorrect = function () {
       checkedAnswer = this.getUserAnswer();
-      var isCorrect = correct(checkedAnswer);
+      const isCorrect = correct(checkedAnswer);
       return isCorrect;
     };
 
@@ -156,73 +158,75 @@
         insertAfter: $wrapper
       });
       $input.attr('disabled', true);
-      var ariaLabel = inputLabel + '. ' +
+      const ariaLabel = inputLabel + '. ' +
         l10n.solutionLabel + ' ' + answer + '. ' +
         l10n.answeredIncorrectly;
-
       $input.attr('aria-label', ariaLabel);
     };
-
 
     /**
      * Mark up the incorrect studentAnswer.
      */
     this.markUp = function (studentAnswer) {
-      var cleanAnswer = answer; 
-      var hasOnlyAscii = /^[\u0000-\u007f]*$/.test(answer);
+      let cleanAnswer = answer;
+      let hasOnlyAscii = /^[\\u0000-\\u007f]*$/.test(answer);
       if (!hasOnlyAscii) {
         cleanAnswer = this.removeDiacritics (answer);
       }
-      var cleanStudentAnswer = studentAnswer;
-      hasOnlyAscii = /^[\u0000-\u007f]*$/.test(studentAnswer);
+      let cleanStudentAnswer = studentAnswer;
+      hasOnlyAscii = /^[\\u0000-\\u007f]*$/.test(studentAnswer);
       if (!hasOnlyAscii) {
         cleanStudentAnswer = this.removeDiacritics (studentAnswer);
       }
-      
-      var markup = '';
-      var eq = '=';
-      var lw = '<';
-      var gt = '>';
-      
+
+      let markup = '';
+      const eq = '=';
+      const lw = '<';
+      const gt = '>';
+      let i = 0;
+
       // TODO offer this in the parameters?
       // List of punctuation or weird characters (other than those in the diactitics list below) to "give" to the user.
-      const punctuation = "';:,.-?¿!¡ßœ"
-      var minLen = Math.min(answer.length, studentAnswer.length);      
+      const punctuation = "';:,.-?¿!¡ßœ";
+      let minLen = Math.min(answer.length, studentAnswer.length);
       for (i = 0; i < minLen; i++) {
-        answerLetter = answer[i];
-        cleanAnswerLetter = cleanAnswer[i].toLowerCase();
-        studentLetter = studentAnswer[i];
-        cleanStudentLetter = cleanStudentAnswer[i].toLowerCase();   
-          
-        if (studentLetter == answerLetter) {
+        let answerLetter = answer[i];
+        let cleanAnswerLetter = cleanAnswer[i].toLowerCase();
+        let studentLetter = studentAnswer[i];
+        let cleanStudentLetter = cleanStudentAnswer[i].toLowerCase();
+
+        if (studentLetter === answerLetter) {
           markup += eq;
-        } else if (cleanStudentLetter == cleanAnswerLetter ) {
+        }
+        else if (cleanStudentLetter === cleanAnswerLetter ) {
           markup += answerLetter;
           break;
-        } else if (cleanStudentLetter == cleanAnswerLetter || punctuation.includes(cleanAnswer[i]) ) {
+        }
+        else if (cleanStudentLetter === cleanAnswerLetter || punctuation.includes(cleanAnswer[i]) ) {
           markup += answerLetter;
-          break;           
-        } else if (
-            cleanStudentLetter < cleanAnswerLetter
-          ) {
+          break;
+        }
+        else if (
+          cleanStudentLetter < cleanAnswerLetter
+        ) {
           markup += gt;
           break;
-        } else {
+        }
+        else {
           markup += lw;
           break;
         }
-      }        
-      
+      }
+
       // Automatically give punctuation at end of sentence if absent.
-      if (studentAnswer.length == answer.length - 1  
-          && cleanStudentAnswer[i] === undefined 
-          && punctuation.includes(cleanAnswer[i]) ) 
-      {
+      if (studentAnswer.length === answer.length - 1
+          && cleanStudentAnswer[i] === undefined
+          && punctuation.includes(cleanAnswer[i]) ) {
         markup += cleanAnswer[i];
       }
-      
+
       // Place the markup line below the studentAnswer by 18px.
-      var offset = $wrapper.offset();
+      let offset = $wrapper.offset();
       offset.top = 22;
       offset.left = 0;
       $('<span>', {
@@ -231,9 +235,9 @@
         'offset': offset,
         text: markup,
         appendTo: $wrapper
-      });                             
+      });
       $input.attr('disabled', true);
-      var ariaLabel = inputLabel + '. ' +
+      let ariaLabel = inputLabel + '. ' +
         l10n.solutionLabel + ' ' + answer + '. ' +
         l10n.answeredIncorrectly;
 
@@ -261,14 +265,14 @@
       $wrapper = $element.parent();
       inputLabel = inputLabel.replace('@num', (clozeIndex + 1))
         .replace('@total', totalCloze);
-        
+
       $input.attr('aria-label', inputLabel);
       // If Wordle accept only one character... or on keydown go to next input?
       if (wordle) {
-        $input.attr('maxlength','1');
+        $input.attr('maxlength', '1');
         $input.addClass('wordle');
       }
-      
+
       $input.keyup(function () {
         if (checkedAnswer !== null && checkedAnswer !== self.getUserAnswer()) {
           // The Answer has changed since last check
@@ -278,13 +282,13 @@
             $wrapper.removeClass('h5p-wrong-wordle');
             $wrapper.removeClass('h5p-misplaced');
           }
-          
+
           $input.attr('aria-label', inputLabel);
           if (afterFocus !== undefined) {
             afterFocus();
           }
         }
-        
+
       });
     };
 
@@ -292,7 +296,7 @@
      * @returns {string} Cloze html
      */
     this.toString = function () {
-      var result = '<span class="h5p-input-wrapper"><input type="text" class="h5p-text-input" autocomplete="off" autocapitalize="off"></span>';
+      let result = '<span class="h5p-input-wrapper"><input type="text" class="h5p-text-input" autocomplete="off" autocapitalize="off"></span>';
       self.length = result.length;
       return result;
     };
@@ -324,13 +328,11 @@
     this.resetAriaLabel = function () {
       $input.attr('aria-label', inputLabel);
     };
-    
+
     this.removeDiacritics = function (str) {
-      console.log('removeDiacritics str = ' + str);
-    
     // IMPORTANT: this js file must be encoded in UTF-8 no BOM(65001)
-    // If it's not, then use the unicode codes at https://web.archive.org/web/20120918093154/http://lehelk.com/2011/05/06/script-to-remove-diacritics/ 
-      var defaultDiacriticsRemovalMap = [
+    // If it's not, then use the unicode codes at https://web.archive.org/web/20120918093154/http://lehelk.com/2011/05/06/script-to-remove-diacritics/
+      const defaultDiacriticsRemovalMap = [
         // Latin European languages diacritics
         {'base':'a', 'letters':/[àáâãäåæ]/g},
         {'base':'c', 'letters':/[ç]/g},
@@ -342,13 +344,14 @@
         {'base':'y', 'letters':/[ýÿ]/g},
       ];
 
-      var changes = defaultDiacriticsRemovalMap;
-      for(var i = 0; i < changes.length; i++) {
-          str = str.replace(changes[i].letters, changes[i].base);
+      let changes = defaultDiacriticsRemovalMap;
+      for (let i = 0; i < changes.length; i++) {
+        str = str.replace(changes[i].letters, changes[i].base);
       }
-        console.log('*********** removeDiacritics str = ' + str);
+
       return str;
     };
+
   };
 
 })(H5P.jQuery, H5P.GuessIt);
