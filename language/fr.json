@@ -18,6 +18,10 @@
       ]
     },
     {
+      "label": "Wordle Option: Guess a 5-letter word",
+      "description": "Wordle Option: Guess a 5-letter word"
+    },
+    {
       "label": "Activer \"Audio\"",
       "description": "Activer \"Audio\" pour les phrases à deviner ?"
     },
@@ -43,6 +47,29 @@
           {
             "label": "Indice",
             "description": "Indice pour cette phrase (facultatif)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Words",
+      "entity": "word",
+      "description": "Simply type the 5-letter words to be guessed by the students.",
+      "widgets": [
+        {
+          "label": "Default"
+        }
+      ],
+      "field": {
+        "label": "Word",
+        "fields": [
+          {
+            "label": "Word",
+            "description": "You can only use ONE lower-case 5-letter word for Wordle."
+          },
+          {
+            "label": "Tip",
+            "description": "Tip text for this sentence (optional)"
           }
         ]
       }
@@ -77,6 +104,10 @@
         {
           "label": "Nombre de tours",
           "description": "Nombre minimum de tours avant que les boutons \"Montrer la solution\" ou \"Terminer la partie\"  puissent être affichées :"
+        },
+        {
+          "label": "Maximum number of tries to guess the word (Wordle option)",
+          "description": "Maximum number of tries before Game is over and Solution is displayed:"
         },
         {
           "label": "Quand afficher les boutons Audio",

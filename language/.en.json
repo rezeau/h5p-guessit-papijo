@@ -18,6 +18,10 @@
       ]
     },
     {
+      "label": "Wordle Option: Guess a 5-letter word",
+      "description": "Wordle Option: Guess a 5-letter word"
+    },
+    {
       "label": "Enable \"Audio\"",
       "description": "Enable \"Audio\" for the sentences to be guessed?"
     },
@@ -39,6 +43,29 @@
           {
             "label": "Audio",
             "description": "Audio for this sentence (optional)"
+          },
+          {
+            "label": "Tip",
+            "description": "Tip text for this sentence (optional)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Words",
+      "entity": "word",
+      "description": "Simply type the 5-letter words to be guessed by the students.",
+      "widgets": [
+        {
+          "label": "Default"
+        }
+      ],
+      "field": {
+        "label": "Word",
+        "fields": [
+          {
+            "label": "Word",
+            "description": "You can only use ONE lower-case 5-letter word for Wordle."
           },
           {
             "label": "Tip",
@@ -77,6 +104,10 @@
         {
           "label": "Number of rounds before Solutions or End Game",
           "description": "Minimum number of rounds before the \"Solutions\" or \"End Game\" buttons can be displayed:"
+        },
+        {
+          "label": "Maximum number of tries to guess the word (Wordle option)",
+          "description": "Maximum number of tries before Game is over and Solution is displayed:"
         },
         {
           "label": "When to display the audio buttons",
@@ -139,6 +170,10 @@
       "default": "Guess another sentence"
     },
     {
+      "label": "Text for \"New word\" button",
+      "default": "Guess another word"
+    },
+    {
       "label": "Text for \"End Game\" button",
       "default": "End Game"
     },
@@ -175,6 +210,11 @@
       "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
     },
     {
+      "label": "Text for \"Type a 5-letter word to be guessed by your friends.\" message",
+      "default": "Type a 5-letter word to be guessed by your friends. No capital letters.",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+    },
+    {
       "label": "Text for \"Type a Tip for this sentence (optional)\" message",
       "default": "Type a Tip for this sentence (optional)",
       "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
@@ -185,9 +225,19 @@
       "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
     },
     {
+      "label": "Text for \"Maximum number of tries before Game is over and Solution is displayed:\" message",
+      "default": "Maximum number of tries before Game is over and Solution is displayed:",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+    },
+    {
       "label": "Text for the \"Never show\" radio button choice",
       "default": "Never show",
       "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+    },
+    {
+      "label": "Text for the \"No limit\" radio button choice",
+      "default": "No limit",
+      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
     },
     {
       "label": "Text for \"sentence\" singular word",
@@ -223,6 +273,10 @@
       "default": "Score = number of guessed sentences / number of sentences in this activity."
     },
     {
+      "label": "Score Explanation for All Words (Wordle option)",
+      "default": "Score = number of guessed words / number of words in this activity."
+    },
+    {
       "label": "Score Explanation for All Sentences with selected number of words",
       "default": "Score = number of guessed sentences / number of sentences containing @words words.",
       "description": "@words will be replaced by the number of words per sentence selected by the user on the initial screen"
@@ -234,6 +288,10 @@
     {
       "label": "Text for the number of Sentences guessed (on the summary page)",
       "default": "Sentences guessed"
+    },
+    {
+      "label": "Text for the number of Words  guessed (on the summary page)",
+      "default": "Words found: "
     },
     {
       "label": "Text for the number of Solutions viewed (on the summary page)",

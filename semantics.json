@@ -27,6 +27,15 @@
       "color": true,
       "background": true
     }
+  },  
+  {
+    "name": "wordle",
+    "label": "Wordle Option: Guess a 5-letter word",
+    "type": "boolean",
+    "importance": "low",
+    "default": false,
+    "description": "Wordle Option: Guess a 5-letter word",
+    "optional": true
   },
   {
     "name": "playMode",
@@ -44,16 +53,43 @@
         "value": "userSentence",
         "label": "Allow user to enter their own sentence"
       }
-    ]
+    ],
+    "widget": "showWhen",
+    "showWhen": {
+      "rules": [
+        {
+          "field": "wordle",
+          "equals": false
+        }
+      ]
+    }
   },
   {
-    "name": "wordle",
-    "label": "Wordle Option: Guess a 5-letter word",
-    "type": "boolean",
+    "name": "playModeW",
+    "type": "select",
+    "label": "Play Mode Wordle",
     "importance": "low",
-    "default": false,
-    "description": "Wordle Option: Guess a 5-letter word",
-    "optional": true
+    "description": "Select your play mode",
+    "default": "availableSentences",
+    "options": [
+      {
+        "value": "availableSentences",
+        "label": "Use available words (below)"
+      },
+      {
+        "value": "userSentence",
+        "label": "Allow user to enter their own word"
+      }
+    ],
+    "widget": "showWhen",
+    "showWhen": {
+      "rules": [
+        {
+          "field": "wordle",
+          "equals": true
+        }
+      ]
+    }
   },
   {
     "name": "enableAudio",
@@ -177,6 +213,7 @@
         {
           "name": "sentence",
           "type": "text",
+          "maxLength": 5,
           "label": "Word",
           "importance": "high",
           "description": "You can only use ONE lower-case 5-letter word for Wordle.",
@@ -185,13 +222,11 @@
             "modifiers": "u"
           }
         },
-        {  
-          "name": "tip",
-          "label": "Tip",
-          "type": "text",
-          "importance": "low",
-          "description": "Tip text for this sentence (optional)",
-          "optional": true
+        {
+          "name": "",
+          "type": "boolean",
+          "label": "",
+          "description": "<span style=\"color: white;margin-top: -24px;margin-left: -6px;display: table-caption;font-size: x-large;\">&#9608;&#9608;&#9608;</span>"    
         }
       ]
     },
@@ -291,7 +326,12 @@
         "optional": true,
         "widget": "showWhen",
         "showWhen": {
+          "type": "and",
           "rules": [
+            {
+              "field": "../wordle",
+              "equals": false
+            },
             {
               "field": "../playMode",
               "equals": "availableSentences"
@@ -318,6 +358,10 @@
             {
               "field": "enableSolutionsButton",
               "equals": false
+            },
+            {
+              "field": "../wordle",
+              "equals":false
             }
           ]
         }
@@ -342,6 +386,29 @@
             {
               "field": "enableEndGameButton",
               "equals": true
+            }
+          ]
+        }
+      },
+      {
+        "name": "maxTries",
+        "type": "number",
+        "label": "Maximum number of tries to guess the word (Wordle option)",
+        "description": "Maximum number of tries before Game is over and Solution is displayed:",
+        "importance": "low",
+        "optional": true,
+        "default": 6,
+        "min": 6,
+        "step": 2,
+        "widget": "showWhen",
+        "showWhen": {
+          "type": "and",
+          "rules": [
+            {
+              "field": "../playMode",
+              "equals": "availableSentences",
+              "field": "../wordle",
+              "equals":true
             }
           ]
         }
@@ -379,7 +446,16 @@
         "name": "listGuessedSentences",
         "description": "Check this to add each guessed sentence to a display list after each successful attempt. This option is useful if your sentences make up a story.",
         "type": "boolean",
-        "default": false
+        "default": false,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../wordle",
+              "equals": false
+            }
+          ]
+        }
       },
       {
         "label": "Display audio and tip buttons in Guessed Sentences",
@@ -436,8 +512,8 @@
         "showWhen": {
           "rules": [
             {
-              "field": "../playMode",
-              "equals": "availableSentences"
+              "field": "../wordle",
+              "equals":false
             }
           ]
         },
@@ -473,6 +549,15 @@
     "name": "newSentence",
     "type": "text",
     "default": "Guess another sentence",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"New word\" button",
+    "importance": "low",
+    "name": "newWord",
+    "type": "text",
+    "default": "Guess another word",
     "common": true,
     "optional": true
   },
@@ -553,6 +638,16 @@
     "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
   },
   {
+    "label": "Text for \"Type a 5-letter word to be guessed by your friends.\" message",
+    "importance": "low",
+    "name": "userWordDescriptionLabel",
+    "type": "text",
+    "default": "Type a 5-letter word to be guessed by your friends. No capital letters.",
+    "common": true,
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+  },
+  {
     "label": "Text for \"Type a Tip for this sentence (optional)\" message",
     "importance": "low",
     "name": "userSentenceTipLabel",
@@ -573,6 +668,16 @@
     "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
   },
   {
+    "label": "Text for \"Maximum number of tries before Game is over and Solution is displayed:\" message",
+    "importance": "low",
+    "name": "userWordnumRoundsLabel",
+    "type": "text",
+    "default": "Maximum number of tries before Game is over and Solution is displayed:",
+    "common": true,
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+  },
+  {
     "label": "Text for the \"Never show\" radio button choice",
     "importance": "low",
     "name": "userSentenceNeverShow",
@@ -581,6 +686,16 @@
     "common": true,
     "optional": true,
     "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
+  },
+  {
+    "label": "Text for the \"No limit\" radio button choice",
+    "importance": "low",
+    "name": "userWordNoLimit",
+    "type": "text",
+    "default": "No limit",
+    "common": true,
+    "optional": true,
+    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
   },
   {
     "name": "sentence",
@@ -651,6 +766,15 @@
     "optional": true 
   },
   {
+    "name": "scoreExplanationforAllWords",
+    "label": "Score Explanation for All Words (Wordle option)",
+    "importance": "low",
+    "type": "text",
+    "default": "Score = number of guessed words / number of words in this activity.",
+    "common": true,
+    "optional": true 
+  },
+  {
     "name": "scoreExplanationforSentencesWithNumberWords",
     "label": "Score Explanation for All Sentences with selected number of words",
     "importance": "low",
@@ -675,6 +799,33 @@
     "importance": "low",
     "type": "text",
     "default": "Sentences guessed",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "wordsFound",
+    "label": "Text for the number of Words  guessed (on the summary page)",
+    "importance": "low",
+    "type": "text",
+    "default": "Words found: ",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "wordFound",
+    "label": "Text for Word Found (Wordle Option)",
+    "importance": "low",
+    "type": "text",
+    "default": "Word found: ",
+    "common": true,
+    "optional": true 
+  },
+  {
+    "name": "wordNotFound",
+    "label": "Text for Word not found (Wordle option)",
+    "importance": "low",
+    "type": "text",
+    "default": "Word not found: ",
     "common": true,
     "optional": true 
   },
