@@ -126,9 +126,11 @@ H5P.GuessIt = (function ($, Question) {
       this.params.behaviour.listGuessedSentences = true;
       
     }
-    for (let i = this.params.questions.length - 1; i >= 0; i--) {
-      if (!this.params.questions[i].sentence) {
-        this.params.questions.length --;
+    if (this.params.playMode === 'availableSentences') {
+      for (let i = this.params.questions.length - 1; i >= 0; i--) {
+        if (!this.params.questions[i].sentence) {
+          this.params.questions.length --;
+        }
       }
     }
     // JR added an ID field (needed for save state + numberchoice).

@@ -5,7 +5,7 @@
     "widget": "html",
     "label": "Task description",
     "importance": "medium",
-    "default": "Try to guess the mysterious sentence",
+    "default": "Try to guess the mysterious sentence/word",
     "description": "A guide telling the user how to do this task.",
     "optional": true,
     "tags": [
@@ -34,7 +34,7 @@
     "type": "boolean",
     "importance": "low",
     "default": false,
-    "description": "Wordle Option: Guess a 5-letter word",
+    "description": "Check this option if you want the player to have to guess single words instead of sentences.",
     "optional": true
   },
   {
@@ -121,6 +121,20 @@
     "entity": "sentence",
     "importance": "high",
     "description": "Simply type the sentences/phrases/words to be guessed by the students. You may split word parts with a forward slash e.g. \"An anti/constitut/ion/al act\"",
+    "widget": "showWhen",
+    "showWhen": {
+      "type": "and",
+      "rules": [
+        {
+          "field": "playMode",
+          "equals": "availableSentences"
+        },
+        {
+          "field": "wordle",
+          "equals": false
+        }
+      ]
+    },
     "widgets": [
       {
         "name": "VerticalTabs",
@@ -134,7 +148,7 @@
       "name": "question",
       "type": "group",
       "label": "Question",
-      "importance": "high",      
+      "importance": "high",
       "fields": [
         {
           "name": "sentence",
@@ -174,18 +188,6 @@
           "optional": true
         }
       ]
-    },
-    "widget": "showWhen",
-    "showWhen": {
-      "type": "and",
-      "rules": [
-        {
-          "field": "playMode",
-          "equals": "availableSentences",
-          "field": "wordle",
-          "equals":false
-        }
-      ]
     }
   },
   {
@@ -195,6 +197,20 @@
     "entity": "word",
     "importance": "high",
     "description": "Simply type the 5-letter words to be guessed by the students.",
+    "widget": "showWhen",
+    "showWhen": {
+      "type": "and",
+      "rules": [
+        {
+          "field": "playModeW",
+          "equals": "availableSentences"
+        },
+        {
+          "field": "wordle",
+          "equals": true
+        }
+      ]
+    },
     "widgets": [
       {
         "name": "VerticalTabs",
@@ -222,23 +238,20 @@
             "modifiers": "u"
           }
         },
-        {
-          "name": "",
-          "type": "boolean",
-          "label": "",
-          "description": "<span style=\"color: white;margin-top: -24px;margin-left: -6px;display: table-caption;font-size: x-large;\">&#9608;&#9608;&#9608;</span>"    
-        }
-      ]
-    },
-    "widget": "showWhen",
-    "showWhen": {
-      "type": "and",
-      "rules": [
-        {
-          "field": "playMode",
-          "equals": "availableSentences",
-          "field": "wordle",
-          "equals":true
+        {  
+          "name": "tip",
+          "label": "Not used",
+          "type": "text",
+          "optional": true,
+          "widget": "showWhen",
+          "showWhen": {
+            "rules": [
+              {
+                "field": "../../wordle",
+                "equals": false
+              }
+            ]
+          }
         }
       ]
     }

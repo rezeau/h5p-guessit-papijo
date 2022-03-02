@@ -1,6 +1,6 @@
 {
-  "title": "Guess the Sentence",
-  "description": "Guess a short sentence word by word.",
+  "title": "Guess It",
+  "description": "Guess a word letter by letter or a short sentence word by word.",
   "machineName": "H5P.GuessIt",
   "majorVersion": 1,
   "minorVersion": 5,
