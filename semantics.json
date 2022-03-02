@@ -658,7 +658,7 @@
     "default": "Type a 5-letter word to be guessed by your friends. No capital letters.",
     "common": true,
     "optional": true,
-    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+    "description": "Only used if playmode is set to \"Allow user to enter their own word\""
   },
   {
     "label": "Text for \"Type a Tip for this sentence (optional)\" message",

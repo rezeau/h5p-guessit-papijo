@@ -2,8 +2,12 @@
   "semantics": [
     {
       "label": "Consigne",
-      "default": "Devinez la phrase mystère mot par mot",
+      "default": "Devinez la phrase ou le mot mystère",
       "description": "La consigne indique à l'utilisateur comment faire l'activité."
+    },
+    {
+      "label": "Option Wordle : Devinez un mot de 5 lettres",
+      "description": "Cochez cette option si vous voulez que le joueur ait à deviner des mots et non des phrases."
     },
     {
       "label": "Mode",
@@ -18,8 +22,16 @@
       ]
     },
     {
-      "label": "Wordle Option: Guess a 5-letter word",
-      "description": "Wordle Option: Guess a 5-letter word"
+      "label": "Mode de jeu Wordle",
+      "description": "Choisissez votre mode de jeu",
+      "options": [
+        {
+          "label": "Utiliser les mots  disponibles ci-dessous"
+        },
+        {
+          "label": "Permettre au joueur de saisir son propre mot à faire deviner."
+        }
+      ]
     },
     {
       "label": "Activer \"Audio\"",
@@ -52,8 +64,8 @@
       }
     },
     {
-      "label": "Words",
-      "entity": "word",
+      "label": "Mots",
+      "entity": "mot",
       "description": "Simply type the 5-letter words to be guessed by the students.",
       "widgets": [
         {
@@ -61,15 +73,14 @@
         }
       ],
       "field": {
-        "label": "Word",
+        "label": "Mot",
         "fields": [
           {
-            "label": "Word",
-            "description": "You can only use ONE lower-case 5-letter word for Wordle."
+            "label": "Mot",
+            "description": "Vous ne pouvez utiliser qu'un seul mot de 5 lettres en minuscules avec l'option Wordle."
           },
           {
-            "label": "Tip",
-            "description": "Tip text for this sentence (optional)"
+            "label": "Not used"
           }
         ]
       }
@@ -106,8 +117,8 @@
           "description": "Nombre minimum de tours avant que les boutons \"Montrer la solution\" ou \"Terminer la partie\"  puissent être affichées :"
         },
         {
-          "label": "Maximum number of tries to guess the word (Wordle option)",
-          "description": "Maximum number of tries before Game is over and Solution is displayed:"
+          "label": "Nombre maximal d'essais pour deviner le mot (option Wordle)",
+          "description": "Nombre maximal d'essais avant la fin de la partie et l'affichage de la solution :"
         },
         {
           "label": "Quand afficher les boutons Audio",
@@ -146,7 +157,6 @@
         {
           "label": "Ordre des phrases",
           "description": "Sélectionnez l'ordre dans lequel les phrases seront affichées à l'utilisateur. Ne cochez PAS cette option si vos phrases constituent une histoire !",
-          "default": "normal",
           "options": [
             {
               "label": "Ordre normal"
@@ -169,6 +179,10 @@
     {
       "label": "Texte du bouton \"Nouvelle phrase\" button",
       "default": "Nouvelle phrase"
+    },
+    {
+      "label": "Text du bouton \"Nouveau mot\" button",
+      "default": "Deviner un autre mot"
     },
     {
       "label": "Texte du bouton \"Fin de partie\" button",
@@ -207,6 +221,11 @@
       "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
     },
     {
+      "label": "Texte du message \"Tapez un mot de 5 lettres à faire deviner par vos amis.\"",
+      "default": "Tapez un mot de 5 lettres à faire deviner par vos amis. Tout en minuscules.",
+      "description": "Utilisé uniquement si le mode de jeu est réglé sur \"Permettre au joueur de saisir son propre mot à faire deviner.\""
+    },
+    {
       "label": "Texte du message \"Tapez un indice pour cette phrase (facultatif)\"",
       "default": "Tapez un indice pour cette phrase (facultatif)",
       "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
@@ -217,9 +236,19 @@
       "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
     },
     {
+      "label": "Texte du message \"Nombre maximal d'essais avant la fin de la partie et l'affichage de la solution :\"",
+      "default": "Nombre maximal d'essais avant la fin de la partie et l'affichage de la solution :",
+      "description": "Utilisé uniquement si le joueur peut saisir son propre mot à faire deviner. (option Wordle)"
+    },
+    {
       "label": "Texte du message \"Ne jamais afficher la solution\"",
       "default": "Ne jamais afficher la solution",
       "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
+    },
+    {
+      "label": "Texte du bouton radio \"Illimité\"",
+      "default": "Illimité",
+      "description": "Utilisé uniquement si le joueur peut saisir son propre mot à faire deviner. (option Wordle)"
     },
     {
       "label": "Le mot \"phrase\" au singulier",
@@ -255,6 +284,10 @@
       "default": "Score = nombre de phrases devinées / nombre total de phrases à deviner."
     },
     {
+      "label": "Explication des scores pour tous les mots (option Wordle)",
+      "default": "Score = nombre de mots devinés / nombre de mots dans cette activité."
+    },
+    {
       "label": "Explication du score n° 3",
       "default": "Score = nombre de phrases devinées / nombre de phrases contenant @words mots.",
       "description": "@words sera remplacé par le nombre de mots par phrase sélectionnés par l'utilisateur sur l'écran initial"
@@ -266,6 +299,18 @@
     {
       "label": "Texte pour le nombre de phrases devinées (sur la page finale)",
       "default": "Phrases devinées"
+    },
+    {
+      "label": "Texte pour le nombre de mots devinés (sur la page finale)",
+      "default": "Mots trouvés: "
+    },
+    {
+      "label": "Texte pour Mot Deviné (Option Wordle)",
+      "default": "Mot trouvé : "
+    },
+    {
+      "label": "Texte pour Mot non deviné (Option Wordle)",
+      "default": "Mot non trouvé : "
     },
     {
       "label": "Texte pour le nombre de solutions demandées (sur la page finale)",

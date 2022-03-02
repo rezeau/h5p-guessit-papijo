@@ -119,12 +119,12 @@ H5P.GuessIt = (function ($, Question) {
 
     // Delete empty questions. Should normally not happen, but...
     // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.
-    
+
     if (this.params.wordle) {
       this.params.playMode = this.params.playModeW;
       this.params.questions = this.params.questionsW;
       this.params.behaviour.listGuessedSentences = true;
-      
+
     }
     if (this.params.playMode === 'availableSentences') {
       for (let i = this.params.questions.length - 1; i >= 0; i--) {

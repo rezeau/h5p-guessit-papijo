@@ -2,8 +2,12 @@
   "semantics": [
     {
       "label": "Task description",
-      "default": "Try to guess the mysterious sentence",
+      "default": "Try to guess the mysterious sentence/word",
       "description": "A guide telling the user how to do this task."
+    },
+    {
+      "label": "Wordle Option: Guess a 5-letter word",
+      "description": "Check this option if you want the player to have to guess single words instead of sentences."
     },
     {
       "label": "Play Mode",
@@ -18,8 +22,16 @@
       ]
     },
     {
-      "label": "Wordle Option: Guess a 5-letter word",
-      "description": "Wordle Option: Guess a 5-letter word"
+      "label": "Play Mode Wordle",
+      "description": "Select your play mode",
+      "options": [
+        {
+          "label": "Use available words (below)"
+        },
+        {
+          "label": "Allow user to enter their own word"
+        }
+      ]
     },
     {
       "label": "Enable \"Audio\"",
@@ -68,8 +80,7 @@
             "description": "You can only use ONE lower-case 5-letter word for Wordle."
           },
           {
-            "label": "Tip",
-            "description": "Tip text for this sentence (optional)"
+            "label": "Not used"
           }
         ]
       }
@@ -212,7 +223,7 @@
     {
       "label": "Text for \"Type a 5-letter word to be guessed by your friends.\" message",
       "default": "Type a 5-letter word to be guessed by your friends. No capital letters.",
-      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+      "description": "Only used if playmode is set to \"Allow user to enter their own word\""
     },
     {
       "label": "Text for \"Type a Tip for this sentence (optional)\" message",
@@ -292,6 +303,14 @@
     {
       "label": "Text for the number of Words  guessed (on the summary page)",
       "default": "Words found: "
+    },
+    {
+      "label": "Text for Word Found (Wordle Option)",
+      "default": "Word found: "
+    },
+    {
+      "label": "Text for Word not found (Wordle option)",
+      "default": "Word not found: "
     },
     {
       "label": "Text for the number of Solutions viewed (on the summary page)",
