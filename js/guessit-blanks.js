@@ -1620,7 +1620,7 @@ H5P.GuessIt = (function ($, Question) {
    */
   GuessIt.prototype.getxAPIDefinition = function () {
     let definition = {};
-    if (!self.params.wordle) {
+    if (!this.params.wordle) {
       definition.description = {
         'en-US': this.params.sentencesGuessed
       };
@@ -1704,7 +1704,6 @@ H5P.GuessIt = (function ($, Question) {
     guessedSentences += '\n------------------------\n'
       + this.params.totalRounds + ' : ' + this.totalRounds + '\n'
       + this.params.solutionsViewed + ' : ' + this.nbSsolutionsViewed;
-    console.log (JSON.stringify(guessedSentences, null, "  "));
     return guessedSentences;
   };
 
