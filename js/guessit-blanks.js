@@ -133,6 +133,7 @@ H5P.GuessIt = (function ($, Question) {
         }
       }
     }
+    this.originalQuestions = this.params.questions;
     // JR added an ID field (needed for save state + numberchoice).
     for (let i = 0; i < this.params.questions.length; i++) {
       this.params.questions[i]["ID"] = i;
@@ -146,6 +147,7 @@ H5P.GuessIt = (function ($, Question) {
     if (this.params.wordle) {
       this.params.behaviour.enableSolutionsButton = false;
     }
+    this.sentencesList = '';
     // Previous state
     this.contentData = contentData;
     if (this.contentData !== undefined && this.contentData.previousState !== undefined) {
@@ -158,10 +160,10 @@ H5P.GuessIt = (function ($, Question) {
     this.sentencesFound = 0;
     this.sentencesGuessed = [];
     this.nbSentencesGuessed = 0;
-
+    this.wordsNotFound = [];
     // Init userAnswers
     this.userAnswers = [];
-    this.sentencesList = '';
+
     this.currentAnswer = '';
     this.totalTimeSpent = 0;
     this.totalRounds = 0;
@@ -416,7 +418,6 @@ H5P.GuessIt = (function ($, Question) {
     }
 
     $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
-    // todo let $containerParents = $content.parents('.h5p-container');
 
     self.numQuestions = self.params.questions.length;
 
@@ -527,14 +528,40 @@ H5P.GuessIt = (function ($, Question) {
       else {
         aClass = 'h5p-guessit-listGuessedWord';
       }
+
       this.$divGuessedSentences = $('<div>', {
         'class': aClass + ' h5p-guessit-hide'
       }).appendTo(this.$taskdescription);
       // Retrieve potentially previously saved list.
       self.setH5PUserState();
-      if (self.sentencesList !== '') {
+      if (self.sentencesGuessed !== '') {
+        let guessedSentences = '';
+        let questions = this.originalQuestions;
+        let i;
+        self.sentencesGuessed.forEach(function (item) {
+          let foundSentence = questions[item].sentence;
+          if (self.params.wordle) {
+            i = self.wordsNotFound.indexOf(item);
+            let bClass;
+            let wordGuessed = true;
+            if (i !== -1) {
+              wordGuessed = false;
+            }
+            if (self.params.wordle) {
+              if (wordGuessed) {
+                bClass = 'h5p-guessit h5p-wordFound';
+                foundSentence = '<span class="' + bClass + '">' + self.params.wordFound + foundSentence + '</span>';
+              }
+              else {
+                bClass = 'h5p-guessit h5p-wordNotFound';
+                foundSentence = '<span class="' + bClass + '">' + self.params.wordNotFound + foundSentence + '</span>';
+              }
+            }
+          }
+          guessedSentences += (!guessedSentences ? '' : '<br>') + foundSentence;
+        });
         self.$divGuessedSentences.removeClass ('h5p-guessit-hide');
-        self.$divGuessedSentences.html(self.sentencesList);
+        self.$divGuessedSentences.html(guessedSentences);
       }
     }
 
@@ -620,14 +647,17 @@ H5P.GuessIt = (function ($, Question) {
             self.hideButton('check-answer');
             self.hideButton('try-again');
             self.nbSentencesGuessed--;
-            // todo print message not found!
           }
           let currentGuessedSentenceId = self.params.questions[self.currentSentenceId].ID;
           self.sentencesGuessed.push(currentGuessedSentenceId);
+          self.nbSentencesGuessed++;
+          if (self.params.wordle && !wordGuessed) {
+            self.wordsNotFound.push(currentGuessedSentenceId);
+          }
           self.$questions.eq(self.currentSentenceId)
             .find('.h5p-guessit-audio-wrapper')
             .removeClass('hidden');
-          self.nbSentencesGuessed++;
+
           self.getCurrentState();
           if (self.sentencesFound !== self.numQuestions - 1) {
             self.showButton('new-sentence');
@@ -664,6 +694,7 @@ H5P.GuessIt = (function ($, Question) {
               }
             }
             self.$divGuessedSentences.removeClass ('h5p-guessit-hide');
+
             let $guessedSentence = $('<div>', {
               'class': bClass,
               'html': foundSentence
@@ -823,7 +854,7 @@ H5P.GuessIt = (function ($, Question) {
       }
 
       // Split sentence by blank spaces and potential forward slashes.
-      let patternSplit = /(?:\s|\/)+/; // TODO
+      let patternSplit = /(?:\s|\/)+/;
       let patternReplace = /(\s|\/)/g;
       this.sentenceClozeNumber[i] = question.split(patternSplit).length;
       let replacement = '* *';
@@ -980,7 +1011,7 @@ H5P.GuessIt = (function ($, Question) {
       }
     }).on('change', function () {
       self.answered = true;
-      self.triggerXAPI('interacted');
+      // TODO self.triggerXAPI('interacted');
     });
     self.on('resize', function () {
       self.resetGrowTextField();
@@ -1322,9 +1353,6 @@ H5P.GuessIt = (function ($, Question) {
     let $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
     $content.find('.h5p-container').removeClass('h5p-guessit-hide');
 
-    // TODO move this trigger ?
-    this.triggerXAPI('attempted');
-
     if (self.timer !== undefined) {
       this.totalTimeSpent += this.timer.getTime();
       this.totalRounds += this.counter.getcurrent();
@@ -1527,8 +1555,9 @@ H5P.GuessIt = (function ($, Question) {
 
     // Reset all user state elements.
     if (usedQuestions === this.params.questions.length) {
-      this.sentencesList = '';
+      //this.sentencesList = '';
       this.sentencesGuessed.length = 0;
+      this.wordsNotFound.length = 0;
       this.nbSentencesGuessed = 0;
       this.totalRounds = 0;
       this.nbSsolutionsViewed = 0;
@@ -1591,9 +1620,16 @@ H5P.GuessIt = (function ($, Question) {
    */
   GuessIt.prototype.getxAPIDefinition = function () {
     let definition = {};
-    definition.description = {
-      'en-US': this.params.sentencesGuessed
-    };
+    if (!self.params.wordle) {
+      definition.description = {
+        'en-US': this.params.sentencesGuessed
+      };
+    }
+    else {
+      definition.description = {
+        'en-US': this.params.wordsFound
+      };
+    }
     definition.type = 'http://adlnet.gov/expapi/activities/cmi.interaction';
     definition.interactionType = 'long-fill-in';
     return definition;
@@ -1634,10 +1670,10 @@ H5P.GuessIt = (function ($, Question) {
    *  The xAPI event we will add a response to
    * change last param to this.isPassed() TODO!
    */
-  GuessIt.prototype.addResponseToXAPI = function (xAPIEvent) {// todo score
+  GuessIt.prototype.addResponseToXAPI = function (xAPIEvent) {
     xAPIEvent.setScoredResult(this.actualScore, this.maxScore, this,
       true, this.success);
-    xAPIEvent.data.statement.result.response = this.getxAPIResponse(this.params.questions);
+    xAPIEvent.data.statement.result.response = this.getxAPIResponse(this.originalQuestions);
   };
 
   /**
@@ -1645,15 +1681,30 @@ H5P.GuessIt = (function ($, Question) {
    * @return {string} User answers separated by the "[,]" pattern
    */
   GuessIt.prototype.getxAPIResponse = function (questions) {
+    let self = this;
     let guessedSentences = '';
     // TODO add tried sentences? + add timespent & nb turns & solutions asked for each or all???
     this.sentencesGuessed.forEach(function (item) {
-      guessedSentences += (!guessedSentences ? '' : '\n') + questions[item].sentence;
+      let foundSentence = questions[item].sentence;    
+      if (self.params.wordle) {
+        i = self.wordsNotFound.indexOf(item);
+        let wordGuessed = true;
+        if (i !== -1) {
+          wordGuessed = false;
+        }
+        if (wordGuessed) {
+          foundSentence = self.params.wordFound + foundSentence;
+        }
+        else {
+          foundSentence = self.params.wordNotFound + foundSentence;
+        }
+      }
+      guessedSentences += (!guessedSentences ? '' : '\n') + foundSentence;
     });
     guessedSentences += '\n------------------------\n'
       + this.params.totalRounds + ' : ' + this.totalRounds + '\n'
       + this.params.solutionsViewed + ' : ' + this.nbSsolutionsViewed;
-
+    console.log (JSON.stringify(guessedSentences, null, "  "));
     return guessedSentences;
   };
 
@@ -1735,8 +1786,9 @@ H5P.GuessIt = (function ($, Question) {
    */
   GuessIt.prototype.getCurrentState = function () {
     let state = {};
-    state.sentencesList = this.sentencesList;
+    state.originalQuestions = this.originalQuestions;
     state.sentencesGuessed = this.sentencesGuessed;
+    state.wordsNotFound = this.wordsNotFound;
     state.nbSentencesGuessed = this.nbSentencesGuessed;
     state.totalRounds = this.totalRounds;
     state.nbSsolutionsViewed = this.nbSsolutionsViewed;
@@ -1755,8 +1807,9 @@ H5P.GuessIt = (function ($, Question) {
     if (!isValidState) {
       return;
     }
-    this.sentencesList = this.previousState.sentencesList;
+    this.originalQuestions = this.previousState.originalQuestions;
     this.sentencesGuessed = this.previousState.sentencesGuessed;
+    this.wordsNotFound = this.previousState.wordsNotFound;
     this.nbSentencesGuessed = this.previousState.nbSentencesGuessed;
     this.totalRounds = this.previousState.totalRounds;
     this.nbSsolutionsViewed = this.previousState.nbSsolutionsViewed;
