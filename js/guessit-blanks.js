@@ -958,18 +958,13 @@ H5P.GuessIt = (function ($, Question) {
       // When going back to delete letters, skip over potential found/correct/disabled inputs.
       if (self.params.wordle && backTabPressed && $inputs.index($this) !== 0) {
         if ($inputs.eq($inputs.index($this)).val() === '') {
-          if ($inputs.eq($inputs.index($this) - 1).is(':disabled')) {
-            for (let j = $inputs.index($this) - 1; j > 0; j--) {
-              if ($inputs.eq($inputs.index($this) - j).is(':disabled')) {
-                $inputs.eq(j - 1).focus();
-              }
-              else {
-                j--;
-              }
-            }
-            return;
+          let i = 1;
+          while ($inputs.eq($inputs.index($this) - i).is(':disabled')) {
+            i++;
           }
-          $inputs.eq($inputs.index($this) - 1).val('').focus();
+          if (($inputs.index($this) - i >= 0)) {
+            $inputs.eq($inputs.index($this) - i).val('').focus();
+          }
           return;
         }
       }
@@ -1685,9 +1680,9 @@ H5P.GuessIt = (function ($, Question) {
     let guessedSentences = '';
     // TODO add tried sentences? + add timespent & nb turns & solutions asked for each or all???
     this.sentencesGuessed.forEach(function (item) {
-      let foundSentence = questions[item].sentence;    
+      let foundSentence = questions[item].sentence;
       if (self.params.wordle) {
-        i = self.wordsNotFound.indexOf(item);
+        let i = self.wordsNotFound.indexOf(item);
         let wordGuessed = true;
         if (i !== -1) {
           wordGuessed = false;
