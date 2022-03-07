@@ -84,7 +84,6 @@ H5P.GuessIt = (function ($, Question) {
       totalTimeSpent: 'Total Time Spent',
       totalRounds: 'Total Rounds',
       scoreExplanationButtonLabel: 'Show score explanation',
-      scoreExplanationforSinglePoint: 'The maximum score for this activity is 1 and you got the point for any number of sentences guessed.',
       scoreExplanationforAllSentences: 'Score = number of guessed sentences / number of sentences in this activity.',
       scoreExplanationforSentencesWithNumberWords: 'Score = number of guessed sentences / number of sentences containing @words words.',
       userSentenceDescriptionLabel: 'Type a sentence, phrase or word to be guessed by your friends. Words can be split with forward slashes, e.g. electr/o/cardi/o/gram',
@@ -98,11 +97,10 @@ H5P.GuessIt = (function ($, Question) {
       wordFound: 'Word found: ',
       wordNotFound: 'Word not found: ',
       wordsFound: 'Words found: ',
-      scoreExplanationforAllWords: 'Score = number of guessed words / number of words in this activity.',
+      scoreExplanationforAllWords: 'Score = number of words found / number of words tried.',
       behaviour: {
         enableRetry: false,
         enableAudio: false,
-        singlePoint: false,
         enableNumChoice: false,
         enableSolutionsButton: false,
         enableEndGameButton: false,
@@ -1463,25 +1461,22 @@ H5P.GuessIt = (function ($, Question) {
     let actualScore;
     let maxScore;
     let explainScore;
-    if (this.params.behaviour.singlePoint) {
-      actualScore = 1;
-      maxScore = 1;
-      explainScore = this.params.scoreExplanationforSinglePoint;
-    }
-    else {
-      actualScore = this.nbSentencesGuessed;
+    
+    actualScore = this.nbSentencesGuessed;
+    if (!this.params.wordle) {
       if (!this.params.behaviour.enableNumChoice) {
         maxScore = this.totalNumQuestions;
         explainScore = this.params.scoreExplanationforAllSentences;
-        if (this.params.wordle) {
-          explainScore = this.params.scoreExplanationforAllWords;
-        }
       }
       else {
         maxScore = this.numQuestions;
         explainScore = this.params.scoreExplanationforSentencesWithNumberWords
           .replace('@words', this.numWords);
       }
+    }
+    else {
+      maxScore = this.nbSentencesGuessed + this.wordsNotFound.length;
+      explainScore = this.params.scoreExplanationforAllWords;
     }
 
     if (actualScore === maxScore) {

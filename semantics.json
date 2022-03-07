@@ -274,23 +274,6 @@
         "optional": true
       },
       {
-        "name": "singlePoint",
-        "type": "boolean",
-        "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
-        "importance": "low",
-        "description": "Uncheck this option if you want this activity to be scored against the total number of sentences.",
-        "default": false,
-        "widget": "showWhen",
-        "showWhen": {
-          "rules": [
-            {
-              "field": "../playMode",
-              "equals": "availableSentences"
-            }
-          ]
-        }
-      },
-      {
         "name": "caseSensitive",
         "importance": "low",
         "type": "boolean",
@@ -783,7 +766,7 @@
     "label": "Score Explanation for All Words (Wordle option)",
     "importance": "low",
     "type": "text",
-    "default": "Score = number of guessed words / number of words in this activity.",
+    "default": "Score = number of words found / number of words tried.",
     "common": true,
     "optional": true 
   },
