@@ -270,6 +270,7 @@
       // If Wordle accept only one character... or on keydown go to next input?
       if (wordle) {
         $input.attr('maxlength', '1');
+        $input.attr("style", "text-transform: uppercase;");
         $input.addClass('wordle');
       }
 

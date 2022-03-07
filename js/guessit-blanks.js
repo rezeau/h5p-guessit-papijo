@@ -345,11 +345,13 @@ H5P.GuessIt = (function ($, Question) {
             .addClass('h5p-guessit-warning');
         }
         let usersentence = document.createElement('input');
+        // https://www.the-art-of-web.com/html/input-field-uppercase/ CHall 1 February, 2019!
         usersentence.setAttribute("type", "text");
+        usersentence.setAttribute("style", "text-transform: uppercase;");
         usersentence.setAttribute("id", "usersentence");
         usersentence.setAttribute("class", "h5p-word-input-user");
         usersentence.setAttribute("autocomplete", "off");
-        usersentence.setAttribute("autocapitalize", "off");
+        usersentence.setAttribute("maxlength", "5");
 
         this.$userSentenceDescription.appendTo(this.$taskdescription);
         this.$userSentence = $('<div>', {
@@ -385,9 +387,9 @@ H5P.GuessIt = (function ($, Question) {
         }).click(function () {
           let $usersentence = ($("#usersentence").val());
           let acceptedWord = true;
-          let text = $usersentence;
-          let pattern1 = /^\p{Ll}{5}$/u;
-          acceptedWord = pattern1.test(text);
+          $usersentence = $usersentence.toUpperCase();
+          let pattern = /^[A-Z]{5}$/;
+          acceptedWord = pattern.test($usersentence);
           if ($usersentence !== '' && acceptedWord) {
             let numRnds = $("input[name='rounds']:checked").val();
             if ( !$("input[id = 'userId-5']").is(':checked') ) {
@@ -559,9 +561,11 @@ H5P.GuessIt = (function ($, Question) {
                 foundSentence = '<span class="' + bClass + '">' + self.params.wordNotFound + foundSentence + '</span>';
               }
             }
+
           }
           guessedSentences += (!guessedSentences ? '' : '<br>') + foundSentence;
         });
+
         self.$divGuessedSentences.removeClass ('h5p-guessit-hide');
         self.$divGuessedSentences.html(guessedSentences);
       }
@@ -687,8 +691,8 @@ H5P.GuessIt = (function ($, Question) {
             let bClass;
             if (self.params.wordle) {
               if (wordGuessed) {
-                foundSentence = self.params.wordFound + foundSentence;
                 bClass = 'h5p-guessit h5p-wordFound';
+                foundSentence = self.params.wordFound + foundSentence;
               }
               else {
                 foundSentence = self.params.wordNotFound + foundSentence;
@@ -916,8 +920,12 @@ H5P.GuessIt = (function ($, Question) {
         let $inputs;
         $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
         let letter = $inputs.eq($inputs.index($this)).val();
-        // List of European languages accented characters.
-        let acceptedEntry = /[a-zàáâãäåæçéèêëìíîïñòóôõöøùúûüýÿ]/.test(letter);
+        // Only accept ascii letters lower & uppercase.
+        let acceptedEntry = /[A-Za-z]/.test(letter);
+        // Re-write lower-case
+        if (/[a-z]/.test(letter)) {
+          $inputs.eq($inputs.index($this)).val(letter.toUpperCase());
+        }
         if (letter && acceptedEntry) {
           let i = 0;
           // If next blank is not empty: move forward to next empty blank.

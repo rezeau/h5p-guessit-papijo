@@ -143,7 +143,6 @@
     ],
     "min": 1,
     "defaultNum": 1,
-    "max": 31,
     "field": {
       "name": "question",
       "type": "group",
@@ -152,7 +151,7 @@
       "fields": [
         {
           "name": "sentence",
-          "type": "text",      
+          "type": "text",
           "label": "Sentence",
           "importance": "high"
         },
@@ -219,7 +218,6 @@
     ],
     "min": 1,
     "defaultNum": 1,
-    "max": 31,
     "field": {
       "name": "question",
       "type": "group",
@@ -232,10 +230,9 @@
           "maxLength": 5,
           "label": "Word",
           "importance": "high",
-          "description": "You can only use ONE lower-case 5-letter word for Wordle.",
+          "description": "You can only use ONE UPPER-CASE 5-letter word for Wordle.",
           "regexp": {
-            "pattern": "^\\p{Ll}{5}$",
-            "modifiers": "u"
+            "pattern": "^[A-Z]{5}$"
           }
         },
         {  
@@ -638,7 +635,7 @@
     "importance": "low",
     "name": "userWordDescriptionLabel",
     "type": "text",
-    "default": "Type a 5-letter word to be guessed by your friends. No capital letters.",
+    "default": "Type a 5-letter word to be guessed by your friends. Use CAPITAL letters only and no accents.",
     "common": true,
     "optional": true,
     "description": "Only used if playmode is set to \"Allow user to enter their own word\""
