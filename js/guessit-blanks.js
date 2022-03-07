@@ -119,9 +119,13 @@ H5P.GuessIt = (function ($, Question) {
     // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.
 
     if (this.params.wordle) {
+      // "Convert" following 2 parals from Wordle option to Sentences.
       this.params.playMode = this.params.playModeW;
       this.params.questions = this.params.questionsW;
+      // Always show list of found or not found words.
       this.params.behaviour.listGuessedSentences = true;
+      // Always display the words in random order.
+      this.params.behaviour.sentencesOrder = 'random';
 
     }
     if (this.params.playMode === 'availableSentences') {
@@ -1393,7 +1397,7 @@ H5P.GuessIt = (function ($, Question) {
     if (this.params.playMode === 'userSentence') {
       acceptedQuestions = [0];
     }
-    if (this.params.behaviour.sentencesOrder === 'normal')   {
+    if (this.params.behaviour.sentencesOrder === 'normal') {
       this.currentSentenceId = acceptedQuestions[0];
     }
     else {
@@ -1461,7 +1465,7 @@ H5P.GuessIt = (function ($, Question) {
     let actualScore;
     let maxScore;
     let explainScore;
-    
+
     actualScore = this.nbSentencesGuessed;
     if (!this.params.wordle) {
       if (!this.params.behaviour.enableNumChoice) {
