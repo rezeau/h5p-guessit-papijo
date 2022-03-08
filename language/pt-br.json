@@ -77,7 +77,7 @@
         "fields": [
           {
             "label": "Word",
-            "description": "You can only use ONE lower-case 5-letter word for Wordle."
+            "description": "You can only use ONE UPPER-CASE 5-letter word for Wordle."
           },
           {
             "label": "Not used"
@@ -96,10 +96,6 @@
         {
           "label": "Pontuar esta atividade com o valor unitário, para qualquer número de afirmações descobertas.",
           "description": "Não selecionar esta opção, se pretender que a pontuação seja em percentagem do número total de afirmações ou frases."
-        },
-        {
-          "label": "Sensível a Maiúsculas/Minúsculas",
-          "description": "Tenha a certeza que o texto introduzido seja exatamente igual à resposta pretendida."
         },
         {
           "label": "Permitir a escolha do número de palavras",
@@ -222,7 +218,7 @@
     },
     {
       "label": "Text for \"Type a 5-letter word to be guessed by your friends.\" message",
-      "default": "Type a 5-letter word to be guessed by your friends. No capital letters.",
+      "default": "Type a 5-letter word to be guessed by your friends. Use CAPITAL letters only and no accents..",
       "description": "Only used if playmode is set to \"Allow user to enter their own word\""
     },
     {

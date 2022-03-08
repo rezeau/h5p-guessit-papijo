@@ -66,7 +66,7 @@
     {
       "label": "Mots",
       "entity": "mot",
-      "description": "Simply type the 5-letter words to be guessed by the students.",
+      "description": "Tapez simplement les mots de 5 lettres que les participants doivent deviner.",
       "widgets": [
         {
           "label": "Default"
@@ -77,7 +77,7 @@
         "fields": [
           {
             "label": "Mot",
-            "description": "Vous ne pouvez utiliser qu'un seul mot de 5 lettres en minuscules avec l'option Wordle."
+            "description": "Tapez un mot de 5 lettres EN LETTRES MAJUSCULES et sans accents."
           },
           {
             "label": "Not used"
@@ -92,10 +92,6 @@
         {
           "label": "Activer le bouton \"Recommencer\"",
           "description": "Ajouter un bouton \"Recommencer\" à la fin du jeu. Cela permettra simplement de rafraîchir l'URL actuelle. Veuillez vérifier sur votre plateforme avant de l'activer !"
-        },
-        {
-          "label": "Noter cette activité sur 1 et donner un point pour n'importe quel nombre de phrases devinées",
-          "description": "Ne cochez pas cette option si vous souhaitez que cette activité soit notée par rapport au nombre total de phrases."
         },
         {
           "label": "Sensible à la casse",
@@ -222,7 +218,7 @@
     },
     {
       "label": "Texte du message \"Tapez un mot de 5 lettres à faire deviner par vos amis.\"",
-      "default": "Tapez un mot de 5 lettres à faire deviner par vos amis. Tout en minuscules.",
+      "default": "Tapez un mot de 5 lettres à faire deviner par vos amis. Tout en MAJUSCULES et sans accents.",
       "description": "Utilisé uniquement si le mode de jeu est réglé sur \"Permettre au joueur de saisir son propre mot à faire deviner.\""
     },
     {
@@ -285,7 +281,7 @@
     },
     {
       "label": "Explication des scores pour tous les mots (option Wordle)",
-      "default": "Score = nombre de mots devinés / nombre de mots dans cette activité."
+      "default": "Score = nombre de mots devinés / nombre de mots essayés."
     },
     {
       "label": "Explication du score n° 3",

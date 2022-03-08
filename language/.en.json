@@ -77,7 +77,7 @@
         "fields": [
           {
             "label": "Word",
-            "description": "You can only use ONE lower-case 5-letter word for Wordle."
+            "description": "You can only use ONE UPPER-CASE 5-letter word for Wordle."
           },
           {
             "label": "Not used"
@@ -92,10 +92,6 @@
         {
           "label": "Enable \"Retry\"",
           "description": "Add a \"Retry\" button when the game is over. This will simply refresh the current URL. It may not work in some environments, so please check on your platform before enabling it!"
-        },
-        {
-          "label": "Score this activity out of 1 and give one point for any number of sentences guessed",
-          "description": "Uncheck this option if you want this activity to be scored against the total number of sentences."
         },
         {
           "label": "Case sensitive",
@@ -222,7 +218,7 @@
     },
     {
       "label": "Text for \"Type a 5-letter word to be guessed by your friends.\" message",
-      "default": "Type a 5-letter word to be guessed by your friends. No capital letters.",
+      "default": "Type a 5-letter word to be guessed by your friends. Use CAPITAL letters only and no accents.",
       "description": "Only used if playmode is set to \"Allow user to enter their own word\""
     },
     {
@@ -285,7 +281,7 @@
     },
     {
       "label": "Score Explanation for All Words (Wordle option)",
-      "default": "Score = number of guessed words / number of words in this activity."
+      "default": "Score = number of words found / number of words tried."
     },
     {
       "label": "Score Explanation for All Sentences with selected number of words",
