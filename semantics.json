@@ -30,11 +30,11 @@
   },  
   {
     "name": "wordle",
-    "label": "Wordle Option: Guess a 5-letter word",
+    "label": "Wordle Option: Guess a word",
     "type": "boolean",
     "importance": "low",
     "default": false,
-    "description": "Check this option if you want the player to have to guess single words instead of sentences.",
+    "description": "Check this option if you want the player to have to guess single words of 4 to 8 letters instead of sentences.",
     "optional": true
   },
   {
@@ -195,7 +195,7 @@
     "label": "Words",
     "entity": "word",
     "importance": "high",
-    "description": "Simply type the 5-letter words to be guessed by the students.",
+    "description": "Type the words of 4 to 8 letters to be guessed by the students.",
     "widget": "showWhen",
     "showWhen": {
       "type": "and",
@@ -227,12 +227,12 @@
         {
           "name": "sentence",
           "type": "text",
-          "maxLength": 5,
+          "maxLength": 8,
           "label": "Word",
           "importance": "high",
-          "description": "You can only use ONE UPPER-CASE 5-letter word for Wordle.",
+          "description": "Type ONE UPPER-CASE word of 4 to 8 letters. No accents!",
           "regexp": {
-            "pattern": "^[A-Z]{5}$"
+            "pattern": "^[A-Z]{4,8}$"
           }
         },
         {  
@@ -631,11 +631,11 @@
     "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
   },
   {
-    "label": "Text for \"Type a 5-letter word to be guessed by your friends.\" message",
+    "label": "Text for \"Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!\" message",
     "importance": "low",
     "name": "userWordDescriptionLabel",
     "type": "text",
-    "default": "Type a 5-letter word to be guessed by your friends. Use CAPITAL letters only and no accents.",
+    "default": "Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!",
     "common": true,
     "optional": true,
     "description": "Only used if playmode is set to \"Allow user to enter their own word\""

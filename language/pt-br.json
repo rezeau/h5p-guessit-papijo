@@ -6,8 +6,8 @@
       "description": "Guia de instruções para o utilizador, de como realizar a tarefa."
     },
     {
-      "label": "Wordle Option: Guess a 5-letter word",
-      "description": "Check this option if you want the player to have to guess single words instead of sentences."
+      "label": "Wordle Option: Guess a word",
+      "description": "Check this option if you want the player to have to guess single words of 4 to 8 letters instead of sentences."
     },
     {
       "label": "Modo de Jogo",
@@ -66,7 +66,7 @@
     {
       "label": "Words",
       "entity": "word",
-      "description": "Simply type the 5-letter words to be guessed by the students.",
+      "description": "Type the words of 4 to 8 letters to be guessed by the students.",
       "widgets": [
         {
           "label": "Default"
@@ -77,7 +77,7 @@
         "fields": [
           {
             "label": "Word",
-            "description": "You can only use ONE UPPER-CASE 5-letter word for Wordle."
+            "description": "Type ONE UPPER-CASE word of 4 to 8 letters. No accents!"
           },
           {
             "label": "Not used"
@@ -217,8 +217,8 @@
       "description": "Aplicável apenas se o Modo de jogo foi selecionado para \"Permitir ao utilizador escolher a afirmação\""
     },
     {
-      "label": "Text for \"Type a 5-letter word to be guessed by your friends.\" message",
-      "default": "Type a 5-letter word to be guessed by your friends. Use CAPITAL letters only and no accents..",
+      "label": "Text for \"Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!\" message",
+      "default": "Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!",
       "description": "Only used if playmode is set to \"Allow user to enter their own word\""
     },
     {

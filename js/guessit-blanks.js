@@ -87,7 +87,7 @@ H5P.GuessIt = (function ($, Question) {
       scoreExplanationforAllSentences: 'Score = number of guessed sentences / number of sentences in this activity.',
       scoreExplanationforSentencesWithNumberWords: 'Score = number of guessed sentences / number of sentences containing @words words.',
       userSentenceDescriptionLabel: 'Type a sentence, phrase or word to be guessed by your friends. Words can be split with forward slashes, e.g. electr/o/cardi/o/gram',
-      userWordDescriptionLabel: 'Type a 5-letter word to be guessed by your friends. No capital letters.',
+      userWordDescriptionLabel: 'Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!',
       userSentencenumRoundsLabel: 'Minimum number of rounds before Solutions can be displayed:',
       userWordnumRoundsLabel: 'Maximum number of tries before Game is over and Solution is displayed:',
       userSentenceTipLabel: 'Type a Tip for this sentence (optional)',
@@ -351,7 +351,8 @@ H5P.GuessIt = (function ($, Question) {
         usersentence.setAttribute("id", "usersentence");
         usersentence.setAttribute("class", "h5p-word-input-user");
         usersentence.setAttribute("autocomplete", "off");
-        usersentence.setAttribute("maxlength", "5");
+        usersentence.setAttribute("minlength", "4");
+        usersentence.setAttribute("maxlength", "8");
 
         this.$userSentenceDescription.appendTo(this.$taskdescription);
         this.$userSentence = $('<div>', {
@@ -388,7 +389,7 @@ H5P.GuessIt = (function ($, Question) {
           let $usersentence = ($("#usersentence").val());
           let acceptedWord = true;
           $usersentence = $usersentence.toUpperCase();
-          let pattern = /^[A-Z]{5}$/;
+          let pattern = /^[A-Z]{4,8}$/;
           acceptedWord = pattern.test($usersentence);
           if ($usersentence !== '' && acceptedWord) {
             let numRnds = $("input[name='rounds']:checked").val();
@@ -856,7 +857,7 @@ H5P.GuessIt = (function ($, Question) {
       }
       // If wordle add forward slashes between each letter
       if (this.params.wordle) {
-        question = question.replace(/(.{1})(.{1})(.{1})(.{1})(.{1})/, "$1/$2/$3/$4/$5");
+        question = question.split("").join("/");
       }
 
       // Split sentence by blank spaces and potential forward slashes.

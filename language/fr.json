@@ -6,8 +6,8 @@
       "description": "La consigne indique à l'utilisateur comment faire l'activité."
     },
     {
-      "label": "Option Wordle : Devinez un mot de 5 lettres",
-      "description": "Cochez cette option si vous voulez que le joueur ait à deviner des mots et non des phrases."
+      "label": "Option Wordle : Deviner un mot",
+      "description": "Cochez cette option si vous voulez que le joueur ait à deviner des mots de 4 à 8 lettres et non des phrases."
     },
     {
       "label": "Mode",
@@ -66,7 +66,7 @@
     {
       "label": "Mots",
       "entity": "mot",
-      "description": "Tapez simplement les mots de 5 lettres que les participants doivent deviner.",
+      "description": "Tapez les mots de 4 à 8 lettres que les participants devront deviner.",
       "widgets": [
         {
           "label": "Default"
@@ -77,7 +77,7 @@
         "fields": [
           {
             "label": "Mot",
-            "description": "Tapez un mot de 5 lettres EN LETTRES MAJUSCULES et sans accents."
+            "description": "Tapez un mot de 4 à 8 lettres EN LETTRES MAJUSCULES et sans accents."
           },
           {
             "label": "Not used"
@@ -217,8 +217,8 @@
       "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
     },
     {
-      "label": "Texte du message \"Tapez un mot de 5 lettres à faire deviner par vos amis.\"",
-      "default": "Tapez un mot de 5 lettres à faire deviner par vos amis. Tout en MAJUSCULES et sans accents.",
+      "label": "Texte du message \"Tapez un mot de 4 à 8 lettres à faire deviner par vos amis.\"",
+      "default": "Tapez un mot de 4 à 8 lettres à faire deviner par vos amis. Tout en MAJUSCULES et sans accents.",
       "description": "Utilisé uniquement si le mode de jeu est réglé sur \"Permettre au joueur de saisir son propre mot à faire deviner.\""
     },
     {
