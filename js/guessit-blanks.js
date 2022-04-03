@@ -635,7 +635,6 @@ H5P.GuessIt = (function ($, Question) {
         self.currentAnswer = '';
         self.currentWordleAnswer = '';
         let $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
-        
         $currentInputs.each(function () {
           if ($(this).val() !== '') {
             self.currentAnswer += $(this).val() + ' ';
@@ -1203,7 +1202,6 @@ H5P.GuessIt = (function ($, Question) {
    */
   GuessIt.prototype.markResults = function () {
     let self = this;
-    
     if (self.params.wordle) {
       // Attribute one of 3 states to current input letter: correct, wrong or misplaced.
       let currentWord = self.params.questions[self.currentSentenceId].sentence;
@@ -1217,8 +1215,8 @@ H5P.GuessIt = (function ($, Question) {
         else {
           if (currentWord.includes(guessedLetter)) {
             // Get number of instances of the guessed letter in current Word and current Guess.
-            var nW = currentWord.split(guessedLetter).length - 1;
-            var nG = currentGuess.split(guessedLetter).length - 1;
+            let nW = currentWord.split(guessedLetter).length - 1;
+            let nG = currentGuess.split(guessedLetter).length - 1;
             // Only display the misplaced class (yellow) if there are one or more instances to be found.
             if (nG <= nW) {
               letterState = 'misplaced';
@@ -1229,7 +1227,7 @@ H5P.GuessIt = (function ($, Question) {
       }
     }
     else {
-      currentSentence = self.params.questions[self.currentSentenceId].sentence;
+      let currentSentence = self.params.questions[self.currentSentenceId].sentence;
       for (let i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
         this.currentSentenceClozes[this.currentSentenceId][i].checkAnswer(currentSentence);
       }

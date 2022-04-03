@@ -51,7 +51,7 @@
     /**
      * Check the cloze and mark it as wrong or correct (or partially correct, i.e.in wordle word but wrong position).
      */
-    this.checkAnswer = function (currentSentence) {
+    this.checkAnswer = function () {
       // Remove potentially existing markup element.
       $( '.h5p-guessit-markup', $wrapper ).remove();
       checkedAnswer = this.getUserAnswer();
@@ -75,9 +75,9 @@
      * Mark the current entered letter as wrong or correct or misplaced.
      */
     this.checkAnswerWordle = function (letterState) {
-      switch(letterState) {
+      switch (letterState) {
         case 'correct':
-          $wrapper.addClass('h5p-correct-wordle');        
+          $wrapper.addClass('h5p-correct-wordle');
           $input.attr('disabled', true)
             .attr('aria-label', inputLabel + '. ' + l10n.answeredCorrectly);
           break;
