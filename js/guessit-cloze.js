@@ -38,16 +38,6 @@
     };
 
     /**
-     * Check if the answer is correct.
-     *
-     * @private
-     * @param {string} answered
-     */
-    const misplaced = function (answered, currentSentence) {
-      return (currentSentence.includes(answered));
-    };
-
-    /**
      * Check if filled out.
      *
      * @param {boolean}
@@ -65,38 +55,37 @@
       // Remove potentially existing markup element.
       $( '.h5p-guessit-markup', $wrapper ).remove();
       checkedAnswer = this.getUserAnswer();
-
       const isCorrect = correct(checkedAnswer);
-      let isMisplaced = false;
-      if (!isCorrect && wordle) {
-        isMisplaced = misplaced(checkedAnswer, currentSentence);
-      }
       if (isCorrect) {
-        if (!wordle) {
-          $wrapper.addClass('h5p-correct');
-        }
-        else {
-          $wrapper.addClass('h5p-correct-wordle');
-        }
+        $wrapper.addClass('h5p-correct');
+        $wrapper.addClass('h5p-correct-wordle');
         $input.attr('disabled', true)
           .attr('aria-label', inputLabel + '. ' + l10n.answeredCorrectly);
       }
       else {
-        if (checkedAnswer && !wordle) {
+        if (checkedAnswer) {
           this.markUp(checkedAnswer);
         }
-        if (isMisplaced) {
-          $wrapper.addClass('h5p-misplaced');
-        }
-        else {
-          if (wordle) {
-            $wrapper.addClass('h5p-wrong-wordle');
-          }
-          else {
-            $wrapper.addClass('h5p-wrong');
-          }
-        }
+        $wrapper.addClass('h5p-wrong');
         $input.attr('aria-label', inputLabel + '. ' + l10n.answeredIncorrectly);
+      }
+    };
+
+    /**
+     * Mark the current entered letter as wrong or correct or misplaced.
+     */
+    this.checkAnswerWordle = function (letterState) {
+      switch(letterState) {
+        case 'correct':
+          $wrapper.addClass('h5p-correct-wordle');        
+          $input.attr('disabled', true)
+            .attr('aria-label', inputLabel + '. ' + l10n.answeredCorrectly);
+          break;
+        case 'wrong':
+          $wrapper.addClass('h5p-wrong-wordle');
+          break;
+        case 'misplaced':
+          $wrapper.addClass('h5p-misplaced');
       }
     };
 

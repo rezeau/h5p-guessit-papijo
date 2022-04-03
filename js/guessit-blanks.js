@@ -633,10 +633,13 @@ H5P.GuessIt = (function ($, Question) {
       }
       else {
         self.currentAnswer = '';
+        self.currentWordleAnswer = '';
         let $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
+        
         $currentInputs.each(function () {
           if ($(this).val() !== '') {
             self.currentAnswer += $(this).val() + ' ';
+            self.currentWordleAnswer += $(this).val();
           }
         });
         self.toggleButtonVisibility(STATE_CHECKING);
@@ -1200,12 +1203,36 @@ H5P.GuessIt = (function ($, Question) {
    */
   GuessIt.prototype.markResults = function () {
     let self = this;
-    let currentSentence = '';
+    
     if (self.params.wordle) {
-      currentSentence = self.params.questions[self.currentSentenceId].sentence;
+      // Attribute one of 3 states to current input letter: correct, wrong or misplaced.
+      let currentWord = self.params.questions[self.currentSentenceId].sentence;
+      let currentGuess = self.currentWordleAnswer;
+      for (let i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
+        let letterState = 'wrong';
+        let guessedLetter = currentGuess[i];
+        if (guessedLetter === currentWord[i]) {
+          letterState = 'correct';
+        }
+        else {
+          if (currentWord.includes(guessedLetter)) {
+            // Get number of instances of the guessed letter in current Word and current Guess.
+            var nW = currentWord.split(guessedLetter).length - 1;
+            var nG = currentGuess.split(guessedLetter).length - 1;
+            // Only display the misplaced class (yellow) if there are one or more instances to be found.
+            if (nG <= nW) {
+              letterState = 'misplaced';
+            }
+          }
+        }
+        this.currentSentenceClozes[this.currentSentenceId][i].checkAnswerWordle(letterState);
+      }
     }
-    for (let i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
-      this.currentSentenceClozes[this.currentSentenceId][i].checkAnswer(currentSentence);
+    else {
+      currentSentence = self.params.questions[self.currentSentenceId].sentence;
+      for (let i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
+        this.currentSentenceClozes[this.currentSentenceId][i].checkAnswer(currentSentence);
+      }
     }
     this.trigger('resize');
   };
