@@ -1202,11 +1202,25 @@ H5P.GuessIt = (function ($, Question) {
    */
   GuessIt.prototype.markResults = function () {
     let self = this;
+    let currentSentence = this.currentSentenceClozes[this.currentSentenceId];
     if (self.params.wordle) {
       // Attribute one of 3 states to current input letter: correct, wrong or misplaced.
       let currentWord = self.params.questions[self.currentSentenceId].sentence;
       let currentGuess = self.currentWordleAnswer;
-      for (let i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
+      let currentLettersFound = [];
+
+      for (let i = 0; i < currentSentence.length; i++) {
+        let currLetter = currentWord[i];
+        let guessedLetter = currentGuess[i];
+        if (guessedLetter === currLetter) {
+          currentLettersFound.push(guessedLetter);
+        }
+        else {
+          currentLettersFound.push('-');
+        }
+      }
+
+      for (let i = 0; i < currentSentence.length; i++) {
         let letterState = 'wrong';
         let guessedLetter = currentGuess[i];
         if (guessedLetter === currentWord[i]) {
@@ -1214,22 +1228,24 @@ H5P.GuessIt = (function ($, Question) {
         }
         else {
           if (currentWord.includes(guessedLetter)) {
-            // Get number of instances of the guessed letter in current Word and current Guess.
+            const count = {};
+            currentLettersFound.forEach(element => {
+              count[element] = (count[element] || 0) + 1;
+            });
+            let nG = count[guessedLetter];
             let nW = currentWord.split(guessedLetter).length - 1;
-            let nG = currentGuess.split(guessedLetter).length - 1;
-            // Only display the misplaced class (yellow) if there are one or more instances to be found.
-            if (nG <= nW) {
+            if (!currentLettersFound.includes(guessedLetter) || nG < nW) {
               letterState = 'misplaced';
+              currentLettersFound[i] = guessedLetter;
             }
           }
         }
-        this.currentSentenceClozes[this.currentSentenceId][i].checkAnswerWordle(letterState);
+        currentSentence[i].checkAnswerWordle(letterState);
       }
     }
     else {
-      let currentSentence = self.params.questions[self.currentSentenceId].sentence;
-      for (let i = 0; i < this.currentSentenceClozes[this.currentSentenceId].length; i++) {
-        this.currentSentenceClozes[this.currentSentenceId][i].checkAnswer(currentSentence);
+      for (let i = 0; i < currentSentence.length; i++) {
+        currentSentence[i].checkAnswer(currentSentence);
       }
     }
     this.trigger('resize');
