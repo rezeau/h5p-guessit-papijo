@@ -4,7 +4,7 @@
   "machineName": "H5P.GuessIt",
   "majorVersion": 1,
   "minorVersion": 5,
-  "patchVersion": 10,
+  "patchVersion": 11,
   "runnable": 1,
   "license": "MIT",
   "author": "Papi Jo",
@@ -48,7 +48,7 @@
     {
       "machineName": "H5P.Question",
       "majorVersion": 1,
-      "minorVersion": 4
+      "minorVersion": 5
     },
     {
       "machineName": "H5P.JoubelUI",
@@ -58,7 +58,7 @@
     {
       "machineName": "H5P.Audio",
       "majorVersion": 1,
-      "minorVersion": 4
+      "minorVersion": 5
     },
     {
       "machineName": "H5P.TextUtilities",
