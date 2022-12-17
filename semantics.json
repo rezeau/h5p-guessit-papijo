@@ -237,7 +237,7 @@
         },
         {  
           "name": "tip",
-          "label": "Not used",
+          "label": "Tip",
           "type": "text",
           "optional": true,
           "widget": "showWhen",
@@ -245,7 +245,7 @@
             "rules": [
               {
                 "field": "../../wordle",
-                "equals": false
+                "equals": true
               }
             ]
           }

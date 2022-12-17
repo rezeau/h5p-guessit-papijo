@@ -897,11 +897,11 @@ H5P.GuessIt = (function ($, Question) {
     this.$questions = $(html);
 
     this.$questions.each(function (index) {
-      if (!self.params.wordle) {
+      // if (!self.params.wordle) {
         // Set optional tip (for sentence)
         let tip = self.params.questions[index].tip;
         self.addTip(tip, $(this));
-      }
+      // }
 
       // Set optional audio (for sentence)
       if (self.params.playMode === 'availableSentences') {
