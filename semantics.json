@@ -1,5 +1,11 @@
 [ 
   {
+    "name": "info",
+    "type": "boolean",
+    "label": "Tutorial and Examples: <a href=\"http://www.rezeau.org/drupal/\" target=\"_blank\" rel=\"noopener\">Papi Jo's Drupal test site</a></span>",
+    "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"    
+  },
+  {
     "name": "description",
     "type": "text",
     "widget": "html",
@@ -106,10 +112,6 @@
         {
           "field": "playMode",
           "equals": "availableSentences"
-        },
-        {
-          "field": "wordle",
-          "equals": false
         }
       ]
     }
@@ -522,12 +524,6 @@
         ]
       }
     ]
-  },
-  {
-    "name": "info",
-    "type": "boolean",
-    "label": "<span style=\"position: absolute;top: -40px;left: 0px;\">Tutorial and Examples: <a href=\"http://www.rezeau.org/drupal/\" target=\"_blank\" rel=\"noopener\">Papi Jo's Drupal test site</a></span>",
-    "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"    
   },
   {
     "label": "Text for \"Show solutions\" button",
