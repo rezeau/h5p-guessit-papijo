@@ -1,6 +1,10 @@
 {
   "semantics": [
     {
+      "label": "<span style=\"position: absolute;top: -40px;\">Tutoriel et exemples : <a href=\"http://www.rezeau.org/drupal/fr\" target=\"_blank\" rel=\"noopener\">Site Drupal de Papi Jo</a></span>",
+      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
+    },
+    {
       "label": "Consigne",
       "default": "Devinez la phrase ou le mot mystère",
       "description": "La consigne indique à l'utilisateur comment faire l'activité."
@@ -80,7 +84,7 @@
             "description": "Tapez un mot de 4 à 8 lettres EN LETTRES MAJUSCULES et sans accents."
           },
           {
-            "label": "Not used"
+            "label": "Indice"
           }
         ]
       }
@@ -163,10 +167,6 @@
           ]
         }
       ]
-    },
-    {
-      "label": "<span style=\"position: absolute;top: -40px;\">Tutoriel et exemples : <a href=\"http://www.rezeau.org/drupal/fr\" target=\"_blank\" rel=\"noopener\">Site Drupal de Papi Jo</a></span>",
-      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
     },
     {
       "label": "Texte du bouton \"Montrer la solution\" button",

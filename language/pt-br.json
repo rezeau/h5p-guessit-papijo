@@ -1,6 +1,10 @@
 {
   "semantics": [
     {
+      "label": "<span style=\"position: absolute;top: -40px;left: 0px;\">Tutoriais e Exemplos: <a href=\"http://www.rezeau.org/drupal/\" target=\"_blank\" rel=\"noopener\">Papi Jo's Drupal test site</a></span>",
+      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
+    },
+    {
       "label": "Descrição da Tarefa",
       "default": "Tente descobrir a Afirmação mistério",
       "description": "Guia de instruções para o utilizador, de como realizar a tarefa."
@@ -80,7 +84,7 @@
             "description": "Type ONE UPPER-CASE word of 4 to 8 letters. No accents!"
           },
           {
-            "label": "Not used"
+            "label": "Ajuda"
           }
         ]
       }
@@ -163,10 +167,6 @@
           ]
         }
       ]
-    },
-    {
-      "label": "<span style=\"position: absolute;top: -40px;left: 0px;\">Tutoriais e Exemplos: <a href=\"http://www.rezeau.org/drupal/\" target=\"_blank\" rel=\"noopener\">Papi Jo's Drupal test site</a></span>",
-      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
     },
     {
       "label": "Texto do botão \"Mostrar Solução\"",
