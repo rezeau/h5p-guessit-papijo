@@ -84,6 +84,10 @@
             "description": "Tapez un mot de 4 à 8 lettres EN LETTRES MAJUSCULES et sans accents."
           },
           {
+            "label": "Audio",
+            "description": "Audio for ce mot (facultatif)"
+          },
+          {
             "label": "Indice"
           }
         ]

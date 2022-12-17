@@ -237,6 +237,29 @@
             "pattern": "^[A-Z]{4,8}$"
           }
         },
+        {
+          "name": "audio",
+          "type": "audio",
+          "label": "Audio",
+          "description": "Audio for this word (optional)",
+          "importance": "low",
+          "optional": true,
+          "widgetExtensions": ["AudioRecorder"],
+          "widget": "showWhen",
+          "showWhen": {
+            "type": "and",
+            "rules": [
+              {
+                "field": "../../playModeW",
+                "equals": "availableSentences"
+              },
+              {
+                "field": "../../enableAudio",
+                "equals": true
+              }
+            ]
+          }
+        },
         {  
           "name": "tip",
           "label": "Tip",
