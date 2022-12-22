@@ -117,10 +117,10 @@
 /* Header and footer blocks (title + evaluation, buttons) */
 
 .h5p-guessit .joubel-tip-container {
-  margin-right: 0.4em;
-    font-size: 0.72em;
-    top: 0.15em;
-    position: relative;
+  margin-right: 0.8em;
+  font-size: 0.72em;
+  top: 0.15em;
+  position: relative;
 }
 
 .h5p-guessit .joubel-tip-container .joubel-icon-tip-normal {
@@ -139,7 +139,9 @@
   margin-left: 0.1em;
   font-size: 1.5em;
 } 
-                                                                         
+.h5p-guessit .has-tip {
+  margin-top: 15px;
+}                                                                         
 .h5p-guessit .has-tip.h5p-correct:after,
 .h5p-guessit .has-tip.h5p-wrong:after {
   right: 2.25em;
