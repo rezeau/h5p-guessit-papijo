@@ -17,18 +17,12 @@
   },
   "preloadedCss": [
     {
-      "path": "css/guessit.css"
+      "path": "dist/h5p-guessit.css"
     }
   ],
   "preloadedJs": [
     {
-      "path": "js/guessit-blanks.js"
-    },
-    {
-      "path": "js/guessit-counter.js"
-    },
-    {
-      "path": "js/guessit-timer.js"
+      "path": "dist/h5p-guessit.js"
     }
   ],
   "preloadedDependencies": [
