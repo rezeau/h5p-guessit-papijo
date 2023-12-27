@@ -1,5 +1,5 @@
 const path = require('path');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
 const nodeEnv = process.env.NODE_ENV || 'development';
@@ -9,7 +9,10 @@ const libraryName = process.env.npm_package_name;
 module.exports = {
   mode: nodeEnv,
   context: path.resolve(__dirname, 'src'),
-  devtool: (isProd) ? undefined : 'eval-cheap-module-source-map',
+  entry: {
+    dist: './entries/h5p-guessit.js'
+  },
+  devtool: !isProd ? 'eval-source-map' : undefined,
   optimization: {
     minimize: isProd,
     minimizer: [
@@ -22,22 +25,15 @@ module.exports = {
       }),
     ],
   },
-  entry: {
-    dist: `./entries/${libraryName}.js`
-  },
   output: {
     filename: `${libraryName}.js`,
     path: path.resolve(__dirname, 'dist')
   },
+  target: ['web', 'es6'],
   module: {
-    rules: [
+    rules: [      
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader'
-      },
-      {
-        test: /\.css$/,
+        test: /\.(s[ac]ss|css)$/,
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
@@ -51,9 +47,18 @@ module.exports = {
         ]
       },
       {
-        test: /\.svg$/,
+        test: /\.svg|\.jpg|\.png$/,
         include: path.join(__dirname, 'src/images'),
         type: 'asset/resource'
+      },
+      {
+        test: /\.woff$/,
+        include: path.join(__dirname, 'src/fonts'),
+        type: 'asset/resource'
+      },
+      {
+        test: /\.js$/,
+        loader: 'babel-loader'
       }
     ]
   },
@@ -64,6 +69,5 @@ module.exports = {
   ],
   stats: {
     colors: true
-  }
+  },
 };
-
