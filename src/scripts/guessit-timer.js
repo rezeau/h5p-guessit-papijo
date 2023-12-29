@@ -40,7 +40,7 @@
       that.notify('every_tenth_second', update);
     });
   };
-  
+
   // Inheritance
   GuessIt.Timer.prototype = Object.create(Timer.prototype);
   GuessIt.Timer.prototype.constructor = GuessIt.Timer;

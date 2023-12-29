@@ -465,8 +465,10 @@ H5P.GuessIt = (function ($, Question) {
         this.$numberWords.appendTo(this.$taskdescription);
 
         if (nbDifferentNums > 1) {
-        // Remove duplicates from numWords array
-          let uniquenumWords = [...new Set(numWords)];
+        // Remove duplicates from numWords array. Using filter and indexOf instead of Set method.
+          const uniquenumWords = numWords.filter((value, index, self) => {
+            return self.indexOf(value) === index;
+          });
           // Sort uniquenumWords array
           uniquenumWords.sort();
           // Get last item from uniquenumWords array
@@ -474,9 +476,8 @@ H5P.GuessIt = (function ($, Question) {
           // Init iteratation
           let numSentencesWithWords = [];
 
-          uniquenumWords.forEach(iterateNW);
           // Iterate uniquenumWords array
-          function iterateNW(item) {
+          uniquenumWords.forEach(function (item) {
             let n = self.numQuestionsInWords[item];
             numSentencesWithWords[item] = n;
             let s = self.params.sentence;
@@ -494,7 +495,8 @@ H5P.GuessIt = (function ($, Question) {
               self.numQuestions = numSentencesWithWords[item];
               self.initTask();
             }).appendTo($optionButtons);
-          }
+          });
+
           let n = self.params.questions.length;
           let s = self.params.sentences;
           let item = self.params.anyNumber;
@@ -897,11 +899,9 @@ H5P.GuessIt = (function ($, Question) {
     this.$questions = $(html);
 
     this.$questions.each(function (index) {
-      // if (!self.params.wordle) {
-        // Set optional tip (for sentence)
-        let tip = self.params.questions[index].tip;
-        self.addTip(tip, $(this));
-      // }
+      // Set optional tip
+      let tip = self.params.questions[index].tip;
+      self.addTip(tip, $(this));
 
       // Set optional audio (for sentence)
       if (self.params.playMode === 'availableSentences') {
@@ -962,14 +962,20 @@ H5P.GuessIt = (function ($, Question) {
       let $inputs, isLastInput;
       let enterPressed = (event.keyCode === 13);
       let spacePressed = (event.keyCode === 32);
-      let tabPressed = (event.keyCode === 9);
-      let backTabPressed = (event.keyCode === 8);
+      let backSpacePressed = (event.keyCode === 8);
+      let tabPressed = (event.keyCode === 9 && !event.shiftKey);
+      let backTabPressed = event.shiftKey && event.key === 'Tab';
 
       // Figure out which inputs are left to answer in current sentence.
       $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
-
+      if (backTabPressed) {
+        if (($inputs.index($this) > 0)) {
+          $inputs.eq($inputs.index($this)).focus();
+          return;
+        }
+      }
       // When going back to delete letters, skip over potential found/correct/disabled inputs.
-      if (self.params.wordle && backTabPressed && $inputs.index($this) !== 0) {
+      if (self.params.wordle && backSpacePressed && $inputs.index($this) !== 0) {
         if ($inputs.eq($inputs.index($this)).val() === '') {
           let i = 1;
           while ($inputs.eq($inputs.index($this) - i).is(':disabled')) {

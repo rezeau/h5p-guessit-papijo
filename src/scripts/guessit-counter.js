@@ -8,14 +8,14 @@
    */
   GuessIt.Counter = function ($container) {
     /** @alias H5P.MemoryGame.Counter# */
-    var self = this;
+    const self = this;
 
-    var current = 0;
+    let current = 0;
 
     /**
      * @private
      */
-    var update = function () {
+    const update = function () {
       $container[0].innerText = current;
     };
 
@@ -34,7 +34,7 @@
       current = 1;
       update();
     };
-    
+
     self.getcurrent = function () {
       return current;
     };
