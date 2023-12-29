@@ -8,4 +8,5 @@ package.json
 package-lock.json
 README.md
 webpack.config.js
+LICENSE
 
