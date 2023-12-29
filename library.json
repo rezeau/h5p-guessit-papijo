@@ -17,7 +17,7 @@
   },
   "preloadedCss": [
     {
-      "path": "src/styles/guessit_minified.css"
+      "path": "dist/h5p-guessit.css"
     }
   ],
   "preloadedJs": [

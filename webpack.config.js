@@ -5,7 +5,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isProd = (nodeEnv === 'production');
 const libraryName = process.env.npm_package_name;
-
+//const libraryName = 'h5p-guessit-papijo'
 module.exports = {
   mode: nodeEnv,
   context: path.resolve(__dirname, 'src'),
@@ -31,7 +31,11 @@ module.exports = {
   },
   target: ['web', 'es6'],
   module: {
-    rules: [      
+    rules: [
+      {
+        test: /\.js$/,
+        loader: 'babel-loader'
+      },
       {
         test: /\.(s[ac]ss|css)$/,
         use: [
@@ -43,6 +47,9 @@ module.exports = {
           },
           { 
             loader: "css-loader" 
+          },
+          {
+            loader: "sass-loader"
           }
         ]
       },
@@ -55,10 +62,6 @@ module.exports = {
         test: /\.woff$/,
         include: path.join(__dirname, 'src/fonts'),
         type: 'asset/resource'
-      },
-      {
-        test: /\.js$/,
-        loader: 'babel-loader'
       }
     ]
   },
