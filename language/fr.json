@@ -1,7 +1,7 @@
 {
   "semantics": [
     {
-      "label": "<span style=\"position: absolute;top: -40px;\">Tutoriel et exemples : <a href=\"http://www.rezeau.org/drupal/fr\" target=\"_blank\" rel=\"noopener\">Site Drupal de Papi Jo</a></span>",
+      "label": "<span style=\"position: absolute;top: -40px;\">Tutoriel et exemples : <a href=\"www.h5p.rezeau.org\" target=\"_blank\" rel=\"noopener\">Site Moodle-H5P de Papi Jo</a></span>",
       "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
     },
     {
