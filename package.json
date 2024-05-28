@@ -25,7 +25,9 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.1",
     "mini-css-extract-plugin": "^2.6.1",
+    "node-sass": "^9.0.0",
     "resolve-url-loader": "^5.0.0",
+    "sass-loader": "^14.2.1",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.10.0"
   }
