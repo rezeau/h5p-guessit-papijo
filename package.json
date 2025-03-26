@@ -1,7 +1,7 @@
 {
   "name": "h5p-guessit",
   "version": "1.7.3",
-  "description": "H5P Dialogue Cards ==========",
+  "description": "H5P Guessit ==========",
   "main": "index.js",
   "scripts": {
     "build": "cross-env NODE_ENV='production' webpack",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/h5p/h5p-guessit.git"
+    "url": "git+https://github.com/rezeau/h5p-guessit-papijo.git"
   },
   "keywords": [],
   "author": "Joubel",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/h5p/h5p-guessit/issues"
+    "url": "https://github.com/rezeau/h5p-guessit-papijo/issues"
   },
-  "homepage": "https://github.com/h5p/h5p-guessit#readme",
+  "homepage": "https://github.com/rezeau/h5p-guessit-papijo#readme",
   "devDependencies": {
     "@babel/core": "^7.18.6",
     "@babel/preset-env": "^7.18.6",
