@@ -1,7 +1,7 @@
 {
   "name": "h5p-guessit",
   "version": "1.7.3",
-  "description": "H5P Guess It ==========",
+  "description": "H5P Dialogue Cards ==========",
   "main": "index.js",
   "scripts": {
     "build": "cross-env NODE_ENV='production' webpack",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rezeau/h5p-guessit-papijo.git"
+    "url": "git+https://github.com/h5p/h5p-guessit.git"
   },
   "keywords": [],
-  "author": "Joseph Rézeau",
+  "author": "Joubel",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rezeau/h5p-guessit-papijo/issues"
+    "url": "https://github.com/h5p/h5p-guessit/issues"
   },
-  "homepage": "https://github.com/rezeau/h5p-guessit-papijo#readme",
+  "homepage": "https://github.com/h5p/h5p-guessit#readme",
   "devDependencies": {
     "@babel/core": "^7.18.6",
     "@babel/preset-env": "^7.18.6",
@@ -25,10 +25,8 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.1",
     "mini-css-extract-plugin": "^2.6.1",
-    "node-sass": "^9.0.0",
     "resolve-url-loader": "^5.0.0",
-    "sass-loader": "^14.2.1",
-    "webpack": "^5.94.0",
+    "webpack": "^5.76.0",
     "webpack-cli": "^4.10.0"
   }
 }
