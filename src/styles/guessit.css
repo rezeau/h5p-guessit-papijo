@@ -8,6 +8,7 @@
 }
 .h5p-guessit .h5p-text-input,
 .h5p-guessit .h5p-text-input-user {
+  /*
   font-family: 'Roboto Mono', 'Lucida Console', Courier, monospace;
   font-size: 1.2em;
   border-radius: 0.25em;
@@ -16,6 +17,23 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  */
+  
+  font-family: 'Roboto Mono', 'Lucida Console', Courier, monospace;
+  font-size: var(--h5p-theme-font-size-xl);
+  border-radius: var(--h5p-theme-border-radius-medium);
+  background-color: var(--h5p-theme-ui-base);
+  border: 2px solid var(--h5p-theme-alternative-darker);
+  padding: calc(var(--h5p-theme-spacing-xs) / 2) 0 calc(var(--h5p-theme-spacing-xs) / 2) var(--h5p-theme-spacing-xxs);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--h5p-theme-text-primary);
+  min-width: 6em;
+  /* Incase we have empty input we want the height to be equal
+    to the font-size multipled with the line-height. */
+  min-height: calc(var(--h5p-theme-font-size-m) * 1.2);
+  font-weight: 600;
 }
 
 .h5p-guessit .h5p-text-input.wordle {
@@ -53,9 +71,16 @@
 /* Correctly answered input */
 .h5p-guessit .h5p-correct .h5p-text-input,
 .h5p-guessit .h5p-correct-wordle .h5p-text-input {
+  /*
   background: #9dd8bb70;
   border: 1px solid #9dd8bb;
   color: #255c41;
+  */
+  background: var(--h5p-theme-feedback-correct-secondary);
+  border: 2px solid var(--h5p-theme-feedback-correct-third);
+  color: var(--h5p-theme-feedback-correct-main);
+  font-weight: bold;
+  padding-right: var(--h5p-theme-spacing-m);
 }
 /* Showing markup. top & left determined by position of input element. 
 */
@@ -119,14 +144,8 @@
 .h5p-guessit .joubel-tip-container {
   margin-right: 0.8em;
   font-size: 0.72em;
-  top: 0.15em;
-  position: relative;
 }
 
-.h5p-guessit .joubel-tip-container .joubel-icon-tip-normal {
-  position: relative;
-  top: 0.1em;
-}
 .h5p-guessit .joubel-tip-container:hover,
 .h5p-guessit .h5p-audio-minimal-button:hover {
   transform: scale(1.2);     
@@ -135,7 +154,7 @@
 .h5p-guessit .joubel-tip-container .joubel-icon-tip-normal .h5p-icon-info:before {
   font-family: 'H5PFontAwesome4';
   content: "\f05a";
-  color: #1a73d9;
+  color: var(--h5p-theme-contrast-cta-white);
   margin-left: 0.1em;
   font-size: 1.5em;
 } 
@@ -170,6 +189,7 @@
 /* Showing solution */
 
 .h5p-guessit .h5p-correct-answer {
+  /*
   color: #255c41;
   font-weight: bold;
   border: 1px #255c41 dashed;
@@ -177,6 +197,16 @@
   padding: 0.15em;
   border-radius: 0.25em;
   margin-left: .5em;
+  */
+  color: var(--h5p-theme-feedback-correct-main);
+  font-weight: bold;
+  border: 2px var(--h5p-theme-feedback-correct-main) dashed;
+  background-color: var(--h5p-theme-feedback-correct-secondary);
+  padding: calc(var(--h5p-theme-spacing-xs) / 2);
+  border-radius: var(--h5p-theme-border-radius-medium);
+  margin-left: .5em;
+  display: inline-flex;
+  line-height: normal;
 }
 .h5p-guessit .h5p-guessit-optionsbuttons {
   //margin-top: 16px;
@@ -351,6 +381,7 @@
 
 /* Audio button styling */
 /*TODO: Make Audio use JoubelUI button */
+/*
 .h5p-guessit .h5p-audio-minimal-button {
   border: none;
   background: #1a73d9;
@@ -364,6 +395,7 @@
 .h5p-guessit .h5p-audio-minimal-button:focus,
 .h5p-guessit .h5p-audio-minimal-button:hover {
   background: #1356a3;
+  background: green;
 }
 
 .h5p-guessit .h5p-guessit-audio-wrapper {  
@@ -397,7 +429,99 @@
   display: block;
   background-image: url('../images/no-audio.svg');
 }
+*/
 
 .h5p-guessit .h5p-question-buttons.has-scorebar {
   margin-left: 1em;
+}
+
+/* Input wrapper: required for positioning the tick/cross */
+.h5p-guessit .h5p-input-wrapper {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  vertical-align: middle;
+}
+
+/* Correct answer */
+.h5p-guessit .h5p-correct .h5p-text-input {
+  background: var(--h5p-theme-feedback-correct-secondary);
+  border: 2px solid var(--h5p-theme-feedback-correct-third);
+  color: var(--h5p-theme-feedback-correct-main);
+  font-weight: bold;
+  padding-right: var(--h5p-theme-spacing-m);
+}
+
+/* Modern correct tick */
+.h5p-guessit .h5p-correct::after {
+  position: absolute;
+  right: var(--h5p-theme-spacing-xxs);
+  font-family: "h5p-theme";
+  content: "\e903";
+  color: var(--h5p-theme-feedback-correct-main);
+  text-decoration: none;
+}
+
+/* Wrong answer */
+.h5p-guessit .h5p-wrong .h5p-text-input {
+  background-color: var(--h5p-theme-feedback-incorrect-secondary);
+  border: 2px solid var(--h5p-theme-feedback-incorrect-third);
+  color: var(--h5p-theme-feedback-incorrect-main);
+  font-weight: bold;
+  padding-right: var(--h5p-theme-spacing-m);
+}
+
+/* Modern incorrect cross */
+.h5p-guessit .h5p-wrong::after {
+  position: absolute;
+  right: var(--h5p-theme-spacing-xxs);
+  font-family: "h5p-theme";
+  content: "\e902";
+  color: var(--h5p-theme-feedback-incorrect-main);
+  text-decoration: none;
+}
+
+/* Audio button: same overall size as the tip button */
+.h5p-guessit .h5p-guessit-audio-wrapper {
+ display: inline-flex;
+  width: 2em;
+  height: 2em;
+  margin-right: 0.4em;
+  vertical-align: super;
+}
+
+.h5p-guessit
+  .h5p-guessit-audio-wrapper
+  .h5p-audio-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.h5p-guessit
+  .h5p-guessit-audio-wrapper
+  .h5p-audio-minimal-button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+
+  border-radius: 50%;
+  font-size: 1em;
+  line-height: 1;
+  font-weight: normal;
+}
+
+.h5p-guessit
+  .h5p-guessit-audio-wrapper
+  .h5p-audio-minimal-button:focus,
+.h5p-guessit
+  .h5p-guessit-audio-wrapper
+  .h5p-audio-minimal-button:hover {
+  background: var(--h5p-theme-main-cta-light);
 }

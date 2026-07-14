@@ -41,7 +41,7 @@ H5P.GuessIt = (function ($, Question) {
   function GuessIt(params, id, contentData) {
     let self = this;
     // Inheritance. User for CSS!
-    Question.call(self, 'guessit');
+    Question.call(self, 'blanks', { theme: true });
 
     // IDs
     this.contentId = id;
@@ -57,6 +57,7 @@ H5P.GuessIt = (function ($, Question) {
       playMode: 'availableSentences',
       showSolutions: "Show solution",
       tryAgain: "Try again",
+      tryAgain2: "Try again2",
       newSentence: 'Guess another sentence',
       endGame: 'End Game',
       checkAnswer: "Check",
@@ -729,15 +730,36 @@ H5P.GuessIt = (function ($, Question) {
           }
         }
       }
+    }, true, {
+      'aria-label': self.params.checkAnswer
+    }, {
+      icon: 'check'
     });
 
     // Try again button
-    self.addButton('try-again', self.params.tryAgain, function () {
-      self.updateFeedbackContent('');
-      self.reTry();
-      self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();
-    });
+    self.addButton(
+      'try-again',
+      self.params.tryAgain,
+      function () {
+        self.updateFeedbackContent('');
+        self.reTry();
 
+        self.$questions
+          .eq(self.currentSentenceId)
+          .filter(':first')
+          .find('input:enabled:first')
+          .focus();
+      },
+      true,
+      {
+        'aria-label': self.params.tryAgain
+      },
+      {
+        styleType: 'secondary',
+        icon: 'retry'
+      }
+    );
+ 
     // Show solution button
     self.addButton('show-solution', self.params.showSolutions, function () {
       self.showCorrectAnswers(false);
