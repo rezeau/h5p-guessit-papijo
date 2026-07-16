@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@300&display=swap');
+
 .h5p-guessit {
   overflow: hidden;
   position: relative;
@@ -21,12 +22,11 @@
   white-space: nowrap;
   color: var(--h5p-theme-text-primary);
   min-width: 6em;
-  /* Incase we have empty input we want the height to be equal
+  /* In case we have empty input we want the height to be equal
     to the font-size multipled with the line-height. */
   min-height: calc(var(--h5p-theme-font-size-m) * 1.2);
   font-weight: 600;
 }
-
 .h5p-guessit .h5p-text-input.wordle {
   font-size: 1.2em;
   border: 1px solid #a0a0a0;
@@ -62,11 +62,6 @@
 /* Correctly answered input */
 .h5p-guessit .h5p-correct .h5p-text-input,
 .h5p-guessit .h5p-correct-wordle .h5p-text-input {
-  /*
-  background: #9dd8bb70;
-  border: 1px solid #9dd8bb;
-  color: #255c41;
-  */
   background: var(--h5p-theme-feedback-correct-secondary);
   border: 2px solid var(--h5p-theme-feedback-correct-third);
   color: var(--h5p-theme-feedback-correct-main);
@@ -167,30 +162,63 @@
   display: none;
 }
 
-
-.h5p-guessit-time-status {
-  position: static;
-  float: right;
-  width: auto;
-}
-
 .h5p-question-reset-task:before {
   font-family: 'H5PFontAwesome4';
   content: "\f021";
   margin-right: 0.5em;
 }
+/* Task description and progress header */
+
+.h5p-guessit-title-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: var(--h5p-theme-spacing-m);
+}
+
+/* Task description occupies all remaining space */
+.h5p-guessit-title-wrapper {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Remove the old border from the description itself */
+.h5p-guessit-title-wrapper .h5p-guessit-description {
+  background: transparent;
+  border-bottom: 0;
+}
+
+/* Right-hand status section */
+.h5p-guessit-progress-wrapper {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+/* Time, round and sentence boxes */
+.h5p-guessit-time-status {
+  position: static;
+  float: none;
+
+  display: flex;
+  flex-flow: row wrap;
+  align-items: stretch;
+  justify-content: flex-end;
+
+  width: auto;
+  margin: 0;
+
+  color: var(--h5p-theme-text-primary);
+}
+
+/* Keep the contents of each progress box on one line */
+.h5p-guessit-time-status .h5p-guessit-progress {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
 /* Showing solution */
 
 .h5p-guessit .h5p-correct-answer {
-  /*
-  color: #255c41;
-  font-weight: bold;
-  border: 1px #255c41 dashed;
-  background-color: #d4f6e6;
-  padding: 0.15em;
-  border-radius: 0.25em;
-  margin-left: .5em;
-  */
   color: var(--h5p-theme-feedback-correct-main);
   font-weight: bold;
   border: 2px var(--h5p-theme-feedback-correct-main) dashed;
@@ -207,12 +235,11 @@
   flex-wrap: wrap;
 }
 .h5p-guessit .h5p-guessit-optionsbuttons {
-  //display: flex;
-  //gap: 10px;
-  //flex-wrap: wrap;
   box-sizing: border-box;
   padding: var(--h5p-theme-spacing-l);
   background-color: var(--h5p-theme-background);
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 h5p-guessit-number-choice-options
 .h5p-guessit-hide,
@@ -245,11 +272,17 @@ h5p-guessit-number-choice-options
 } 
 
 .h5p-guessit-listGuessedSentences {
-  border: 1px #255c41 dashed;
+  background-color: #e5f7ee;
+  border-radius: 0.25em;
+  padding-left: 0.5em;
   background-color: #e5f7ee;
   border-radius: 0.25em;
   padding-left: 0.5em;
   font-size: 0.9em;
+  background-color: var(--h5p-theme-contrast-cta-light);
+  border-radius: var(--h5p-theme-border-radius-medium);
+  color: var(--h5p-theme-contrast-cta-white);
+  font-weight: 700;
 }
 .h5p-guessit-listGuessedSentences p{
   text-indent: -1.5em;
@@ -377,58 +410,6 @@ h5p-guessit-number-choice-options
   color: #da0001;
 } 
 
-/* Audio button styling */
-/*TODO: Make Audio use JoubelUI button */
-/*
-.h5p-guessit .h5p-audio-minimal-button {
-  border: none;
-  background: #1a73d9;
-  font-weight: normal;
-  padding: 0;
-  font-size: 1.1em;
-  width: 1.32em;
-  height: 1.32em;
-}
-
-.h5p-guessit .h5p-audio-minimal-button:focus,
-.h5p-guessit .h5p-audio-minimal-button:hover {
-  background: #1356a3;
-  background: green;
-}
-
-.h5p-guessit .h5p-guessit-audio-wrapper {  
-    display: inline-block;
-    width: 1.5em;
-    height: 1.5em;
-    margin-right: 0.4em;
-}
-
-.h5p-guessit .h5p-guessit-audio-wrapper.h5p-audio-not-supported {
-  width: 100%;
-  height: 100%;
-  color: red;
-  font-size: 1em;
-  text-align: center;
-}
-
-.h5p-guessit .h5p-guessit-audio-wrapper.h5p-audio-not-supported .h5p-audio-not-supported-icon {
-  width: 1.5em;
-  height: 1.5em;
-  padding: 0.25em;
-  margin: 0 auto 1em auto;
-  border: 2px red solid;
-  border-radius: 50%;
-}
-
-.h5p-guessit .h5p-guessit-audio-wrapper.h5p-audio-not-supported .h5p-audio-not-supported-icon span,
-.h5p-guessit .h5p-guessit-audio-wrapper2.h5p-audio-not-supported .h5p-audio-not-supported-icon span {
-  width: 100%;
-  height: 100%;
-  display: block;
-  background-image: url('../images/no-audio.svg');
-}
-*/
-
 .h5p-guessit .h5p-question-buttons.has-scorebar {
   margin-left: 1em;
 }
@@ -522,4 +503,39 @@ h5p-guessit-number-choice-options
   .h5p-guessit-audio-wrapper
   .h5p-audio-minimal-button:hover {
   background: var(--h5p-theme-main-cta-light);
+}
+/* Allow responsive rules to use the actual GuessIt content width */
+.h5p-content.h5p-guessit {
+  container-type: inline-size;
+}
+
+/* Narrow GuessIt content */
+@container (max-width: 42rem) {
+  .h5p-guessit-title-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--h5p-theme-spacing-m);
+  }
+
+  /* Task description occupies the complete first row */
+  .h5p-guessit-title-wrapper {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    //text-align: center;
+  }
+
+  /* Progress/status occupies the complete second row */
+  .h5p-guessit-progress-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 0;
+  }
+
+  .h5p-guessit-time-status {
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 0;
+  }
 }

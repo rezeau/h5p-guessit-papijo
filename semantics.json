@@ -525,16 +525,7 @@
         "label": "Sentences Order",
         "importance": "low",
         "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
-        "default": "normal",
-        "widget": "showWhen",
-        "showWhen": {
-          "rules": [
-            {
-              "field": "../wordle",
-              "equals":false
-            }
-          ]
-        },
+        "default": "normal",        
         "options": [
           {
             "value": "normal",

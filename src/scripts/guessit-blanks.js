@@ -207,22 +207,45 @@ H5P.GuessIt = (function ($, Question) {
    * Registers this question type's DOM elements before they are attached.
    * Called from H5P.Question.
    */
-  GuessIt.prototype.registerDomElements = function (sentence) {
-    let self = this;
-    this.$taskdescription = $('<div>', {
-      'class': 'h5p-guessit h5p-guessit-description',
-      'html': this.params.description
-    });
-    let $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
-    $content.addClass ('h5p-guessit h5p-frame');
 
-    // We must remove current $taskdescription if student did not fill in the input form correctly.
-    if (this.params.playMode === 'userSentence') {
-      $content.find('.h5p-guessit-description').remove();
-    }
+GuessIt.prototype.registerDomElements = function (sentence) {
+  let self = this;
 
-    this.$taskdescription.prependTo($content);
+  let $content = $(
+    '[data-content-id="' + self.contentId + '"].h5p-content'
+  );
 
+  $content.addClass('h5p-guessit h5p-frame');
+
+  /*
+   * Remove a previous header when registerDomElements() is called
+   * again, for example after an invalid user sentence.
+   */
+  $content
+    .children('.h5p-guessit-title-container')
+    .remove();
+
+  // Complete header: description on left, progress on right.
+  this.$titleContainer = $('<div>', {
+    class: 'h5p-guessit-title-container'
+  });
+
+  // Left section.
+  this.$titleWrapper = $('<div>', {
+    class: 'h5p-guessit-title-wrapper'
+  }).appendTo(this.$titleContainer);
+
+  this.$taskdescription = $('<div>', {
+    class: 'h5p-guessit h5p-guessit-description',
+    html: this.params.description
+  }).appendTo(this.$titleWrapper);
+
+  // Right section: timer and counters will be inserted here later.
+  this.$progressWrapper = $('<div>', {
+    class: 'h5p-guessit-progress-wrapper'
+  }).appendTo(this.$titleContainer);
+
+  this.$titleContainer.prependTo($content);
     // Special case of userSentence mode.
     if (this.params.playMode === 'userSentence') {
       // Case guess a sentence.
@@ -250,12 +273,12 @@ H5P.GuessIt = (function ($, Question) {
         usersentence.setAttribute("class", "h5p-text-input-user");
         usersentence.setAttribute("autocomplete", "off");
         usersentence.setAttribute("autocapitalize", "off");
-
+/*
         let usertip = document.createElement('input');
         usertip.setAttribute("type", "text");
         usertip.setAttribute("id", "usertip");
         usertip.setAttribute("class", "h5p-text-input-user");
-
+*/
         this.$userSentenceDescription
           .appendTo(this.$taskdescription);
         this.$userSentence = $('<div>', {
@@ -264,14 +287,7 @@ H5P.GuessIt = (function ($, Question) {
         });
         this.$userSentence.appendTo(this.$userSentenceDescription);
         usersentence.focus();
-
-        this.$userTipDescription.appendTo(this.$userSentence);
-        this.$userTip = $('<div>', {
-          'class': 'h5p-userTip',
-          'html': usertip
-        });
-        this.$userTip.appendTo(this.$userTipDescription);
-
+        
         // Validate user sentence & possibly other options...
         const $optionButtons = $('<div>', {
           'class': 'h5p-guessit-optionsbuttons',
@@ -1027,7 +1043,7 @@ H5P.GuessIt = (function ($, Question) {
       if (self.params.wordle) {
         let $this = $(this);
         let $inputs;
-        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input');
+        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input-wordle');
         let letter = $inputs.eq($inputs.index($this)).val();
         // Only accept ascii letters lower & uppercase.
         let acceptedEntry = /[A-Za-z]/.test(letter);
@@ -1465,31 +1481,64 @@ H5P.GuessIt = (function ($, Question) {
   };
 
   GuessIt.prototype.initCounters = function () {
-    let self = this;
-    let $content = $('[data-content-id="' + self.contentId + '"].h5p-content .h5p-question-content');
-    // Timer part.
-    this.$timer = $('<div/>', {
-      class: 'h5p-guessit-time-status',
-      tabindex: -1,
-      html: '<span role="term" ><em class="fa fa-clock-o" ></em>' +
-        self.params.timeSpent + '</span >:' +
-        '<span role="definition"  class="h5p-time-spent" >0:00</span>'
-    });
-    this.timer = new GuessIt.Timer(this.$timer.find('.h5p-time-spent'));
+  let self = this;
 
-    this.$timer.appendTo($content);
-    //this.$timer.addClass ('h5p-guessit-hide');
+  // Container for all three progress elements.
+  this.$timer = $('<div>', {
+    class: 'h5p-guessit-time-status',
+    tabindex: -1
+  });
+
+  // Time spent.
+  const $timeStatus = $('<div>', {
+    class: [
+      'h5p-guessit-progress',
+      'h5p-theme-progress',
+      'h5p-guessit-time'
+    ].join(' '),
+    html:
+      '<span role="term">' +
+        '<em class="fa fa-clock-o"></em>' +
+        self.params.timeSpent +
+      '</span>:' +
+      '<span role="definition" class="h5p-time-spent">0:00</span>'
+  }).appendTo(this.$timer);
+
+  this.timer = new GuessIt.Timer(
+    $timeStatus.find('.h5p-time-spent')
+  );
+
+  // Place the complete status block in the header.
+  this.$timer.appendTo(this.$progressWrapper);
+
+  this.timer.play();
     this.timer.play();
     // Counter part.
     $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     const counterText = self.params.round
       .replace('@round', '<span class="h5p-counter">1</span>');
-
+    /*
     this.$counter = $('<div>', {
       class: 'counter-status',
       tabindex: -1,
       html: '<div role="term"><span role="definition">' + counterText + '</span></div>'
     });
+    */
+    this.$counter = $('<div>', {
+  class: [
+    'counter-status',
+    'h5p-guessit-progress',
+    'h5p-theme-progress',
+    'h5p-guessit-round'
+  ].join(' '),
+  tabindex: -1,
+  html:
+    '<div role="term">' +
+      '<span role="definition">' +
+        counterText +
+      '</span>' +
+    '</div>'
+});
     this.counter = new GuessIt.Counter(this.$counter.find('.h5p-counter'));
     this.$counter.appendTo(this.$timer);
     this.counter.increment();
@@ -1497,11 +1546,23 @@ H5P.GuessIt = (function ($, Question) {
     if (this.params.playMode === 'availableSentences') {
       let s = self.params.sentence + ' ';
       s = s.charAt(0).toUpperCase() + s.slice(1);
+      /*
       this.$progress = $('<div>', {
         class: 'counter-status',
         tabindex: -1,
         text: s + 1 + '/' + this.numQuestions
       });
+      */
+      this.$progress = $('<div>', {
+  class: [
+    'counter-status',
+    'h5p-guessit-progress',
+    'h5p-theme-progress',
+    'h5p-guessit-sentence-progress'
+  ].join(' '),
+  tabindex: -1,
+  text: s + 1 + '/' + this.numQuestions
+});
       this.$progress.appendTo(this.$timer);
     }
 
@@ -1588,10 +1649,16 @@ H5P.GuessIt = (function ($, Question) {
     // Remove all these now useless elements from DOM.
     $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
 
-    $('.h5p-no-frame, .h5p-guessit-description, .h5p-question-introduction, .h5p-question-content,'
-      + ' .h5p-question-scorebar, .h5p-question-feedback',
-    $content).hide();
-
+    $(
+      '.h5p-no-frame, ' +
+      '.h5p-guessit-title-container, ' +
+      '.h5p-guessit-description, ' +
+      '.h5p-question-introduction, ' +
+      '.h5p-question-content, ' +
+      '.h5p-question-scorebar, ' +
+      '.h5p-question-feedback',
+      $content
+    ).hide();
     this.totalRounds += this.counter.getcurrent();
 
     // Calculate and nicely format total time spent.
@@ -1723,21 +1790,9 @@ H5P.GuessIt = (function ($, Question) {
 
     // Display reset button to enable user to do the task again.
     // Provided a warning in the semantics file as to this method not guaranteed to work at all times!
-    /*
+    
     if (this.params.behaviour.enableRetry) {
-      H5P.JoubelUI.createButton({
-        'class': 'h5p-guessit-retry-button',
-        'title': self.params.tryAgain,
-        'html': self.params.tryAgain
-      }).click(function () {
-        let url = top.location.href;
-        window.top.location.href = url;
-      }).appendTo(this.$feedbackContainer)
-        .focus();
-    }
-    */
-    if (this.params.behaviour.enableRetry) {
-  const retryButton = H5P.Components.Button({
+    const retryButton = H5P.Components.Button({
     label: self.params.tryAgain,
     ariaLabel: self.params.tryAgain,
     styleType: 'secondary',
