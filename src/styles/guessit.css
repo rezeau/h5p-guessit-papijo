@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@300&display=swap');
 .h5p-guessit {
+  overflow: hidden;
+  position: relative;
 }
 .h5p-guessit .h5p-input-wrapper {
   display: inline-block;
@@ -8,17 +10,6 @@
 }
 .h5p-guessit .h5p-text-input,
 .h5p-guessit .h5p-text-input-user {
-  /*
-  font-family: 'Roboto Mono', 'Lucida Console', Courier, monospace;
-  font-size: 1.2em;
-  border-radius: 0.25em;
-  border: 1px solid #a0a0a0;
-  padding: 0.1875em 1em 0.1875em 0.5em;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  */
-  
   font-family: 'Roboto Mono', 'Lucida Console', Courier, monospace;
   font-size: var(--h5p-theme-font-size-xl);
   border-radius: var(--h5p-theme-border-radius-medium);
@@ -89,6 +80,8 @@
   font-size: 1.2em;
   margin-left: .5em;
   position: absolute;
+  /* Needed to display on all theme including black background */
+  color: var(--h5p-theme-text-primary);
 }
 .h5p-guessit .h5p-correct:after {
   position: absolute;
@@ -174,11 +167,11 @@
   display: none;
 }
 
-.h5p-guessit.time-status {
-  font-size: 0.9em;
-  position: absolute;
-  right: 10px;
-  bottom: 0;
+
+.h5p-guessit-time-status {
+  position: static;
+  float: right;
+  width: auto;
 }
 
 .h5p-question-reset-task:before {
@@ -208,10 +201,20 @@
   display: inline-flex;
   line-height: normal;
 }
-.h5p-guessit .h5p-guessit-optionsbuttons {
-  //margin-top: 16px;
-  padding-right: 8px;
+.h5p-guessit-number-choice-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
+.h5p-guessit .h5p-guessit-optionsbuttons {
+  //display: flex;
+  //gap: 10px;
+  //flex-wrap: wrap;
+  box-sizing: border-box;
+  padding: var(--h5p-theme-spacing-l);
+  background-color: var(--h5p-theme-background);
+}
+h5p-guessit-number-choice-options
 .h5p-guessit-hide,
 .h5p-guessit.h5p-guessit-options.h5p-guessit-hide {
   display: none;
@@ -219,12 +222,12 @@
 .h5p-guessit .h5p-guessit-number {
 }
 .h5p-guessit.h5p-guessit-options {
-  background-color: #f0f8ff;
-  //margin-bottom: 10px;
-  margin-top: 10px;
   display: block;
-  padding: 5px;
-  //font-size: 0.8em;
+  font-weight: 800;
+  background-color: var(--h5p-theme-contrast-cta-light);
+  border-radius: var(--h5p-theme-border-radius-medium);
+  color: var(--h5p-theme-contrast-cta-white);
+  padding: var(--h5p-theme-spacing-s);
 }
 
 .h5p-guessit .joubel-tip-container.hidden,
@@ -270,7 +273,7 @@
 }
 
 .h5p-guessit.h5p-frame.h5p-frame .h5p-container {
-  background: #fefefe;
+  background-color: var(--h5p-theme-background);
   margin: 10px;
 }
 
@@ -347,13 +350,7 @@
   font-family: 'H5PFontAwesome4';
   content: "\f08b"; 
 }
-.h5p-guessit-okbutton {
-    margin-top: 10px!important;
-    margin-left: 0!important;
-}
-.h5p-guessit-okbutton:before {
-  content: "\F058";
-}
+
 .h5p-guessit-usertipdescription {
   margin-top: 1em;
 }
@@ -365,6 +362,7 @@
     margin-right: 0.25em;
     position: relative;
     top: -0.2em;
+    font-size: large;
 }
 .h5p-guessit-retry-button:before {
     font-family: H5PFontAwesome4;

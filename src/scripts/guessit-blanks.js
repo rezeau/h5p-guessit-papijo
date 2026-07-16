@@ -39,7 +39,7 @@ H5P.GuessIt = (function ($, Question) {
    * @param {Object} contentData Task specific content data
    */
   function GuessIt(params, id, contentData) {
-    let self = this;
+    const self = this;
     // Inheritance. User for CSS!
     Question.call(self, 'blanks', { theme: true });
 
@@ -118,16 +118,18 @@ H5P.GuessIt = (function ($, Question) {
 
     // Delete empty questions. Should normally not happen, but...
     // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.
-
+// Number choice is incompatible with Wordle mode
+  
     if (this.params.wordle) {
-      // "Convert" following 2 parals from Wordle option to Sentences.
+      // "Convert" following 2 params from Wordle option to Sentences.
       this.params.playMode = this.params.playModeW;
       this.params.questions = this.params.questionsW;
       // Always show list of found or not found words.
       this.params.behaviour.listGuessedSentences = true;
       // Always display the words in random order.
       this.params.behaviour.sentencesOrder = 'random';
-
+      this.params.behaviour.enableNumChoice = false;
+      this.params.behaviour.enableSolutionsButton = false;
     }
     if (this.params.playMode === 'availableSentences') {
       for (let i = this.params.questions.length - 1; i >= 0; i--) {
@@ -146,9 +148,6 @@ H5P.GuessIt = (function ($, Question) {
       this.totalNumQuestions = 1;
       this.params.behaviour.enableSolutionsButton = false;
       this.params.behaviour.enableEndGameButton = false;
-    }
-    if (this.params.wordle) {
-      this.params.behaviour.enableSolutionsButton = false;
     }
     this.sentencesList = '';
     // Previous state
@@ -230,7 +229,7 @@ H5P.GuessIt = (function ($, Question) {
       if (!self.params.wordle) {
         let label = self.params.userSentenceDescriptionLabel;
         this.$userSentenceDescription = $('<div>', {
-          'class': 'h5p-guessit h5p-guessit-usersentencedescription h5p-guessit-required',
+          'class': 'h5p-guessit h5p-guessit-usersentencedescription h5p-guessit-required h5p-guessit-number-choice-title h5p-guessit-options',
           'html': label
         });
         if (this.warning) {
@@ -241,7 +240,7 @@ H5P.GuessIt = (function ($, Question) {
 
         this.$userTipDescription = $('<div>', {
           'class': 'h5p-guessit-usertipdescription',
-          'html': self.params.userSentenceTipLabel
+          'html': self.params.userSentenceTipLabelH
         });
 
         self.params.behaviour.enableNumChoice = false;
@@ -257,7 +256,8 @@ H5P.GuessIt = (function ($, Question) {
         usertip.setAttribute("id", "usertip");
         usertip.setAttribute("class", "h5p-text-input-user");
 
-        this.$userSentenceDescription.appendTo(this.$taskdescription);
+        this.$userSentenceDescription
+          .appendTo(this.$taskdescription);
         this.$userSentence = $('<div>', {
           'class': 'h5p-guessit h5p-guessit-options h5p-userSentence',
           'html': usersentence
@@ -276,7 +276,7 @@ H5P.GuessIt = (function ($, Question) {
         const $optionButtons = $('<div>', {
           'class': 'h5p-guessit-optionsbuttons',
           'html': '<div>' + this.params.userSentencenumRoundsLabel + '</div>'
-        }).appendTo(this.$userTip);
+        }).appendTo(this.$userSentenceDescription);
 
         let radios = ['2', '5', '10', '15', '20', this.params.userSentenceNeverShow];
         let i = 0;
@@ -292,39 +292,52 @@ H5P.GuessIt = (function ($, Question) {
         $("input[id = 'userId-5']").prop('checked', true);
 
         let $tip;
-        H5P.JoubelUI.createButton({
-          'class': 'h5p-guessit-okbutton',
-          'title': 'OK',
-          'html': 'OK'
-        }).click(function () {
-          let $usersentence = ($("#usersentence").val());
 
-          $tip = ($("#usertip").val());
-          if ($usersentence !== '') {
-            let numRnds = $("input[name='rounds']:checked").val();
-            if ( !$("input[id = 'userId-5']").is(':checked') ) {
-              self.params.behaviour.enableSolutionsButton = true;
-              self.params.behaviour.numRounds = numRnds;
+        const okButton = H5P.Components.Button({
+          label: 'OK',
+          ariaLabel: 'OK',
+          styleType: 'primary',
+          icon: 'check',
+          classes: 'h5p-guessit-okbutton',
+
+          onClick: function () {
+            const $userSentence = $('#usersentence').val();
+
+            $tip = $('#usertip').val();
+
+            if ($userSentence !== '') {
+              const numRnds = $("input[name='rounds']:checked").val();
+
+              if (!$('#userId-5').is(':checked')) {
+                self.params.behaviour.enableSolutionsButton = true;
+                self.params.behaviour.numRounds = numRnds;
+              }
+              else {
+                self.params.behaviour.enableSolutionsButton = false;
+              }
+
+              self.warning = false;
+              self.registerDomElements($userSentence);
             }
             else {
-              self.params.behaviour.enableSolutionsButton = false;
-            }
-            self.warning = false;
-            self.registerDomElements($usersentence);
-          }
-          else { // User sentence is empty OR wordle word not accepted.
-            // Empty potential value of usertip.
-            $("#usertip").val(null);
-            // Empty user sentence and reset focus on input field
-            $("#usersentence").val(null);
-            $("#usersentence").focus();
-            // Used to display a warning icon if sentence is empty or not OK.
-            self.warning = true;
-            // Return to registerDomElements with null sentence.
-            self.registerDomElements();
-          }
-        }).appendTo($optionButtons);
+              // Empty the optional user tip.
+              $('#usertip').val(null);
 
+              // Empty the user sentence and restore focus.
+              $('#usersentence')
+                .val(null)
+                .focus();
+
+              // Display a warning when the sentence is empty or invalid.
+              self.warning = true;
+
+              // Return to registerDomElements without a sentence.
+              self.registerDomElements();
+            }
+          }
+        });
+
+        this.$userSentenceDescription.append(okButton);
         if (sentence === undefined) {
           return;
         }
@@ -337,7 +350,7 @@ H5P.GuessIt = (function ($, Question) {
         // Case guess a word.
         let label = self.params.userWordDescriptionLabel;
         this.$userSentenceDescription = $('<div>', {
-          'class': 'h5p-guessit h5p-guessit-usersentencedescription h5p-guessit-required',
+          'class': 'h5p-guessit h5p-guessit-usersentencedescription h5p-guessit-required h5p-guessit-options',
           'html': label
         });
         if (this.warning) {
@@ -382,11 +395,13 @@ H5P.GuessIt = (function ($, Question) {
         // Set the 'No limit' 'userId-5' radio button checked.
         $("input[id = 'userId-0']").prop('checked', true);
 
-        H5P.JoubelUI.createButton({
-          'class': 'h5p-guessit-okbutton',
-          'title': 'OK',
-          'html': 'OK'
-        }).click(function () {
+        const okButton = H5P.Components.Button({
+          label: 'OK',
+          ariaLabel: 'OK',
+          styleType: 'primary',
+          icon: 'check',
+          classes: 'h5p-guessit-okbutton',
+        onClick: function () {
           let $usersentence = ($("#usersentence").val());
           let acceptedWord = true;
           $usersentence = $usersentence.toUpperCase();
@@ -412,8 +427,10 @@ H5P.GuessIt = (function ($, Question) {
             // Return to registerDomElements with null sentence.
             self.registerDomElements();
           }
-        }).appendTo($optionButtons);
-
+        }
+        });
+        
+        this.$userSentenceDescription.append(okButton);
         if (sentence === undefined) {
           return;
         }
@@ -435,6 +452,7 @@ H5P.GuessIt = (function ($, Question) {
     });
 
     // Init buttons for selecting number of words (if enabled in params.behaviour).
+
     if (this.params.behaviour.enableNumChoice) {
 
       // Put in array the number of words of all the questions
@@ -456,15 +474,28 @@ H5P.GuessIt = (function ($, Question) {
       if (nbDifferentNums > 1) {
         this.numQuestionsInWords = result;
         this.$numberWords = $('<div>', {
-          'class': 'h5p-guessit h5p-guessit-options',
-          'html': this.params.numWords
-        });
+        'class': [
+          'h5p-guessit',
+          'h5p-guessit-options',
+          'h5p-guessit-number-choice'
+        ].join(' ')
+      });
 
-        let $optionButtons = $('<div>', {
-          'class': 'h5p-guessit-optionsbuttons'
-        }).appendTo(this.$numberWords);
-        this.$numberWords.appendTo(this.$taskdescription);
+      // Heading
+      $('<div>', {
+        'class': 'h5p-guessit-number-choice-title',
+        'html': this.params.numWords
+      }).appendTo(this.$numberWords);
 
+      // Container for the choice buttons
+      let $optionButtons = $('<div>', {
+        'class': [
+          'h5p-guessit-optionsbuttons',
+          'h5p-guessit-number-choice-options'
+        ].join(' ')
+      }).appendTo(this.$numberWords);
+
+      this.$numberWords.appendTo(this.$taskdescription);
         if (nbDifferentNums > 1) {
         // Remove duplicates from numWords array. Using filter and indexOf instead of Set method.
           const uniquenumWords = numWords.filter((value, index, self) => {
@@ -485,33 +516,42 @@ H5P.GuessIt = (function ($, Question) {
             if (n > 1) {
               s = self.params.sentences;
             }
-            H5P.JoubelUI.createButton({
-              'class': 'h5p-guessit-number-button',
-              'title': item,
-              'html': item + ' [' + n + ' ' + s + ']',
-              'id': 'dc-number-' + item
-            }).click(function () {
-              self.$numberWords.addClass ('h5p-guessit-hide');
+            const numberButton = H5P.Components.Button({
+            label: item + ' [' + n + ' ' + s + ']',
+            ariaLabel: item + ' [' + n + ' ' + s + ']',
+            styleType: 'secondary',
+            classes: 'h5p-guessit-number-button',
+            onClick: function () {
+              self.$numberWords.addClass('h5p-guessit-hide');
               self.numWords = item;
               self.numQuestions = numSentencesWithWords[item];
               self.initTask();
-            }).appendTo($optionButtons);
+            }
           });
+          numberButton.id = 'dc-number-' + item;
+          numberButton.title = item;
 
-          let n = self.params.questions.length;
-          let s = self.params.sentences;
-          let item = self.params.anyNumber;
-          H5P.JoubelUI.createButton({
-            'class': 'h5p-guessit-number-button',
-            'title': item,
-            'html': item +  ' [' + n + ' ' + s + ']',
-            'id': 'dc-number-0'
-          }).click(function () {
-            self.$numberWords.addClass ('h5p-guessit-hide');
-            self.params.behaviour.enableNumChoice = false;
-            self.numQuestions = n;
-            self.initTask();
-          }).appendTo($optionButtons);
+          $optionButtons.append(numberButton);
+          });
+          const n = self.params.questions.length;
+          const s = self.params.sentences;
+          const item = self.params.anyNumber;
+
+          const numberButton = H5P.Components.Button({
+            label: item + ' [' + n + ' ' + s + ']',
+            ariaLabel: item + ' [' + n + ' ' + s + ']',
+            styleType: 'secondary',
+            classes: 'h5p-guessit-number-button',
+            onClick: function () {
+              self.$numberWords.addClass('h5p-guessit-hide');
+              self.params.behaviour.enableNumChoice = false;
+              self.numQuestions = n;
+              self.initTask();
+            }
+          });
+          numberButton.id = 'dc-number-0';
+          numberButton.title = item;
+          $optionButtons.append(numberButton);
 
           // Hide content
           $content.find('.h5p-container').addClass('h5p-guessit h5p-guessit-hide');
@@ -761,19 +801,54 @@ H5P.GuessIt = (function ($, Question) {
     );
  
     // Show solution button
-    self.addButton('show-solution', self.params.showSolutions, function () {
-      self.showCorrectAnswers(false);
-    }, self.params.behaviour.enableSolutionsButton);
+    //if (this.params.behaviour.enableSolutionsButton) {
+      self.addButton(
+        'show-solution', 
+        self.params.showSolutions, 
+        function () {
+          self.showCorrectAnswers(false);
+        },
+        false,
+        {
+          'aria-label': self.params.behaviour.enableSolutionsButton
+        },
+        {
+          styleType: 'secondary',
+          icon: 'retry'
+        }
+      );
+    //}
 
     // New Sentence button
     let txtNewElement = self.params.newSentence;
     if (self.params.wordle) {
       txtNewElement = self.params.newWord;
     }
+    /*
     self.addButton('new-sentence', txtNewElement, function () {
       self.newSentence();
       self.$questions.eq(self.currentSentenceId).filter(':first').find('input:enabled:first').focus();
     }, true);
+    */
+    self.addButton(
+      'new-sentence',
+      txtNewElement,
+      function () {
+        self.newSentence();
+
+        self.$questions
+          .eq(self.currentSentenceId)
+          .filter(':first')
+          .find('input:enabled:first')
+          .focus();
+      },
+      true,
+      {},
+      {
+        styleType: 'secondary',
+        icon: 'next'
+      }
+    );
     this.hideButton('new-sentence');
     this.hideButton('end-game');
 
@@ -782,26 +857,35 @@ H5P.GuessIt = (function ($, Question) {
     let isValidState = (this.previousState !== undefined
       && Object.keys(this.previousState).length !== 0);
 */
-    self.addButton('end-game', self.params.endGame, function () {
-      if (!self.allowSolution(self.params.endGame)) {
-        return;
-      }
-      self.showFinalPage();
-    }, true, {}, {
-      confirmationDialog: {
-        enable: self.confirmEndGameEnabled,
-        l10n: self.params.confirmEndGame,
-        instance: self,
-        $parentElement: $container
-      }
-    });
+    self.addButton(
+      'end-game',
+      self.params.endGame,
+      function () {
+        if (!self.allowSolution(self.params.endGame)) {
+          return;
+        }
 
-    // End game button NO CONFIRMATION NEEDED
-    self.addButton('end-game2', self.params.endGame, function () {
-      self.showFinalPage();
-    }, true);
-    this.hideButton('end-game2');
-    self.toggleButtonVisibility(STATE_ONGOING);
+        self.showFinalPage();
+      },
+      true,
+      {},
+      {
+        styleType: 'secondary',
+        icon: 'check',
+        confirmationDialog: {
+          enable: self.confirmEndGameEnabled,
+          l10n: self.params.confirmEndGame,
+          instance: self,
+          $parentElement: $container
+        }
+      }
+    );
+        // End game button NO CONFIRMATION NEEDED
+        self.addButton('end-game2', self.params.endGame, function () {
+          self.showFinalPage();
+        }, true);
+        this.hideButton('end-game2');
+        self.toggleButtonVisibility(STATE_ONGOING);
 
   };
 
@@ -1385,7 +1469,7 @@ H5P.GuessIt = (function ($, Question) {
     let $content = $('[data-content-id="' + self.contentId + '"].h5p-content .h5p-question-content');
     // Timer part.
     this.$timer = $('<div/>', {
-      class: 'h5p-guessit time-status',
+      class: 'h5p-guessit-time-status',
       tabindex: -1,
       html: '<span role="term" ><em class="fa fa-clock-o" ></em>' +
         self.params.timeSpent + '</span >:' +
@@ -1639,6 +1723,7 @@ H5P.GuessIt = (function ($, Question) {
 
     // Display reset button to enable user to do the task again.
     // Provided a warning in the semantics file as to this method not guaranteed to work at all times!
+    /*
     if (this.params.behaviour.enableRetry) {
       H5P.JoubelUI.createButton({
         'class': 'h5p-guessit-retry-button',
@@ -1650,6 +1735,24 @@ H5P.GuessIt = (function ($, Question) {
       }).appendTo(this.$feedbackContainer)
         .focus();
     }
+    */
+    if (this.params.behaviour.enableRetry) {
+  const retryButton = H5P.Components.Button({
+    label: self.params.tryAgain,
+    ariaLabel: self.params.tryAgain,
+    styleType: 'secondary',
+    icon: 'retry',
+    classes: 'h5p-guessit-retry-button',
+    onClick: function () {
+      window.top.location.href = window.top.location.href;
+    }
+  });
+
+  retryButton.title = self.params.tryAgain;
+
+  this.$feedbackContainer.append(retryButton);
+  retryButton.focus();
+}
   };
 
   /**
