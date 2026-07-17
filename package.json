@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "cross-env NODE_ENV='production' webpack",
+    "lint": "eslint \"src/**/*.js\"",
     "watch": "webpack --watch"
   },
   "repository": {
@@ -24,6 +25,7 @@
     "babel-loader": "^8.2.5",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.1",
+    "eslint": "8.57.1",
     "mini-css-extract-plugin": "^2.6.1",
     "resolve-url-loader": "^5.0.0",
     "webpack": "^5.105.0",

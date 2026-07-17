@@ -423,10 +423,12 @@
           "type": "and",
           "rules": [
             {
-              "field": "../playMode",
-              "equals": "availableSentences",
+              "field": "../playModeW",
+              "equals": "availableSentences"
+            },
+            {
               "field": "../wordle",
-              "equals":true
+              "equals": true
             }
           ]
         }

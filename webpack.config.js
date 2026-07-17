@@ -26,6 +26,7 @@ module.exports = {
     dist: `./entries/${libraryName}.js`
   },
   output: {
+    clean: true,
     filename: `${libraryName}.js`,
     path: path.resolve(__dirname, 'dist')
   },
@@ -66,4 +67,3 @@ module.exports = {
     colors: true
   }
 };
-

@@ -126,8 +126,6 @@ H5P.GuessIt = (function ($, Question) {
       this.params.questions = this.params.questionsW;
       // Always show list of found or not found words.
       this.params.behaviour.listGuessedSentences = true;
-      // Always display the words in random order.
-      this.params.behaviour.sentencesOrder = 'random';
       this.params.behaviour.enableNumChoice = false;
       this.params.behaviour.enableSolutionsButton = false;
     }
@@ -826,11 +824,11 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         },
         false,
         {
-          'aria-label': self.params.behaviour.enableSolutionsButton
+          'aria-label': self.params.showSolutions
         },
         {
           styleType: 'secondary',
-          icon: 'retry'
+          icon: 'show-solutions'
         }
       );
     //}
@@ -896,12 +894,22 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         }
       }
     );
-        // End game button NO CONFIRMATION NEEDED
-        self.addButton('end-game2', self.params.endGame, function () {
-          self.showFinalPage();
-        }, true);
-        this.hideButton('end-game2');
-        self.toggleButtonVisibility(STATE_ONGOING);
+    // End game button with no confirmation needed.
+    self.addButton(
+      'end-game2',
+      self.params.endGame,
+      function () {
+        self.showFinalPage();
+      },
+      true,
+      {},
+      {
+        styleType: 'secondary',
+        icon: 'check'
+      }
+    );
+    this.hideButton('end-game2');
+    self.toggleButtonVisibility(STATE_ONGOING);
 
   };
 
@@ -1043,7 +1051,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       if (self.params.wordle) {
         let $this = $(this);
         let $inputs;
-        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input-wordle');
+        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input.wordle');
         let letter = $inputs.eq($inputs.index($this)).val();
         // Only accept ascii letters lower & uppercase.
         let acceptedEntry = /[A-Za-z]/.test(letter);
@@ -1511,7 +1519,6 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   // Place the complete status block in the header.
   this.$timer.appendTo(this.$progressWrapper);
 
-  this.timer.play();
     this.timer.play();
     // Counter part.
     $content = $('[data-content-id="' + self.contentId + '"].h5p-content');

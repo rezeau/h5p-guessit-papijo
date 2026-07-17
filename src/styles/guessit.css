@@ -5,8 +5,10 @@
   position: relative;
 }
 .h5p-guessit .h5p-input-wrapper {
-  display: inline-block;
+  display: inline-flex;
   position: relative;
+  align-items: center;
+  vertical-align: middle;
   margin-bottom: 12px;
 }
 .h5p-guessit .h5p-text-input,
@@ -31,6 +33,7 @@
   font-size: 1.2em;
   border: 1px solid #a0a0a0;
   padding: 0.1875em 0.5em 0.1875em 0.5em;
+  min-width: 0;
   width: 1em!important;
   text-align: center;
 }
@@ -80,20 +83,27 @@
 }
 .h5p-guessit .h5p-correct:after {
   position: absolute;
-  right: 0.5em;
+  right: var(--h5p-theme-spacing-xxs);
   top: 0;
+  font-family: "h5p-theme";
+  content: "\e903";
+  color: var(--h5p-theme-feedback-correct-main);
   text-decoration: none;
-  content: "\f00c";
-  font-family: 'H5PFontAwesome4';
-  color: #255c41;
 }
 
 /* Wrongly answered input */
-.h5p-guessit .h5p-wrong .h5p-text-input,
 .h5p-guessit .h5p-wrong-wordle .h5p-text-input {
   background-color: #f7d0d0;
   border: 1px solid #f7d0d0;
   color: #b71c1c;
+}
+
+.h5p-guessit .h5p-wrong .h5p-text-input {
+  background-color: var(--h5p-theme-feedback-incorrect-secondary);
+  border: 2px solid var(--h5p-theme-feedback-incorrect-third);
+  color: var(--h5p-theme-feedback-incorrect-main);
+  font-weight: bold;
+  padding-right: var(--h5p-theme-spacing-m);
 }
 
 .h5p-guessit .h5p-wordFound {
@@ -106,12 +116,12 @@
 
 .h5p-guessit .h5p-wrong:after {
   position: absolute;
-  right: 0.5em;
+  right: var(--h5p-theme-spacing-xxs);
   top: 0;
-  font-family: 'H5PFontAwesome4';
+  font-family: "h5p-theme";
+  content: "\e902";
+  color: var(--h5p-theme-feedback-incorrect-main);
   text-decoration: none;
-  content: "\f00d";
-  color: #b71c1c;
 }
 
 /* Misplaced letter in Wordle */
@@ -173,7 +183,7 @@
   display: flex;
   flex-flow: row wrap;
   align-items: center;
-  gap: var(--h5p-theme-spacing-m);
+  gap: var(--h5p-theme-spacing-m, 1rem);
 }
 
 /* Task description occupies all remaining space */
@@ -183,7 +193,7 @@
 }
 
 /* Remove the old border from the description itself */
-.h5p-guessit-title-wrapper .h5p-guessit-description {
+.h5p-guessit .h5p-guessit-title-wrapper .h5p-guessit-description {
   background: transparent;
   border-bottom: 0;
 }
@@ -191,6 +201,8 @@
 /* Right-hand status section */
 .h5p-guessit-progress-wrapper {
   flex: 0 0 auto;
+  min-width: 0;
+  max-width: 100%;
   margin-left: auto;
 }
 
@@ -203,17 +215,26 @@
   flex-flow: row wrap;
   align-items: stretch;
   justify-content: flex-end;
+  gap: var(--h5p-theme-spacing-xxs, 0.25rem);
 
   width: auto;
+  max-width: 100%;
   margin: 0;
 
-  color: var(--h5p-theme-text-primary);
+  color: var(--h5p-theme-text-primary, #333);
 }
 
 /* Keep the contents of each progress box on one line */
 .h5p-guessit-time-status .h5p-guessit-progress {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
+  padding: var(--h5p-theme-spacing-xxs, 0.25rem)
+    var(--h5p-theme-spacing-s, 0.5rem);
+  color: var(--h5p-theme-contrast-cta-white, #1a73d9);
+  font-weight: bold;
+  background-color: var(--h5p-theme-contrast-cta-light, #e8f1fb);
+  border-radius: var(--h5p-theme-border-radius-medium, 0.25rem);
   white-space: nowrap;
 }
 /* Showing solution */
@@ -241,12 +262,8 @@
   margin-top: 15px;
   margin-bottom: 15px;
 }
-h5p-guessit-number-choice-options
-.h5p-guessit-hide,
 .h5p-guessit.h5p-guessit-options.h5p-guessit-hide {
   display: none;
-}
-.h5p-guessit .h5p-guessit-number {
 }
 .h5p-guessit.h5p-guessit-options {
   display: block;
@@ -272,11 +289,6 @@ h5p-guessit-number-choice-options
 } 
 
 .h5p-guessit-listGuessedSentences {
-  background-color: #e5f7ee;
-  border-radius: 0.25em;
-  padding-left: 0.5em;
-  background-color: #e5f7ee;
-  border-radius: 0.25em;
   padding-left: 0.5em;
   font-size: 0.9em;
   background-color: var(--h5p-theme-contrast-cta-light);
@@ -374,16 +386,6 @@ h5p-guessit-number-choice-options
   text-align: center;
   margin-top: 20px;
 }
-.h5p-guessit .h5p-question-new-sentence:before {
-  font-family: 'H5PFontAwesome4';
-  content: "\f0fe"; 
-}
-.h5p-guessit .h5p-question-end-game:before,
-.h5p-guessit .h5p-question-end-game2:before {
-  font-family: 'H5PFontAwesome4';
-  content: "\f08b"; 
-}
-
 .h5p-guessit-usertipdescription {
   margin-top: 1em;
 }
@@ -397,11 +399,6 @@ h5p-guessit-number-choice-options
     top: -0.2em;
     font-size: large;
 }
-.h5p-guessit-retry-button:before {
-    font-family: H5PFontAwesome4;
-    content: "\F021";
-    margin-right: .5em;
-}
 .h5p-guessit-warning:before {
   font-family: 'H5PFontAwesome4';
   content: "\f071";
@@ -412,52 +409,6 @@ h5p-guessit-number-choice-options
 
 .h5p-guessit .h5p-question-buttons.has-scorebar {
   margin-left: 1em;
-}
-
-/* Input wrapper: required for positioning the tick/cross */
-.h5p-guessit .h5p-input-wrapper {
-  display: inline-flex;
-  position: relative;
-  align-items: center;
-  vertical-align: middle;
-}
-
-/* Correct answer */
-.h5p-guessit .h5p-correct .h5p-text-input {
-  background: var(--h5p-theme-feedback-correct-secondary);
-  border: 2px solid var(--h5p-theme-feedback-correct-third);
-  color: var(--h5p-theme-feedback-correct-main);
-  font-weight: bold;
-  padding-right: var(--h5p-theme-spacing-m);
-}
-
-/* Modern correct tick */
-.h5p-guessit .h5p-correct::after {
-  position: absolute;
-  right: var(--h5p-theme-spacing-xxs);
-  font-family: "h5p-theme";
-  content: "\e903";
-  color: var(--h5p-theme-feedback-correct-main);
-  text-decoration: none;
-}
-
-/* Wrong answer */
-.h5p-guessit .h5p-wrong .h5p-text-input {
-  background-color: var(--h5p-theme-feedback-incorrect-secondary);
-  border: 2px solid var(--h5p-theme-feedback-incorrect-third);
-  color: var(--h5p-theme-feedback-incorrect-main);
-  font-weight: bold;
-  padding-right: var(--h5p-theme-spacing-m);
-}
-
-/* Modern incorrect cross */
-.h5p-guessit .h5p-wrong::after {
-  position: absolute;
-  right: var(--h5p-theme-spacing-xxs);
-  font-family: "h5p-theme";
-  content: "\e902";
-  color: var(--h5p-theme-feedback-incorrect-main);
-  text-decoration: none;
 }
 
 /* Audio button: same overall size as the tip button */
@@ -509,12 +460,40 @@ h5p-guessit-number-choice-options
   container-type: inline-size;
 }
 
-/* Narrow GuessIt content */
+/* Fallback for hosts without container-query support. */
+@media (max-width: 42rem) {
+  .h5p-guessit-title-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--h5p-theme-spacing-m, 1rem);
+  }
+
+  .h5p-guessit-title-wrapper {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .h5p-guessit-progress-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 0;
+  }
+
+  .h5p-guessit-time-status {
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+}
+
+/* Narrow GuessIt content based on the H5P iframe content width. */
 @container (max-width: 42rem) {
   .h5p-guessit-title-container {
     flex-direction: column;
     align-items: stretch;
-    gap: var(--h5p-theme-spacing-m);
+    gap: var(--h5p-theme-spacing-m, 1rem);
   }
 
   /* Task description occupies the complete first row */
@@ -522,7 +501,6 @@ h5p-guessit-number-choice-options
     flex: none;
     width: 100%;
     min-width: 0;
-    //text-align: center;
   }
 
   /* Progress/status occupies the complete second row */
