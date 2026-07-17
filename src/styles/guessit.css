@@ -14,7 +14,7 @@
 .h5p-guessit .h5p-text-input,
 .h5p-guessit .h5p-text-input-user {
   font-family: 'Roboto Mono', 'Lucida Console', Courier, monospace;
-  font-size: var(--h5p-theme-font-size-xl);
+  font-size: var(--h5p-theme-font-size-x);
   border-radius: var(--h5p-theme-border-radius-medium);
   background-color: var(--h5p-theme-ui-base);
   border: 2px solid var(--h5p-theme-alternative-darker);
@@ -23,7 +23,7 @@
   overflow: hidden;
   white-space: nowrap;
   color: var(--h5p-theme-text-primary);
-  min-width: 6em;
+  min-width: 5em;
   /* In case we have empty input we want the height to be equal
     to the font-size multipled with the line-height. */
   min-height: calc(var(--h5p-theme-font-size-m) * 1.2);
@@ -78,6 +78,7 @@
   font-size: 1.2em;
   margin-left: .5em;
   position: absolute;
+  top: var(--h5p-theme-spacing-xl-primary-small);
   /* Needed to display on all theme including black background */
   color: var(--h5p-theme-text-primary);
 }

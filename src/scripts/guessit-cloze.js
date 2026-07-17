@@ -216,7 +216,7 @@
 
       // Place the markup line below the studentAnswer by 18px.
       let offset = $wrapper.offset();
-      offset.top = 22;
+      offset.top = 28;
       offset.left = 0;
       $('<span>', {
         'aria-hidden': true,
