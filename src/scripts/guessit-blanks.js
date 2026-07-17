@@ -1546,8 +1546,11 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       '</span>' +
     '</div>'
 });
+    const $counterStatus = $('<div>', {
+      class: 'h5p-guessit-counter-status'
+    }).appendTo(this.$timer);
     this.counter = new GuessIt.Counter(this.$counter.find('.h5p-counter'));
-    this.$counter.appendTo(this.$timer);
+    this.$counter.appendTo($counterStatus);
     this.counter.increment();
     // No point displaying sentences progress in userSentence mode OR if Wordle option is selected!
     if (this.params.playMode === 'availableSentences') {
@@ -1570,7 +1573,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   tabindex: -1,
   text: s + 1 + '/' + this.numQuestions
 });
-      this.$progress.appendTo(this.$timer);
+      this.$progress.appendTo($counterStatus);
     }
 
   };
