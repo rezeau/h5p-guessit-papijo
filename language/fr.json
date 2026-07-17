@@ -81,7 +81,7 @@
         "fields": [
           {
             "label": "Mot",
-            "description": "Tapez un mot de 4 à 8 lettres EN LETTRES MAJUSCULES et sans accents."
+            "description": "Saisissez un mot de 4 à 8 lettres. Les minuscules, majuscules et lettres accentuées d'Europe occidentale sont acceptées."
           },
           {
             "label": "Audio",
@@ -221,8 +221,8 @@
       "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
     },
     {
-      "label": "Texte du message \"Tapez un mot de 4 à 8 lettres à faire deviner par vos amis.\"",
-      "default": "Tapez un mot de 4 à 8 lettres à faire deviner par vos amis. Tout en MAJUSCULES et sans accents.",
+      "label": "Texte de la consigne pour le mot Wordle saisi par l'utilisateur",
+      "default": "Saisissez un mot de 4 à 8 lettres à faire deviner par vos amis. Les lettres saisies en minuscules seront automatiquement converties en majuscules.",
       "description": "Utilisé uniquement si le mode de jeu est réglé sur \"Permettre au joueur de saisir son propre mot à faire deviner.\""
     },
     {

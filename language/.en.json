@@ -81,7 +81,7 @@
         "fields": [
           {
             "label": "Word",
-            "description": "Type ONE UPPER-CASE word of 4 to 8 letters. No accents!"
+            "description": "Type one word of 4 to 8 letters. Uppercase, lowercase, and Western European accented letters are accepted."
           },
           {
             "label": "Audio",
@@ -221,8 +221,8 @@
       "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
     },
     {
-      "label": "Text for \"Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!\" message",
-      "default": "Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!",
+      "label": "Text for the user-entered Wordle instruction",
+      "default": "Type one word of 4 to 8 letters to be guessed by your friends. Typed lower-case letters will be automatically changed to upper-case.",
       "description": "Only used if playmode is set to \"Allow user to enter their own word\""
     },
     {

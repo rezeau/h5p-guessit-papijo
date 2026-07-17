@@ -232,9 +232,9 @@
           "maxLength": 8,
           "label": "Word",
           "importance": "high",
-          "description": "Type ONE UPPER-CASE word of 4 to 8 letters. No accents!",
+          "description": "Type one word of 4 to 8 letters. Uppercase, lowercase, and Western European accented letters are accepted.",
           "regexp": {
-            "pattern": "^[A-Z]{4,8}$"
+            "pattern": "^[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝŸŒàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿœ]{4,8}$"
           }
         },
         {
@@ -643,11 +643,11 @@
     "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
   },
   {
-    "label": "Text for \"Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!\" message",
+    "label": "Text for the user-entered Wordle instruction",
     "importance": "low",
     "name": "userWordDescriptionLabel",
     "type": "text",
-    "default": "Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!",
+    "default": "Type one word of 4 to 8 letters to be guessed by your friends. Typed lower-case letters will be automatically changed to upper-case.",
     "common": true,
     "optional": true,
     "description": "Only used if playmode is set to \"Allow user to enter their own word\""

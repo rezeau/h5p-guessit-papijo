@@ -1,3 +1,5 @@
+const WordleUtils = require('./guessit-wordle-utils');
+
 (function ($, GuessIt) {
 
   /**
@@ -15,11 +17,16 @@
     const self = this;
     let $input, $wrapper;
     let answers = solution.solutions;
-    let answer = answers.join('/');
+    const canonicalAnswer = WordleUtils.normalizeCanonical(answers.join('/'));
+    let answer = canonicalAnswer;
+    let comparisonAnswer;
     let checkedAnswer = null;
     let inputLabel = l10n.inputLabel;
 
-    if (behaviour.caseSensitive !== true) {
+    if (wordle) {
+      comparisonAnswer = WordleUtils.normalizeForComparison(canonicalAnswer);
+    }
+    else if (behaviour.caseSensitive !== true) {
       // Convert possible solutions into lowercase
       answer = answer.toLowerCase();
     }
@@ -31,6 +38,10 @@
      * @param {string} answered
      */
     const correct = function (answered) {
+      if (wordle) {
+        return WordleUtils.normalizeForComparison(answered) === comparisonAnswer;
+      }
+
       if (behaviour.caseSensitive !== true) {
         answered = answered.toLowerCase();
       }
@@ -78,6 +89,7 @@
       switch (letterState) {
         case 'correct':
           $wrapper.addClass('h5p-correct-wordle');
+          $input.val(canonicalAnswer);
           $input.attr('disabled', true)
             .attr('aria-label', inputLabel + '. ' + l10n.answeredCorrectly);
           break;
@@ -140,15 +152,17 @@
         return; // Only for the wrong ones
       }
 
+      const solutionAnswer = wordle ? canonicalAnswer : answer;
+
       $('<span>', {
         'aria-hidden': true,
         'class': 'h5p-correct-answer',
-        text: answer,
+        text: solutionAnswer,
         insertAfter: $wrapper
       });
       $input.attr('disabled', true);
       const ariaLabel = inputLabel + '. ' +
-        l10n.solutionLabel + ' ' + answer + '. ' +
+        l10n.solutionLabel + ' ' + solutionAnswer + '. ' +
         l10n.answeredIncorrectly;
       $input.attr('aria-label', ariaLabel);
     };
@@ -258,12 +272,15 @@
       $input.attr('aria-label', inputLabel);
       // If Wordle accept only one character... or on keydown go to next input?
       if (wordle) {
-        $input.attr('maxlength', '1');
         $input.attr("style", "text-transform: uppercase;");
         $input.addClass('wordle');
       }
 
-      $input.keyup(function () {
+      $input.on('input', function (event) {
+        if (event.originalEvent && event.originalEvent.isComposing) {
+          return;
+        }
+
         if (checkedAnswer !== null && checkedAnswer !== self.getUserAnswer()) {
           // The Answer has changed since last check
           checkedAnswer = null;

@@ -1,3 +1,17 @@
+const WordleUtils = require('./guessit-wordle-utils');
+
+const normalizeWordleQuestions = function (questions) {
+  if (!Array.isArray(questions)) {
+    return;
+  }
+
+  questions.forEach(function (question) {
+    if (question && typeof question.sentence === 'string') {
+      question.sentence = WordleUtils.normalizeCanonicalWord(question.sentence);
+    }
+  });
+};
+
 H5P.GuessIt = (function ($, Question) {
   /**
    * @constant
@@ -88,7 +102,7 @@ H5P.GuessIt = (function ($, Question) {
       scoreExplanationforAllSentences: 'Score = number of guessed sentences / number of sentences in this activity.',
       scoreExplanationforSentencesWithNumberWords: 'Score = number of guessed sentences / number of sentences containing @words words.',
       userSentenceDescriptionLabel: 'Type a sentence, phrase or word to be guessed by your friends. Words can be split with forward slashes, e.g. electr/o/cardi/o/gram',
-      userWordDescriptionLabel: 'Type ONE UPPER-CASE word of 4 to 8 letters to be guessed by your friends. No accents!',
+      userWordDescriptionLabel: 'Type one word of 4 to 8 letters to be guessed by your friends. Typed lower-case letters will be automatically changed to upper-case.',
       userSentencenumRoundsLabel: 'Minimum number of rounds before Solutions can be displayed:',
       userWordnumRoundsLabel: 'Maximum number of tries before Game is over and Solution is displayed:',
       userSentenceTipLabel: 'Type a Tip for this sentence (optional)',
@@ -124,6 +138,7 @@ H5P.GuessIt = (function ($, Question) {
       // "Convert" following 2 params from Wordle option to Sentences.
       this.params.playMode = this.params.playModeW;
       this.params.questions = this.params.questionsW;
+      normalizeWordleQuestions(this.params.questions);
       // Always show list of found or not found words.
       this.params.behaviour.listGuessedSentences = true;
       this.params.behaviour.enableNumChoice = false;
@@ -415,35 +430,34 @@ GuessIt.prototype.registerDomElements = function (sentence) {
           styleType: 'primary',
           icon: 'check',
           classes: 'h5p-guessit-okbutton',
-        onClick: function () {
-          let $usersentence = ($("#usersentence").val());
-          let acceptedWord = true;
-          $usersentence = $usersentence.toUpperCase();
-          let pattern = /^[A-Z]{4,8}$/;
-          acceptedWord = pattern.test($usersentence);
-          if ($usersentence !== '' && acceptedWord) {
-            let numRnds = $("input[name='rounds']:checked").val();
-            if ( !$("input[id = 'userId-5']").is(':checked') ) {
-              self.params.behaviour.maxTries = numRnds;
+          onClick: function () {
+            let $usersentence = ($("#usersentence").val());
+            let acceptedWord = true;
+            $usersentence = WordleUtils.normalizeCanonicalWord($usersentence);
+            acceptedWord = WordleUtils.isValidWordleWord($usersentence);
+            if ($usersentence !== '' && acceptedWord) {
+              let numRnds = $("input[name='rounds']:checked").val();
+              if ( !$("input[id = 'userId-5']").is(':checked') ) {
+                self.params.behaviour.maxTries = numRnds;
+              }
+              else {
+                self.params.behaviour.maxTries = 99;
+              }
+              self.warning = false;
+              self.registerDomElements($usersentence);
             }
-            else {
-              self.params.behaviour.maxTries = 99;
+            else { // User sentence is empty OR wordle word not accepted.
+              // Empty user sentence and reset focus on input field
+              $("#usersentence").val(null);
+              $("#usersentence").focus();
+              // Used to display a warning icon if sentence is empty or not OK.
+              self.warning = true;
+              // Return to registerDomElements with null sentence.
+              self.registerDomElements();
             }
-            self.warning = false;
-            self.registerDomElements($usersentence);
           }
-          else { // User sentence is empty OR wordle word not accepted.
-            // Empty user sentence and reset focus on input field
-            $("#usersentence").val(null);
-            $("#usersentence").focus();
-            // Used to display a warning icon if sentence is empty or not OK.
-            self.warning = true;
-            // Return to registerDomElements with null sentence.
-            self.registerDomElements();
-          }
-        }
         });
-        
+
         this.$userSentenceDescription.append(okButton);
         if (sentence === undefined) {
           return;
@@ -991,7 +1005,9 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       }
       // If wordle add forward slashes between each letter
       if (this.params.wordle) {
-        question = question.split("").join("/");
+        question = WordleUtils.normalizeCanonicalWord(question);
+        self.params.questions[i].sentence = question;
+        question = WordleUtils.toWordleLetters(question).join('/');
       }
 
       // Split sentence by blank spaces and potential forward slashes.
@@ -1031,7 +1047,9 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.$questions.each(function (index) {
       // Set optional tip
       let tip = self.params.questions[index].tip;
-      self.addTip(tip, $(this));
+      if (!(self.params.wordle && self.params.playMode === 'userSentence')) {
+        self.addTip(tip, $(this));
+      }
 
       // Set optional audio (for sentence)
       if (self.params.playMode === 'availableSentences') {
@@ -1047,36 +1065,33 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       let t = self.allClozes[i][2];
       self.clozes[i].setInput($(this), '', function () {
       }, n, t);
-    }).keyup(function () {
+    }).on('input', function (event) {
       if (self.params.wordle) {
-        let $this = $(this);
-        let $inputs;
-        $inputs = self.$questions.eq(self.currentSentenceId).find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input.wordle');
-        let letter = $inputs.eq($inputs.index($this)).val();
-        // Only accept ascii letters lower & uppercase.
-        let acceptedEntry = /[A-Za-z]/.test(letter);
-        // Re-write lower-case
-        if (/[a-z]/.test(letter)) {
-          $inputs.eq($inputs.index($this)).val(letter.toUpperCase());
-        }
-        if (letter && acceptedEntry) {
-          let i = 0;
-          // If next blank is not empty: move forward to next empty blank.
-          if ($inputs.eq($inputs.index($this) + 1).val() ) {
-            for (i = $inputs.index($this); i < $inputs.length; i++) {
-              if (!$inputs.eq($inputs.index($this) + i).val()) {
-                i--;
-                break;
-              }
-            }
-          }
-          $inputs.eq($inputs.index($this) + 1 + i).focus();
+        if (event.originalEvent && event.originalEvent.isComposing) {
           return;
         }
-        else {
-          $inputs.eq($inputs.index($this)).val('');
+
+        let $this = $(this);
+        const $inputs = self.$questions.eq(self.currentSentenceId)
+          .find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input.wordle');
+        const letter = WordleUtils.normalizeInputLetter($this.val());
+        if (!letter) {
+          $this.val('');
           return false;
         }
+
+        $this.val(letter);
+        let nextInput = $inputs.index($this) + 1;
+        while (nextInput < $inputs.length && $inputs.eq(nextInput).val()) {
+          nextInput++;
+        }
+        if (nextInput < $inputs.length) {
+          $inputs.eq(nextInput).focus();
+        }
+      }
+    }).on('compositionend', function () {
+      if (self.params.wordle) {
+        $(this).trigger('input');
       }
     }).keydown(function (event) {
       let $this = $(this);
@@ -1341,43 +1356,15 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     let currentSentence = this.currentSentenceClozes[this.currentSentenceId];
     if (self.params.wordle) {
       // Attribute one of 3 states to current input letter: correct, wrong or misplaced.
-      let currentWord = self.params.questions[self.currentSentenceId].sentence;
-      let currentGuess = self.currentWordleAnswer;
-      let currentLettersFound = [];
+      const currentWord = self.params.questions[self.currentSentenceId].sentence;
+      const letterStates = WordleUtils.evaluateWordleGuess(
+        currentWord,
+        self.currentWordleAnswer
+      );
 
-      for (let i = 0; i < currentSentence.length; i++) {
-        let currLetter = currentWord[i];
-        let guessedLetter = currentGuess[i];
-        if (guessedLetter === currLetter) {
-          currentLettersFound.push(guessedLetter);
-        }
-        else {
-          currentLettersFound.push('-');
-        }
-      }
-
-      for (let i = 0; i < currentSentence.length; i++) {
-        let letterState = 'wrong';
-        let guessedLetter = currentGuess[i];
-        if (guessedLetter === currentWord[i]) {
-          letterState = 'correct';
-        }
-        else {
-          if (currentWord.includes(guessedLetter)) {
-            const count = {};
-            currentLettersFound.forEach(element => {
-              count[element] = (count[element] || 0) + 1;
-            });
-            let nG = count[guessedLetter];
-            let nW = currentWord.split(guessedLetter).length - 1;
-            if (!currentLettersFound.includes(guessedLetter) || nG < nW) {
-              letterState = 'misplaced';
-              currentLettersFound[i] = guessedLetter;
-            }
-          }
-        }
-        currentSentence[i].checkAnswerWordle(letterState);
-      }
+      currentSentence.forEach(function (cloze, index) {
+        cloze.checkAnswerWordle(letterStates[index] || 'wrong');
+      });
     }
     else {
       for (let i = 0; i < currentSentence.length; i++) {
@@ -2047,6 +2034,9 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       return;
     }
     this.originalQuestions = this.previousState.originalQuestions;
+    if (this.params.wordle) {
+      normalizeWordleQuestions(this.originalQuestions);
+    }
     this.sentencesGuessed = this.previousState.sentencesGuessed;
     this.wordsNotFound = this.previousState.wordsNotFound;
     this.nbSentencesGuessed = this.previousState.nbSentencesGuessed;
