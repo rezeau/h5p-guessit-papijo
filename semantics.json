@@ -713,6 +713,16 @@
     "optional": true 
   },
   {
+    "name": "word",
+    "type": "text",
+    "label": "Text for \"word\" singular word",
+    "description": "This word will be used in various parts of the activity",
+    "importance": "low",
+    "default": "word",
+    "common": true,
+    "optional": true 
+  },
+  {
     "name": "sentences",
     "type": "text",
     "label": "Text for \"sentence\" plural word",

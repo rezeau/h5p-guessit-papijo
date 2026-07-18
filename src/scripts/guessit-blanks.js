@@ -109,6 +109,7 @@ H5P.GuessIt = (function ($, Question) {
       userSentenceNeverShow: 'Never Show',
       newWord: 'Guess another word',
       userWordNoLimit: 'No limit',
+      word: 'Word',
       wordFound: 'Word found: ',
       wordNotFound: 'Word not found: ',
       wordsFound: 'Words found: ',
@@ -1542,14 +1543,10 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     // No point displaying sentences progress in userSentence mode OR if Wordle option is selected!
     if (this.params.playMode === 'availableSentences') {
       let s = self.params.sentence + ' ';
+      if (this.params.wordle) {
+        s = self.params.word + ' ';
+      }
       s = s.charAt(0).toUpperCase() + s.slice(1);
-      /*
-      this.$progress = $('<div>', {
-        class: 'counter-status',
-        tabindex: -1,
-        text: s + 1 + '/' + this.numQuestions
-      });
-      */
       this.$progress = $('<div>', {
   class: [
     'counter-status',
