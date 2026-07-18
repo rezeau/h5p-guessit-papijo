@@ -140,12 +140,15 @@
 
 /* Header and footer blocks (title + evaluation, buttons) */
 
-.h5p-guessit .joubel-tip-container {
+.h5p-guessit .h5p-guessit-sentence.has-tip .joubel-tip-container {
   margin-right: 0.8em;
   font-size: 0.72em;
 }
+.h5p-guessit .h5p-joubelui-score-bar .joubel-tip-container {
+  margin-right: 2em;
+}
 
-.h5p-guessit .joubel-tip-container:hover,
+.h5p-guessit .h5p-question-content .joubel-tip-container:hover,
 .h5p-guessit .h5p-audio-minimal-button:hover {
   transform: scale(1.2);     
 }
