@@ -256,6 +256,11 @@
       "default": "Afirmação"
     },
     {
+      "label": "Texto para \"palavra\", no singular",
+      "description": "Esta palavra será utilizada em várias partes da atividade",
+      "default": "palavra"
+    },
+    {
       "label": "Texto para \"Afirmações\", no plural",
       "description": "Esta palavra será utilizada em várias partes da atividade",
       "default": "Afirmações"

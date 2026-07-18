@@ -256,6 +256,11 @@
       "default": "phrase"
     },
     {
+      "label": "Le mot \"mot\" au singulier",
+      "description": "Ce mot sera utilisé dans différentes parties de l'activité",
+      "default": "mot"
+    },
+    {
       "label": "Le mot \"phrase\" au pluriel",
       "description": "Ce mot sera utilisé dans différentes parties de l'activité",
       "default": "phrases"
