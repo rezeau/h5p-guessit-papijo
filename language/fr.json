@@ -110,6 +110,10 @@
           "description": "Cochez cette option pour permettre à l'utilisateur de sélectionner le nombre de mots (par phrase) à deviner. Ne cochez PAS cette option si vos phrases constituent une histoire !"
         },
         {
+          "label": "Permettre au joueur de choisir le nombre d'éléments",
+          "description": "Permettre au joueur de choisir combien de mots ou de phrases seront tirés de la liste avant le début de la partie. Cette option est ignorée lorsque le joueur saisit son propre mot ou sa propre phrase. Ne pas la combiner avec l'option de choix du nombre de mots par phrase."
+        },
+        {
           "label": "Activer le bouton \"Montrer la solution\""
         },
         {
@@ -159,8 +163,8 @@
           ]
         },
         {
-          "label": "Ordre des phrases",
-          "description": "Sélectionnez l'ordre dans lequel les phrases seront affichées à l'utilisateur. Ne cochez PAS cette option si vos phrases constituent une histoire !",
+          "label": "Ordre des éléments",
+          "description": "Sélectionnez l'ordre dans lequel les mots ou les phrases seront affichés. Utilisez l'ordre normal si les éléments forment une phrase ou une histoire.",
           "options": [
             {
               "label": "Ordre normal"
@@ -216,6 +220,15 @@
       "description": "Utilisé uniquement si l'option \"Nombre de mots\" est activée"
     },
     {
+      "label": "Question demandant le nombre d'éléments à utiliser",
+      "default": "Combien de @items voulez-vous ?",
+      "description": "@items sera remplacé par le pluriel traduit de mots ou de phrases."
+    },
+    {
+      "label": "Libellé permettant de sélectionner tous les éléments disponibles",
+      "default": "Tout"
+    },
+    {
       "label": "Texte du message \"Tapez une phrase à faire deviner par vos amis\"",
       "default": "Tapez une phrase à faire deviner par vos amis",
       "description": "Utilisé uniquement si le joueur peut saisir sa propre phrase à faire deviner"
@@ -259,6 +272,11 @@
       "label": "Le mot \"mot\" au singulier",
       "description": "Ce mot sera utilisé dans différentes parties de l'activité",
       "default": "mot"
+    },
+    {
+      "label": "Le mot \"mot\" au pluriel",
+      "description": "Ce mot sera utilisé dans différentes parties de l'activité",
+      "default": "mots"
     },
     {
       "label": "Le mot \"phrase\" au pluriel",

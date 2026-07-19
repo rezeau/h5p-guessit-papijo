@@ -110,6 +110,10 @@
           "description": "Selecionar esta opção para permitir ao utilizador selecionar um número determinado de palavras (por afirmação) a descobrir. Não selecionar esta opção se as ideas ou frases fazem parte de uma história!"
         },
         {
+          "label": "Permitir ao utilizador escolher o número de elementos",
+          "description": "Permitir ao utilizador escolher quantas palavras ou frases são retiradas da lista antes do início da atividade. Esta opção é ignorada quando o utilizador introduz a sua própria palavra ou frase. Não combinar com a opção de escolha do número de palavras por frase."
+        },
+        {
           "label": "Permitir o botão \"Mostrar Solução\""
         },
         {
@@ -159,8 +163,8 @@
           ]
         },
         {
-          "label": "Ordenação das Afirmações",
-          "description": "Selecionar a ordem pela qual as afirmações a descobrir são visualizadas pelo utilizador. Selecionar \"Normal\" se as afirmações formam uma história!",
+          "label": "Ordem dos elementos",
+          "description": "Selecione a ordem pela qual as palavras ou frases serão apresentadas. Utilize a ordem normal se os elementos formarem uma expressão ou história.",
           "options": [
             {
               "label": "Normal"
@@ -216,6 +220,15 @@
       "description": "Aplicável apenas se \"Permitir a escolha do número de palavras\" foi selecionado."
     },
     {
+      "label": "Pergunta sobre o número de elementos a utilizar",
+      "default": "Quantas @items pretende utilizar?",
+      "description": "@items será substituído pelo plural traduzido de palavras ou frases."
+    },
+    {
+      "label": "Texto para selecionar todos os elementos disponíveis",
+      "default": "Todas"
+    },
+    {
       "label": "Texto para \"Escreva a afirmação ou frase a ser descoberta pelos seus amigos\"",
       "default": "Escreva a afirmação ou frase a ser descoberta pelos seus amigos",
       "description": "Aplicável apenas se o Modo de jogo foi selecionado para \"Permitir ao utilizador escolher a afirmação\""
@@ -259,6 +272,11 @@
       "label": "Texto para \"palavra\", no singular",
       "description": "Esta palavra será utilizada em várias partes da atividade",
       "default": "palavra"
+    },
+    {
+      "label": "Texto para \"palavra\", no plural",
+      "description": "Esta palavra será utilizada em várias partes da atividade",
+      "default": "palavras"
     },
     {
       "label": "Texto para \"Afirmações\", no plural",

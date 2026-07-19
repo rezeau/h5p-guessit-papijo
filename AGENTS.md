@@ -12,7 +12,7 @@ H5P metadata and editor configuration live in `library.json` and `semantics.json
 - `npm run build` creates a minified production bundle in `dist/` and removes console output.
 - `npm run watch` rebuilds development bundles when source files change and includes source maps.
 - `npm run lint` checks JavaScript against `.eslintrc.json` with the pinned ESLint version.
-- `npm test` runs the Unicode-safe Wordle comparison and validation tests.
+- `npm test` runs the Unicode-safe Wordle and efficient item-selection tests.
 
 After building, install or copy the library into an H5P development environment and exercise content creation, answer checking, reset/retry behavior, accessibility labels, and relevant translations. Also verify that `library.json` references the expected files and that `semantics.json` remains valid JSON.
 

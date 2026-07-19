@@ -336,6 +336,15 @@
         }
       },
       {
+        "label": "Allow learner to select the number of items",
+        "importance": "low",
+        "description": "Allow the learner to select how many words or sentences are drawn from the available list before play starts. This option is ignored when learners enter their own word or sentence. Do not combine it with \"Enable Number of words Choice\".",
+        "name": "enableItemCountChoice",
+        "type": "boolean",
+        "default": false,
+        "optional": true
+      },
+      {
         "label": "Enable \"Show solution\" button",
         "importance": "low",
         "name": "enableSolutionsButton",
@@ -524,9 +533,9 @@
       {
         "name": "sentencesOrder",
         "type": "select",
-        "label": "Sentences Order",
+        "label": "Items Order",
         "importance": "low",
-        "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
+        "description": "Select the order in which the words or sentences will be displayed. Use normal order if the items form a phrase or story.",
         "default": "normal",        
         "options": [
           {
@@ -633,6 +642,25 @@
     "description": "Only used if \"Enable Number of words Choice\" is enabled"
   },
   {
+    "label": "Question asking how many items to use",
+    "importance": "low",
+    "name": "numItemsQuestion",
+    "type": "text",
+    "default": "How many @items do you want?",
+    "common": true,
+    "optional": true,
+    "description": "@items will be replaced by the translated plural word for words or sentences."
+  },
+  {
+    "label": "Label for selecting every available item",
+    "importance": "low",
+    "name": "allItems",
+    "type": "text",
+    "default": "All",
+    "common": true,
+    "optional": true
+  },
+  {
     "label": "Text for \"Type a sentence to be guessed by your friends\" message",
     "importance": "low",
     "name": "userSentenceDescriptionLabel",
@@ -721,6 +749,16 @@
     "default": "word",
     "common": true,
     "optional": true 
+  },
+  {
+    "name": "words",
+    "type": "text",
+    "label": "Text for \"word\" plural word",
+    "description": "This word will be used in various parts of the activity",
+    "importance": "low",
+    "default": "words",
+    "common": true,
+    "optional": true
   },
   {
     "name": "sentences",

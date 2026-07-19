@@ -6,7 +6,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV='production' webpack",
     "lint": "eslint \"src/**/*.js\"",
-    "test": "node --test tests/guessit-wordle-utils.test.js tests/guessit-cloze-wordle.test.js",
+    "test": "node --test tests/guessit-wordle-utils.test.js tests/guessit-cloze-wordle.test.js tests/guessit-question-selector.test.js",
     "watch": "webpack --watch"
   },
   "repository": {

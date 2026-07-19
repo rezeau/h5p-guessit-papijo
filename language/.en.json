@@ -110,6 +110,10 @@
           "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!"
         },
         {
+          "label": "Allow learner to select the number of items",
+          "description": "Allow the learner to select how many words or sentences are drawn from the available list before play starts. This option is ignored when learners enter their own word or sentence. Do not combine it with \"Enable Number of words Choice\"."
+        },
+        {
           "label": "Enable \"Show solution\" button"
         },
         {
@@ -159,8 +163,8 @@
           ]
         },
         {
-          "label": "Sentences Order",
-          "description": "Select the order in which the sentences will be displayed to the user. Do NOT check this option if your sentences make up a story!",
+          "label": "Items Order",
+          "description": "Select the order in which the words or sentences will be displayed. Use normal order if the items form a phrase or story.",
           "options": [
             {
               "label": "Normal order"
@@ -216,6 +220,15 @@
       "description": "Only used if \"Enable Number of words Choice\" is enabled"
     },
     {
+      "label": "Question asking how many items to use",
+      "default": "How many @items do you want?",
+      "description": "@items will be replaced by the translated plural word for words or sentences."
+    },
+    {
+      "label": "Label for selecting every available item",
+      "default": "All"
+    },
+    {
       "label": "Text for \"Type a sentence to be guessed by your friends\" message",
       "default": "Type a sentence to be guessed by your friends",
       "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
@@ -259,6 +272,11 @@
       "label": "Text for \"word\" singular word",
       "description": "This word will be used in various parts of the activity",
       "default": "word"
+    },
+    {
+      "label": "Text for \"word\" plural word",
+      "description": "This word will be used in various parts of the activity",
+      "default": "words"
     },
     {
       "label": "Text for \"sentence\" plural word",

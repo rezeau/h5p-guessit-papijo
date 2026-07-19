@@ -1,4 +1,5 @@
 const WordleUtils = require('./guessit-wordle-utils');
+const QuestionSelector = require('./guessit-question-selector');
 
 const normalizeWordleQuestions = function (questions) {
   if (!Array.isArray(questions)) {
@@ -10,6 +11,51 @@ const normalizeWordleQuestions = function (questions) {
       question.sentence = WordleUtils.normalizeCanonicalWord(question.sentence);
     }
   });
+};
+
+const activateQuestionPool = function (instance, sourceIndices) {
+  const questions = [];
+  const selectedSourceIndices = [];
+
+  const addQuestion = function (question, sourceIndex) {
+    if (!question || !question.sentence) {
+      return;
+    }
+
+    questions.push(JSON.parse(JSON.stringify(question)));
+    selectedSourceIndices.push(sourceIndex);
+  };
+
+  if (sourceIndices) {
+    const selection = QuestionSelector.selectByIndices(
+      instance.questionPool,
+      sourceIndices
+    );
+    selection.items.forEach(function (question, index) {
+      addQuestion(question, selection.indices[index]);
+    });
+  }
+  else {
+    for (let index = 0; index < instance.questionPool.length; index++) {
+      addQuestion(instance.questionPool[index], index);
+    }
+  }
+
+  if (instance.params.wordle) {
+    normalizeWordleQuestions(questions);
+  }
+
+  questions.forEach(function (question, index) {
+    question.ID = index;
+  });
+
+  instance.params.questions = questions;
+  instance.originalQuestions = questions;
+  instance.totalNumQuestions = questions.length;
+  instance.selectedItemCount = questions.length;
+  instance.selectedQuestionIndices = sourceIndices ? selectedSourceIndices : null;
+  instance.itemCountChoiceCompleted = true;
+  instance.itemCountChoicePending = false;
 };
 
 H5P.GuessIt = (function ($, Question) {
@@ -60,6 +106,17 @@ H5P.GuessIt = (function ($, Question) {
     // IDs
     this.contentId = id;
     this.contentData = contentData;
+    if (this.contentData !== undefined && this.contentData.previousState !== undefined) {
+      this.previousState = this.contentData.previousState;
+    }
+
+    const questionPools = {
+      questions: params && params.questions,
+      questionsW: params && params.questionsW
+    };
+    const paramsWithoutQuestionPools = $.extend({}, params);
+    delete paramsWithoutQuestionPools.questions;
+    delete paramsWithoutQuestionPools.questionsW;
 
     this.params = $.extend(true, {}, {
       description: "Task description",
@@ -86,6 +143,7 @@ H5P.GuessIt = (function ($, Question) {
       inputHasTipLabel: "Tip available",
       round: "Round @round",
       sentence: 'sentence',
+      words: 'words',
       sentences: 'sentences',
       timeSpent: "Time Spent",
       tipLabel: "Tip",
@@ -93,6 +151,8 @@ H5P.GuessIt = (function ($, Question) {
       scoreBarLabel: 'You got :num out of :total points',
       numWords: 'How many words do you want in your mystery sentence?',
       anyNumber: 'Any number',
+      numItemsQuestion: 'How many @items do you want?',
+      allItems: 'All',
       summary: 'Summary',
       sentencesGuessed: 'Sentences guessed',
       solutionsViewed: 'Solutions viewed',
@@ -118,6 +178,7 @@ H5P.GuessIt = (function ($, Question) {
         enableRetry: false,
         enableAudio: false,
         enableNumChoice: false,
+        enableItemCountChoice: false,
         enableSolutionsButton: false,
         enableEndGameButton: false,
         listGuessedSentences: false,
@@ -129,7 +190,14 @@ H5P.GuessIt = (function ($, Question) {
         listGuessedAudioAndTips: 'none',
         displayAudio: 'correct'
       }
-    }, params);
+    }, paramsWithoutQuestionPools);
+
+    if (questionPools.questions !== undefined) {
+      this.params.questions = questionPools.questions;
+    }
+    if (questionPools.questionsW !== undefined) {
+      this.params.questionsW = questionPools.questionsW;
+    }
 
     // Delete empty questions. Should normally not happen, but...
     // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.
@@ -139,36 +207,68 @@ H5P.GuessIt = (function ($, Question) {
       // "Convert" following 2 params from Wordle option to Sentences.
       this.params.playMode = this.params.playModeW;
       this.params.questions = this.params.questionsW;
-      normalizeWordleQuestions(this.params.questions);
       // Always show list of found or not found words.
       this.params.behaviour.listGuessedSentences = true;
       this.params.behaviour.enableNumChoice = false;
       this.params.behaviour.enableSolutionsButton = false;
     }
-    if (this.params.playMode === 'availableSentences') {
-      for (let i = this.params.questions.length - 1; i >= 0; i--) {
-        if (!this.params.questions[i].sentence) {
-          this.params.questions.length --;
+
+    this.questionPool = this.params.questions;
+    this.itemCountChoiceEnabled = Boolean(
+      this.params.behaviour.enableItemCountChoice &&
+      this.params.playMode === 'availableSentences'
+    );
+    this.itemCountChoicePending = false;
+    this.itemCountChoiceCompleted = false;
+    this.selectedQuestionIndices = null;
+    this.selectedItemCount = 0;
+
+    if (this.itemCountChoiceEnabled) {
+      this.params.behaviour.enableNumChoice = false;
+    }
+
+    const hasPreviousState = this.previousState !== undefined &&
+      Object.keys(this.previousState).length !== 0;
+    if (this.itemCountChoiceEnabled && hasPreviousState) {
+      const hasItemChoiceState = Object.prototype.hasOwnProperty.call(
+        this.previousState,
+        'itemCountChoiceCompleted'
+      );
+      if (hasItemChoiceState && !this.previousState.itemCountChoiceCompleted &&
+        this.questionPool.length > 1) {
+        this.params.questions = [];
+        this.originalQuestions = [];
+        this.totalNumQuestions = 0;
+        this.itemCountChoicePending = true;
+      }
+      else if (this.previousState.itemCountChoiceCompleted &&
+        Array.isArray(this.previousState.selectedQuestionIndices)) {
+        activateQuestionPool(this, this.previousState.selectedQuestionIndices);
+        if (this.params.questions.length === 0) {
+          activateQuestionPool(this);
         }
       }
+      else {
+        // Preserve legacy or all-items state without asking for a new subset.
+        activateQuestionPool(this);
+      }
     }
-    this.originalQuestions = this.params.questions;
-    // JR added an ID field (needed for save state + numberchoice).
-    for (let i = 0; i < this.params.questions.length; i++) {
-      this.params.questions[i]["ID"] = i;
+    else if (this.itemCountChoiceEnabled && this.questionPool.length > 1) {
+      this.params.questions = [];
+      this.originalQuestions = [];
+      this.totalNumQuestions = 0;
+      this.itemCountChoicePending = true;
     }
-    this.totalNumQuestions = this.params.questions.length;
+    else {
+      activateQuestionPool(this);
+    }
+
     if (this.params.playMode === 'userSentence') {
       this.totalNumQuestions = 1;
       this.params.behaviour.enableSolutionsButton = false;
       this.params.behaviour.enableEndGameButton = false;
     }
     this.sentencesList = '';
-    // Previous state
-    this.contentData = contentData;
-    if (this.contentData !== undefined && this.contentData.previousState !== undefined) {
-      this.previousState = this.contentData.previousState;
-    }
 
     // Clozes
     this.clozes = [];
@@ -216,6 +316,56 @@ H5P.GuessIt = (function ($, Question) {
   // Inheritance
   GuessIt.prototype = Object.create(Question.prototype);
   GuessIt.prototype.constructor = GuessIt;
+
+  GuessIt.prototype.createItemCountChoice = function () {
+    const self = this;
+    const total = this.questionPool.length;
+    const itemsLabel = this.params.wordle ? this.params.words : this.params.sentences;
+    const question = this.params.numItemsQuestion.replace('@items', itemsLabel);
+    const $choice = $('<div>', {
+      'class': 'h5p-guessit h5p-guessit-options h5p-guessit-number-choice'
+    });
+
+    $('<div>', {
+      'class': 'h5p-guessit-number-choice-title',
+      'html': question
+    }).appendTo($choice);
+
+    const $optionButtons = $('<div>', {
+      'class': 'h5p-guessit-optionsbuttons h5p-guessit-number-choice-options'
+    }).appendTo($choice);
+
+    QuestionSelector.getCountChoices(total).forEach(function (count) {
+      const isAll = count === total;
+      const label = isAll ? `${self.params.allItems} (${total})` : String(count);
+      const button = H5P.Components.Button({
+        label,
+        ariaLabel: label,
+        styleType: 'secondary',
+        classes: 'h5p-guessit-number-button',
+        onClick: function () {
+          if (self.previousState &&
+            !self.previousState.itemCountChoiceCompleted) {
+            self.previousState = undefined;
+          }
+          if (isAll) {
+            activateQuestionPool(self);
+          }
+          else {
+            const selection = self.params.behaviour.sentencesOrder === 'normal' ?
+              QuestionSelector.selectFirst(self.questionPool, count) :
+              QuestionSelector.selectSubset(self.questionPool, count);
+            activateQuestionPool(self, selection.indices);
+          }
+          self.registerDomElements();
+        }
+      });
+
+      $optionButtons.append(button);
+    });
+
+    return $choice;
+  };
 
   /**
    * Registers this question type's DOM elements before they are attached.
@@ -469,6 +619,12 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       }
     }
 
+    if (this.itemCountChoicePending) {
+      this.createItemCountChoice().appendTo(this.$taskdescription);
+      self.setContent('');
+      return;
+    }
+
     $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
 
     self.numQuestions = self.params.questions.length;
@@ -476,9 +632,17 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     // Using instructions as label for our text groups
     let labelId = 'guessitlabel';
 
-    // Register task content area
-    self.setContent(self.createQuestions(labelId), {
-    });
+    // Register task content area, or populate the section that H5P.Question
+    // already attached while the item-count prompt was displayed.
+    const $questions = self.createQuestions(labelId);
+    const $questionContent = $content.find('.h5p-question-content');
+    if ($questionContent.length) {
+      $questionContent.empty().append($questions);
+    }
+    else {
+      self.setContent($questions, {
+      });
+    }
 
     // Init buttons for selecting number of words (if enabled in params.behaviour).
 
@@ -1469,7 +1633,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.sentencesFound ++;
     let $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
     $content.find('.cloned').remove();
-    let s = self.params.sentence + ' ';
+    let s = (self.params.wordle ? self.params.word : self.params.sentence) + ' ';
     // Capitalize initial letter
     s = s.charAt(0).toUpperCase() + s.slice(1);
     self.$progress.text(s + (this.sentencesFound + 1) + '/' + this.numQuestions);
@@ -2016,6 +2180,11 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     state.totalRounds = this.totalRounds;
     state.nbSsolutionsViewed = this.nbSsolutionsViewed;
     state.totalTimeSpent = this.totalTimeSpent;
+    if (this.itemCountChoiceEnabled) {
+      state.itemCountChoiceCompleted = this.itemCountChoiceCompleted;
+      state.selectedItemCount = this.selectedItemCount;
+      state.selectedQuestionIndices = this.selectedQuestionIndices;
+    }
     return state;
   };
 
