@@ -312,6 +312,32 @@
   text-indent: -1.5em;
   margin-left: 1.5em;
 }
+
+.h5p-guessit .h5p-guessit-listGuessedSentences .joubel-tip-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35em;
+  height: 1.35em;
+  margin-right: 0.35em;
+  vertical-align: middle;
+}
+
+.h5p-guessit
+  .h5p-guessit-listGuessedSentences
+  .joubel-icon-tip-normal {
+  transform: scale(0.65);
+  transform-origin: center;
+}
+
+.h5p-guessit
+  .h5p-guessit-listGuessedSentences
+  .h5p-guessit-audio-wrapper {
+  width: 1.35em;
+  height: 1.35em;
+  margin-right: 0.35em;
+  vertical-align: middle;
+}
  
  .h5p-guessit-listGuessedWord {
   border: 1px #255c41 dashed;
@@ -342,7 +368,9 @@
 
 .h5p-guessit-summary-screen {
   margin: auto;
-  max-width: fit-content;
+  box-sizing: border-box;
+  width: calc(100% - 2em);
+  max-width: 22em;
 }
 .h5p-guessit .h5p-guessit-summary-screen .h5p-guessit-summary-header {
   width: 100%;
@@ -398,6 +426,29 @@
   text-align: center;
   margin-top: 20px;
 }
+
+.h5p-guessit .h5p-guessit-summary-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4em;
+  margin-top: 0.5em;
+}
+
+.h5p-guessit .h5p-guessit-summary-actions .h5p-theme-button {
+  justify-content: center;
+  min-width: 0;
+  margin: 0;
+  padding-inline: 0.6em;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.h5p-guessit .h5p-guessit-summary-actions .h5p-theme-button:only-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: auto;
+}
+
 .h5p-guessit-usertipdescription {
   margin-top: 1em;
 }

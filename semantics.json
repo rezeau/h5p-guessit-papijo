@@ -288,11 +288,11 @@
     "fields": [      
       {
         "name": "enableRetry",
-        "label": "Enable \"Retry\"",
+        "label": "Enable \"Continue game\"",
         "type": "boolean",
         "importance": "low",
         "default": false,
-        "description": "Add a \"Retry\" button when the game is over. This will simply refresh the current URL. It may not work in some environments, so please check on your platform before enabling it!",
+        "description": "Add a \"Continue game\" button to the summary when unfinished sentences remain. This option is ignored when Number of words Choice is enabled.",
         "optional": true
       },
       {
@@ -367,12 +367,12 @@
         }
       },
       {
-        "label": "Enable \"End Game\" button",
+        "label": "Enable \"View Summary\" button",
         "importance": "low",
         "name": "enableEndGameButton",
         "type": "boolean",
         "default": false,
-        "description": "Check this if you want to allow the player to quit the game without having guessed the current sentence",
+        "description": "Allow the player to open the summary without guessing the current sentence.",
         "optional": true,
         "widget": "showWhen",
         "showWhen": {
@@ -396,8 +396,8 @@
       {
         "name": "numRounds",
         "type": "number",
-        "label": "Number of rounds before Solutions or End Game",
-        "description": "Minimum number of rounds before the \"Solutions\" or \"End Game\" buttons can be displayed:",
+        "label": "Number of rounds before Solutions or View Summary",
+        "description": "Minimum number of rounds before the \"Show solution\" or \"View Summary\" buttons can be displayed:",
         "importance": "low",
         "optional": true,
         "default": 1,
@@ -576,11 +576,11 @@
     "optional": true
   },
   {
-    "label": "Text for \"End Game\" button",
+    "label": "Text for \"View Summary\" button",
     "importance": "low",
     "name": "endGame",
     "type": "text",
-    "default": "End Game",
+    "default": "View Summary",
     "common": true,
     "optional": true
   },
@@ -603,12 +603,30 @@
     "optional": true
   },
   {
+    "label": "Text for \"Continue game\" button",
+    "importance": "low",
+    "name": "continueGame",
+    "type": "text",
+    "default": "Continue game",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"Reset game\" button",
+    "importance": "low",
+    "name": "resetGame",
+    "type": "text",
+    "default": "Reset game",
+    "common": true,
+    "optional": true
+  },
+  {
     "label": "Text for \"Not enough rounds\" message",
     "importance": "low",
     "name": "notEnoughRounds",
     "type": "text",
     "default": "This option won't be available before round @round",
-    "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions or ending the game",
+    "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions or viewing the summary",
     "common": true,
     "optional": true
   },
@@ -991,7 +1009,7 @@
     "common": true
   },
   {
-    "label": "End Game confirmation dialog",
+    "label": "View Summary confirmation dialog",
     "importance": "low",
     "name": "confirmEndGame",
     "type": "group",
@@ -1002,14 +1020,14 @@
         "importance": "low",
         "name": "header",
         "type": "text",
-        "default": "End Game?"
+        "default": "View Summary?"
       },
       {
         "label": "Body text",
         "importance": "low",
         "name": "body",
         "type": "text",
-        "default": "Are you sure you wish to End this Game?",
+        "default": "Are you sure you wish to view the summary?",
         "widget": "html",
         "enterMode": "p",
         "tags": [
@@ -1033,6 +1051,52 @@
         "name": "confirmLabel",
         "type": "text",
         "default": "OK"
+      }
+    ]
+  },
+  {
+    "label": "Reset game confirmation dialog",
+    "importance": "low",
+    "name": "confirmResetGame",
+    "type": "group",
+    "common": true,
+    "fields": [
+      {
+        "label": "Header text",
+        "importance": "low",
+        "name": "header",
+        "type": "text",
+        "default": "Reset game?"
+      },
+      {
+        "label": "Body text",
+        "importance": "low",
+        "name": "body",
+        "type": "text",
+        "default": "All progress and selections will be cleared. Do you wish to continue?",
+        "widget": "html",
+        "enterMode": "p",
+        "tags": [
+          "strong",
+          "em",
+          "del",
+          "u",
+          "code"
+        ]
+      },
+      {
+        "label": "Cancel button label",
+        "importance": "low",
+        "name": "cancelLabel",
+        "type": "text",
+        "default": "Cancel"
+      },
+      {
+        "label": "Confirm button label",
+        "importance": "low",
+        "name": "confirmLabel",
+        "type": "text",
+        "default": "Reset"
       }
     ]
   }

@@ -1,5 +1,6 @@
 const WordleUtils = require('./guessit-wordle-utils');
 const QuestionSelector = require('./guessit-question-selector');
+const SummaryUtils = require('./guessit-summary-utils');
 
 const normalizeWordleQuestions = function (questions) {
   if (!Array.isArray(questions)) {
@@ -130,7 +131,7 @@ H5P.GuessIt = (function ($, Question) {
       tryAgain: "Try again",
       tryAgain2: "Try again2",
       newSentence: 'Guess another sentence',
-      endGame: 'End Game',
+      endGame: 'View Summary',
       checkAnswer: "Check",
       notFilledOut: "Please fill in all the blanks before checking your answer!",
       notEnoughRounds: "This option won't be available before Round @round",
@@ -151,6 +152,8 @@ H5P.GuessIt = (function ($, Question) {
       scoreBarLabel: 'You got :num out of :total points',
       numWords: 'How many words do you want in your mystery sentence?',
       anyNumber: 'Any number',
+      continueGame: 'Continue game',
+      resetGame: 'Reset game',
       numItemsQuestion: 'How many @items do you want?',
       allItems: 'All',
       summary: 'Summary',
@@ -174,6 +177,12 @@ H5P.GuessIt = (function ($, Question) {
       wordNotFound: 'Word not found: ',
       wordsFound: 'Words found: ',
       scoreExplanationforAllWords: 'Score = number of words found / number of words tried.',
+      confirmResetGame: {
+        header: 'Reset game?',
+        body: 'All progress and selections will be cleared. Do you wish to continue?',
+        cancelLabel: 'Cancel',
+        confirmLabel: 'Reset'
+      },
       behaviour: {
         enableRetry: false,
         enableAudio: false,
@@ -217,6 +226,9 @@ H5P.GuessIt = (function ($, Question) {
     this.itemCountChoiceEnabled = Boolean(
       this.params.behaviour.enableItemCountChoice &&
       this.params.playMode === 'availableSentences'
+    );
+    this.enableNumChoiceConfigured = Boolean(
+      this.params.behaviour.enableNumChoice && !this.itemCountChoiceEnabled
     );
     this.itemCountChoicePending = false;
     this.itemCountChoiceCompleted = false;
@@ -1050,6 +1062,15 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     let isValidState = (this.previousState !== undefined
       && Object.keys(this.previousState).length !== 0);
 */
+    const endGameDialog = self.addConfirmationDialogToButton({
+      enable: self.confirmEndGameEnabled,
+      l10n: self.params.confirmEndGame,
+      instance: self,
+      $parentElement: $container
+    }, function () {
+      self.showFinalPage();
+    });
+
     self.addButton(
       'end-game',
       self.params.endGame,
@@ -1058,19 +1079,22 @@ GuessIt.prototype.registerDomElements = function (sentence) {
           return;
         }
 
-        self.showFinalPage();
+        if (endGameDialog) {
+          endGameDialog.show();
+        }
+        else {
+          self.showFinalPage();
+        }
       },
       true,
-      {},
+      {
+        'aria-label': self.params.endGame,
+        'class': 'h5p-guessit-end-game-button',
+        'classes': 'h5p-guessit-end-game-button'
+      },
       {
         styleType: 'secondary',
-        icon: 'check',
-        confirmationDialog: {
-          enable: self.confirmEndGameEnabled,
-          l10n: self.params.confirmEndGame,
-          instance: self,
-          $parentElement: $container
-        }
+        icon: 'check'
       }
     );
     // End game button with no confirmation needed.
@@ -1436,8 +1460,25 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       this.hideButton('check-answer');
     }
 
+    this.updateEndGameButtonState();
+
     this.trigger('resize');
 
+  };
+
+  /**
+   * Disable View Summary until the configured minimum round is reached.
+   */
+  GuessIt.prototype.updateEndGameButtonState = function () {
+    if (!this.counter || !this.params.behaviour.enableEndGameButton) {
+      return;
+    }
+
+    const disabled = !this.minRoundsReached();
+    const $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
+    $content.find('.h5p-guessit-end-game-button')
+      .prop('disabled', disabled)
+      .attr('aria-disabled', String(disabled));
   };
 
   /**
@@ -1463,7 +1504,10 @@ GuessIt.prototype.registerDomElements = function (sentence) {
    * @return {boolean} Returns true if all GuessIt are filled out.
    */
   GuessIt.prototype.minRoundsReached = function () {
-    return (this.counter.getcurrent() > this.params.behaviour.numRounds - 1);
+    return SummaryUtils.hasReachedMinimumRound(
+      this.counter.getcurrent(),
+      this.params.behaviour.numRounds
+    );
   };
 
   /**
@@ -1613,6 +1657,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.done = false;
     this.timer.play();
     this.counter.increment();
+    this.updateEndGameButtonState();
 
     // Clone sentence & feedback
     let $currentQuestion = this.$questions.eq(this.currentSentenceId);
@@ -1801,6 +1846,8 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.hideButton('try-again');
     let $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
 
+    this.hadNoFrameBeforeSummary = $content.hasClass('h5p-no-frame');
+
     // Needed to display 'h5p-guessit-summary-screen' centered!
     $content.removeClass('h5p-no-frame');
 
@@ -1946,26 +1993,137 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       self.getCurrentState();
     }
 
-    // Display reset button to enable user to do the task again.
-    // Provided a warning in the semantics file as to this method not guaranteed to work at all times!
-    
-    if (this.params.behaviour.enableRetry) {
-    const retryButton = H5P.Components.Button({
-    label: self.params.tryAgain,
-    ariaLabel: self.params.tryAgain,
-    styleType: 'secondary',
-    icon: 'retry',
-    classes: 'h5p-guessit-retry-button',
-    onClick: function () {
-      window.top.location.href = window.top.location.href;
+    const summaryActions = SummaryUtils.getSummaryActions({
+      enableRetry: this.params.behaviour.enableRetry,
+      enableNumChoice: this.enableNumChoiceConfigured,
+      hasRemainingQuestions: usedQuestions < this.params.questions.length,
+      wordle: this.params.wordle
+    });
+    let $summaryActions;
+    if (summaryActions.continueGame || summaryActions.resetGame) {
+      $summaryActions = $('<div>', {
+        class: 'h5p-guessit-summary-actions'
+      }).appendTo(this.$feedbackContainer);
     }
-  });
+    let focusTarget;
 
-  retryButton.title = self.params.tryAgain;
+    if (summaryActions.continueGame) {
+      const continueButton = H5P.Components.Button({
+        label: self.params.continueGame,
+        ariaLabel: self.params.continueGame,
+        styleType: 'primary',
+        icon: 'next',
+        classes: 'h5p-guessit-continue-button',
+        onClick: function () {
+          window.top.location.reload();
+        }
+      });
+      continueButton.title = self.params.continueGame;
+      $summaryActions.append(continueButton);
+      focusTarget = continueButton;
+    }
 
-  this.$feedbackContainer.append(retryButton);
-  retryButton.focus();
-}
+    if (summaryActions.resetGame) {
+      const resetButton = H5P.Components.Button({
+        label: self.params.resetGame,
+        ariaLabel: self.params.resetGame,
+        styleType: 'secondary',
+        icon: 'retry',
+        classes: 'h5p-guessit-reset-button'
+      });
+      if (!this.resetGameDialog) {
+        this.resetGameDialog = self.addConfirmationDialogToButton({
+          enable: true,
+          instance: self,
+          l10n: self.params.confirmResetGame,
+          $parentElement: $content
+        }, function () {
+          self.resetTask();
+        });
+      }
+      resetButton.addEventListener('click', function () {
+        self.resetGameDialog.show(resetButton.offsetTop);
+      });
+      resetButton.title = self.params.resetGame;
+      $summaryActions.append(resetButton);
+      focusTarget = focusTarget || resetButton;
+    }
+
+    if (focusTarget) {
+      focusTarget.focus();
+    }
+  };
+
+  /**
+   * Reset the complete game, including learner choices and saved progress.
+   * @public
+   */
+  GuessIt.prototype.resetTask = function () {
+    const $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
+
+    if (this.timer) {
+      this.timer.stop();
+    }
+
+    this.previousState = undefined;
+    this.sentencesList = '';
+    this.sentencesFound = 0;
+    this.sentencesGuessed = [];
+    this.wordsNotFound = [];
+    this.nbSentencesGuessed = 0;
+    this.userAnswers = [];
+    this.currentAnswer = '';
+    this.currentWordleAnswer = '';
+    this.totalTimeSpent = 0;
+    this.totalRounds = 0;
+    this.solutionsViewed = [];
+    this.nbSsolutionsViewed = 0;
+    this.numWords = 0;
+    this.numQuestions = 0;
+    this.success = false;
+    this.totalTime = '';
+    this.answered = false;
+    this.done = false;
+    this.clozes = [];
+    this.numQuestionsInWords = [];
+    this.sentenceClozeNumber = [];
+    this.selectedQuestionIndices = null;
+    this.selectedItemCount = 0;
+    this.itemCountChoiceCompleted = false;
+    this.itemCountChoicePending = false;
+    this.params.behaviour.enableNumChoice = this.enableNumChoiceConfigured;
+    delete this.currentSentenceId;
+
+    this.timer = undefined;
+    this.counter = undefined;
+    this.$timer = undefined;
+    this.$counter = undefined;
+    this.$progress = undefined;
+    this.$divGuessedSentences = undefined;
+
+    if (this.itemCountChoiceEnabled && this.questionPool.length > 1) {
+      this.params.questions = [];
+      this.originalQuestions = [];
+      this.totalNumQuestions = 0;
+      this.itemCountChoicePending = true;
+    }
+    else {
+      activateQuestionPool(this);
+    }
+
+    $content.find('.h5p-guessit-summary-screen').remove();
+    $content.find(
+      '.h5p-question-introduction, ' +
+      '.h5p-question-content, ' +
+      '.h5p-question-feedback'
+    ).show();
+    if (this.hadNoFrameBeforeSummary) {
+      $content.addClass('h5p-no-frame');
+    }
+
+    this.removeFeedback();
+    this.registerDomElements();
+    this.trigger('resize');
   };
 
   /**

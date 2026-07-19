@@ -98,8 +98,8 @@
       "description": "Estas configurações permitem controlar o comportamento da tarefa.",
       "fields": [
         {
-          "label": "Permitir \"Tentar de Novo\"",
-          "description": "Adiciona, quando o jogo termina, o botão \"Tentar de Novo\". Apenas atualiza o endereço/URL. Pode não funcionar em alguns casos, portanto antes de permitir esta opção, verificar se funciona, na plataforma utilizada!"
+          "label": "Permitir \"Continuar o jogo\"",
+          "description": "Adiciona ao resumo um botão \"Continuar o jogo\" quando ainda existem frases. Esta opção é ignorada quando a escolha do número de palavras está ativada."
         },
         {
           "label": "Pontuar esta atividade com o valor unitário, para qualquer número de afirmações descobertas.",
@@ -117,12 +117,12 @@
           "label": "Permitir o botão \"Mostrar Solução\""
         },
         {
-          "label": "Enable \"End Game\" button",
-          "description": "Check this if you want to allow the player to quit the game without having guessed the current sentence"
+          "label": "Permitir o botão \"Ver resumo\"",
+          "description": "Permite ao jogador abrir o resumo sem descobrir a frase atual."
         },
         {
-          "label": "Number of rounds before Solutions or End Game",
-          "description": "Minimum number of rounds before the \"Solutions\" or \"End Game\" buttons can be displayed:"
+          "label": "Número de tentativas antes da solução ou do resumo",
+          "description": "Número mínimo de tentativas antes de apresentar os botões \"Mostrar solução\" ou \"Ver resumo\"."
         },
         {
           "label": "Maximum number of tries to guess the word (Wordle option)",
@@ -189,8 +189,8 @@
       "default": "Guess another word"
     },
     {
-      "label": "Texto do botão \"Terminar o Jogo\"",
-      "default": "Terminar o Jogo"
+      "label": "Texto do botão \"Ver resumo\"",
+      "default": "Ver resumo"
     },
     {
       "label": "Texto do botão \"Verificar\"",
@@ -201,9 +201,17 @@
       "default": "Tentar Novamente"
     },
     {
+      "label": "Texto do botão \"Continuar o jogo\"",
+      "default": "Continuar o jogo"
+    },
+    {
+      "label": "Texto do botão \"Reiniciar o jogo\"",
+      "default": "Reiniciar o jogo"
+    },
+    {
       "label": "Text for \"Not enough rounds\" message",
       "default": "This option won't be available before round @round",
-      "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions or ending the game"
+      "description": "@round será substituído pelo número mínimo de tentativas necessário antes de apresentar as soluções ou o resumo"
     },
     {
       "label": "Texto para \"Preencher Todos os Espaços\"",
@@ -385,15 +393,15 @@
       "default": "Tentar Novamente"
     },
     {
-      "label": "Confirmação de Término de Jogo",
+      "label": "Confirmação para ver o resumo",
       "fields": [
         {
           "label": "Texto do Cabeçalho",
-          "default": "Terminar o Jogo?"
+          "default": "Ver resumo?"
         },
         {
           "label": "Texto de Confirmação",
-          "default": "Tem a certeza que deseja terminar este Jogo?"
+          "default": "Tem a certeza de que deseja ver o resumo?"
         },
         {
           "label": "Texto do botão de cancelamento",
@@ -402,6 +410,27 @@
         {
           "label": "Texto do botão de confirmação",
           "default": "Confirmar"
+        }
+      ]
+    },
+    {
+      "label": "Confirmação para reiniciar o jogo",
+      "fields": [
+        {
+          "label": "Texto do Cabeçalho",
+          "default": "Reiniciar o jogo?"
+        },
+        {
+          "label": "Texto de Confirmação",
+          "default": "Todo o progresso e todas as seleções serão apagados. Deseja continuar?"
+        },
+        {
+          "label": "Texto do botão de cancelamento",
+          "default": "Cancelar"
+        },
+        {
+          "label": "Texto do botão de confirmação",
+          "default": "Reiniciar"
         }
       ]
     }

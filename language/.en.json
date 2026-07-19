@@ -98,8 +98,8 @@
       "description": "These options will let you control how the task behaves.",
       "fields": [
         {
-          "label": "Enable \"Retry\"",
-          "description": "Add a \"Retry\" button when the game is over. This will simply refresh the current URL. It may not work in some environments, so please check on your platform before enabling it!"
+          "label": "Enable \"Continue game\"",
+          "description": "Add a \"Continue game\" button to the summary when unfinished sentences remain. This option is ignored when Number of words Choice is enabled."
         },
         {
           "label": "Case sensitive",
@@ -117,12 +117,12 @@
           "label": "Enable \"Show solution\" button"
         },
         {
-          "label": "Enable \"End Game\" button",
-          "description": "Check this if you want to allow the player to quit the game without having guessed the current sentence"
+          "label": "Enable \"View Summary\" button",
+          "description": "Allow the player to open the summary without guessing the current sentence."
         },
         {
-          "label": "Number of rounds before Solutions or End Game",
-          "description": "Minimum number of rounds before the \"Solutions\" or \"End Game\" buttons can be displayed:"
+          "label": "Number of rounds before Solutions or View Summary",
+          "description": "Minimum number of rounds before the \"Show solution\" or \"View Summary\" buttons can be displayed:"
         },
         {
           "label": "Maximum number of tries to guess the word (Wordle option)",
@@ -189,8 +189,8 @@
       "default": "Guess another word"
     },
     {
-      "label": "Text for \"End Game\" button",
-      "default": "End Game"
+      "label": "Text for \"View Summary\" button",
+      "default": "View Summary"
     },
     {
       "label": "Text for \"Check\" button",
@@ -201,9 +201,17 @@
       "default": "Try again"
     },
     {
+      "label": "Text for \"Continue game\" button",
+      "default": "Continue game"
+    },
+    {
+      "label": "Text for \"Reset game\" button",
+      "default": "Reset game"
+    },
+    {
       "label": "Text for \"Not enough rounds\" message",
       "default": "This option won't be available before round @round",
-      "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions or ending the game"
+      "description": "@round will be replaced by the minimum number of rounds needed before displaying solutions or viewing the summary"
     },
     {
       "label": "Text for \"Fill in all the blanks\" message",
@@ -385,15 +393,15 @@
       "default": "Retry"
     },
     {
-      "label": "End Game confirmation dialog",
+      "label": "View Summary confirmation dialog",
       "fields": [
         {
           "label": "Header text",
-          "default": "End Game?"
+          "default": "View Summary?"
         },
         {
           "label": "Body text",
-          "default": "Are you sure you wish to End this Game?"
+          "default": "Are you sure you wish to view the summary?"
         },
         {
           "label": "Cancel button label",
@@ -402,6 +410,27 @@
         {
           "label": "Confirm button label",
           "default": "OK"
+        }
+      ]
+    },
+    {
+      "label": "Reset game confirmation dialog",
+      "fields": [
+        {
+          "label": "Header text",
+          "default": "Reset game?"
+        },
+        {
+          "label": "Body text",
+          "default": "All progress and selections will be cleared. Do you wish to continue?"
+        },
+        {
+          "label": "Cancel button label",
+          "default": "Cancel"
+        },
+        {
+          "label": "Confirm button label",
+          "default": "Reset"
         }
       ]
     }

@@ -98,8 +98,8 @@
       "description": "Ces options vous permettent de paramétrer le déroulement de l'exercice.",
       "fields": [
         {
-          "label": "Activer le bouton \"Recommencer\"",
-          "description": "Ajouter un bouton \"Recommencer\" à la fin du jeu. Cela permettra simplement de rafraîchir l'URL actuelle. Veuillez vérifier sur votre plateforme avant de l'activer !"
+          "label": "Activer le bouton \"Continuer la partie\"",
+          "description": "Ajouter un bouton \"Continuer la partie\" au résumé lorsqu'il reste des phrases. Cette option est ignorée lorsque le choix du nombre de mots est activé."
         },
         {
           "label": "Sensible à la casse",
@@ -117,12 +117,12 @@
           "label": "Activer le bouton \"Montrer la solution\""
         },
         {
-          "label": "Activer le bouton \"Terminer la partie\"",
-          "description": "Cochez cette case si vous voulez permettre au joueur de quitter le jeu sans avoir deviné la phrase en cours."
+          "label": "Activer le bouton \"Voir le résumé\"",
+          "description": "Permettre au joueur d'afficher le résumé sans avoir deviné la phrase en cours."
         },
         {
-          "label": "Nombre de tours",
-          "description": "Nombre minimum de tours avant que les boutons \"Montrer la solution\" ou \"Terminer la partie\"  puissent être affichées :"
+          "label": "Nombre de tours avant la solution ou le résumé",
+          "description": "Nombre minimum de tours avant que les boutons \"Montrer la solution\" ou \"Voir le résumé\" puissent être affichés :"
         },
         {
           "label": "Nombre maximal d'essais pour deviner le mot (option Wordle)",
@@ -189,8 +189,8 @@
       "default": "Deviner un autre mot"
     },
     {
-      "label": "Texte du bouton \"Fin de partie\" button",
-      "default": "Fin de partie"
+      "label": "Texte du bouton \"Voir le résumé\"",
+      "default": "Voir le résumé"
     },
     {
       "label": "Texte du bouton \"Vérifier\"",
@@ -201,9 +201,17 @@
       "default": "Réessayer"
     },
     {
+      "label": "Texte du bouton \"Continuer la partie\"",
+      "default": "Continuer la partie"
+    },
+    {
+      "label": "Texte du bouton \"Réinitialiser la partie\"",
+      "default": "Réinitialiser la partie"
+    },
+    {
       "label": "Texte du message \"Pas assez de tours\"",
       "default": "Cette option ne sera pas disponible avant le tour @round",
-      "description": "@round sera remplacé par le nombre minimum de tours nécessaires avant d'afficher les solutions ou terminer la partie"
+      "description": "@round sera remplacé par le nombre minimum de tours nécessaires avant d'afficher les solutions ou le résumé"
     },
     {
       "label": "Texte du message \"Remplissez tous les blancs\"",
@@ -385,15 +393,15 @@
       "default": "Recommencer"
     },
     {
-      "label": "Dialogue de confirmation de fin de partie",
+      "label": "Dialogue de confirmation du résumé",
       "fields": [
         {
           "label": "Titre",
-          "default": "Terminé ?"
+          "default": "Voir le résumé ?"
         },
         {
           "label": "Texte",
-          "default": "Vous voulez vraiment arrêter cette partie ?"
+          "default": "Voulez-vous vraiment afficher le résumé ?"
         },
         {
           "label": "Étiquette du bouton \"Annuler\"",
@@ -402,6 +410,27 @@
         {
           "label": "Étiquette du bouton \"Confirmer\"",
           "default": "OK"
+        }
+      ]
+    },
+    {
+      "label": "Dialogue de confirmation de réinitialisation",
+      "fields": [
+        {
+          "label": "Titre",
+          "default": "Réinitialiser la partie ?"
+        },
+        {
+          "label": "Texte",
+          "default": "Toute la progression et les sélections seront effacées. Voulez-vous continuer ?"
+        },
+        {
+          "label": "Étiquette du bouton \"Annuler\"",
+          "default": "Annuler"
+        },
+        {
+          "label": "Étiquette du bouton \"Confirmer\"",
+          "default": "Réinitialiser"
         }
       ]
     }
