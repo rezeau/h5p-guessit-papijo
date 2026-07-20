@@ -74,8 +74,7 @@
 /* Showing markup. top & left determined by position of input element. 
 */
 .h5p-guessit-markup {
-  font-family: "Lucida Console", Courier, monospace; 
-  font-size: 1.2em;
+  font-family: "Lucida Console", Courier, monospace;
   margin-left: .5em;
   position: absolute;
   top: var(--h5p-theme-spacing-xl-primary-small);

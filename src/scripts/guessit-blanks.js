@@ -293,6 +293,7 @@ H5P.GuessIt = (function ($, Question) {
     this.userAnswers = [];
 
     this.currentAnswer = '';
+    this.currentItemCompleted = false;
     this.totalTimeSpent = 0;
     this.totalRounds = 0;
     this.solutionsViewed = [];
@@ -900,6 +901,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
           isFinished = true;
         }
         if (isFinished) {
+          self.currentItemCompleted = true;
           if (!wordGuessed) {
             self.hideButton('check-answer');
             self.hideButton('try-again');
@@ -930,6 +932,11 @@ GuessIt.prototype.registerDomElements = function (sentence) {
             }, 20);
             self.showButton('end-game2');
           }
+          // H5P.Question reattaches a shown button on the next event-loop tick.
+          // Refresh its disabled state only after it is back in the content DOM.
+          setTimeout(function () {
+            self.updateEndGameButtonState();
+          }, 0);
 
           if (self.params.behaviour.listGuessedSentences) {
             let currentSentence = self.params.questions[self.currentSentenceId];
@@ -1467,14 +1474,20 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   };
 
   /**
-   * Disable View Summary until the configured minimum round is reached.
+   * Disable View Summary until the item is complete or the round limit is reached.
    */
   GuessIt.prototype.updateEndGameButtonState = function () {
     if (!this.counter || !this.params.behaviour.enableEndGameButton) {
       return;
     }
 
-    const disabled = !this.minRoundsReached();
+    const itemCompleted = this.currentItemCompleted ||
+      this.getScore() === this.getMaxScore();
+    const disabled = !SummaryUtils.canViewSummary(
+      this.counter.getcurrent(),
+      this.params.behaviour.numRounds,
+      itemCompleted
+    );
     const $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
     $content.find('.h5p-guessit-end-game-button')
       .prop('disabled', disabled)
@@ -1485,13 +1498,20 @@ GuessIt.prototype.registerDomElements = function (sentence) {
    * Check if solution is allowed. Warn user if not
    */
   GuessIt.prototype.allowSolution = function (option) {
-    let isFinished = (this.getScore() === this.getMaxScore());
-    if (!isFinished && !this.minRoundsReached()) {
+    const itemCompleted = this.currentItemCompleted ||
+      this.getScore() === this.getMaxScore();
+    const isAllowed = SummaryUtils.canViewSummary(
+      this.counter.getcurrent(),
+      this.params.behaviour.numRounds,
+      itemCompleted
+    );
+    if (!isAllowed) {
       let minRoundsText = option + ' : ' + this.params.notEnoughRounds
         .replace('@round', this.params.behaviour.numRounds);
       this.updateFeedbackContent(minRoundsText);
       this.read(minRoundsText);
       this.hideButton('show-solution');
+      this.updateEndGameButtonState();
       return false;
     }
     return true;
@@ -1649,6 +1669,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
    */
   GuessIt.prototype.reTry = function () {
     this.answered = false;
+    this.currentItemCompleted = false;
     this.hideSolutions();
     this.removeFeedback();
     this.enableInCorrectInputs();
@@ -1789,6 +1810,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
     this.hideButton('end-game');
     this.answered = false;
+    this.currentItemCompleted = false;
     this.clearAnswers();
     this.removeMarkedResults();
     this.toggleButtonVisibility(STATE_ONGOING);
@@ -1994,7 +2016,6 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     }
 
     const summaryActions = SummaryUtils.getSummaryActions({
-      enableRetry: this.params.behaviour.enableRetry,
       enableNumChoice: this.enableNumChoiceConfigured,
       hasRemainingQuestions: usedQuestions < this.params.questions.length,
       wordle: this.params.wordle
@@ -2074,6 +2095,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.userAnswers = [];
     this.currentAnswer = '';
     this.currentWordleAnswer = '';
+    this.currentItemCompleted = false;
     this.totalTimeSpent = 0;
     this.totalRounds = 0;
     this.solutionsViewed = [];
@@ -2112,6 +2134,8 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     }
 
     $content.find('.h5p-guessit-summary-screen').remove();
+    $content.find('.cloned').remove();
+    $content.find('.h5p-question-content').empty();
     $content.find(
       '.h5p-question-introduction, ' +
       '.h5p-question-content, ' +
