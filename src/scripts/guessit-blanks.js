@@ -59,6 +59,24 @@ const activateQuestionPool = function (instance, sourceIndices) {
   instance.itemCountChoicePending = false;
 };
 
+const requestItemCountChoice = function (instance, discardPreviousState = false) {
+  if (discardPreviousState) {
+    instance.previousState = undefined;
+  }
+  instance.params.questions = [];
+  instance.originalQuestions = [];
+  instance.totalNumQuestions = 0;
+  instance.itemCountChoicePending = true;
+};
+
+const activateAutomaticQuestionPool = function (instance) {
+  const selection = QuestionSelector.selectForGame(
+    instance.questionPool,
+    instance.params.behaviour.sentencesOrder
+  );
+  activateQuestionPool(instance, selection.indices);
+};
+
 H5P.GuessIt = (function ($, Question) {
   /**
    * @constant
@@ -247,17 +265,19 @@ H5P.GuessIt = (function ($, Question) {
       );
       if (hasItemChoiceState && !this.previousState.itemCountChoiceCompleted &&
         this.questionPool.length > 1) {
-        this.params.questions = [];
-        this.originalQuestions = [];
-        this.totalNumQuestions = 0;
-        this.itemCountChoicePending = true;
+        requestItemCountChoice(this);
       }
       else if (this.previousState.itemCountChoiceCompleted &&
-        Array.isArray(this.previousState.selectedQuestionIndices)) {
+        QuestionSelector.isSelectionWithinLimit(
+          this.previousState.selectedQuestionIndices
+        )) {
         activateQuestionPool(this, this.previousState.selectedQuestionIndices);
         if (this.params.questions.length === 0) {
-          activateQuestionPool(this);
+          requestItemCountChoice(this, true);
         }
+      }
+      else if (this.questionPool.length > QuestionSelector.MAX_SELECTABLE_ITEMS) {
+        requestItemCountChoice(this, true);
       }
       else {
         // Preserve legacy or all-items state without asking for a new subset.
@@ -265,13 +285,23 @@ H5P.GuessIt = (function ($, Question) {
       }
     }
     else if (this.itemCountChoiceEnabled && this.questionPool.length > 1) {
-      this.params.questions = [];
-      this.originalQuestions = [];
-      this.totalNumQuestions = 0;
-      this.itemCountChoicePending = true;
+      requestItemCountChoice(this);
+    }
+    else if (hasPreviousState && QuestionSelector.isSelectionWithinLimit(
+      this.previousState.selectedQuestionIndices
+    )) {
+      activateQuestionPool(this, this.previousState.selectedQuestionIndices);
+      if (this.params.questions.length === 0) {
+        this.previousState = undefined;
+        activateAutomaticQuestionPool(this);
+      }
     }
     else {
-      activateQuestionPool(this);
+      if (hasPreviousState &&
+        this.questionPool.length > QuestionSelector.MAX_SELECTABLE_ITEMS) {
+        this.previousState = undefined;
+      }
+      activateAutomaticQuestionPool(this);
     }
 
     if (this.params.playMode === 'userSentence') {
@@ -2129,7 +2159,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       this.itemCountChoicePending = true;
     }
     else {
-      activateQuestionPool(this);
+      activateAutomaticQuestionPool(this);
     }
 
     $content.find('.h5p-guessit-summary-screen').remove();
@@ -2361,7 +2391,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     state.totalRounds = this.totalRounds;
     state.nbSsolutionsViewed = this.nbSsolutionsViewed;
     state.totalTimeSpent = this.totalTimeSpent;
-    if (this.itemCountChoiceEnabled) {
+    if (this.params.playMode === 'availableSentences') {
       state.itemCountChoiceCompleted = this.itemCountChoiceCompleted;
       state.selectedItemCount = this.selectedItemCount;
       state.selectedQuestionIndices = this.selectedQuestionIndices;

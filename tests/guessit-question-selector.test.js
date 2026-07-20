@@ -105,13 +105,57 @@ test('restores the exact saved subset and ignores stale indices', function () {
   assert.deepEqual(restored.items, ['one', 'three']);
 });
 
+test('rejects restored selections that bypass the safe item limit', function () {
+  assert.equal(QuestionSelector.isSelectionWithinLimit([0]), true);
+  assert.equal(QuestionSelector.isSelectionWithinLimit(
+    Array.from({ length: 20 }, function (value, index) {
+      return index;
+    })
+  ), true);
+  assert.equal(QuestionSelector.isSelectionWithinLimit(
+    Array.from({ length: 21 }, function (value, index) {
+      return index;
+    })
+  ), false);
+  assert.equal(QuestionSelector.isSelectionWithinLimit([]), false);
+});
+
 test('builds compact quantity choices ending with the complete pool', function () {
   assert.deepEqual(QuestionSelector.getCountChoices(3), [1, 2, 3]);
   assert.deepEqual(QuestionSelector.getCountChoices(17), [5, 10, 17]);
+  assert.deepEqual(QuestionSelector.getCountChoices(20), [5, 10, 20]);
+});
+
+test('does not offer the complete pool above the safe item limit', function () {
+  assert.equal(QuestionSelector.MAX_SELECTABLE_ITEMS, 20);
+  assert.deepEqual(
+    QuestionSelector.getCountChoices(21),
+    [5, 10, 20]
+  );
   assert.deepEqual(
     QuestionSelector.getCountChoices(5000),
-    [5, 10, 20, 50, 100, 5000]
+    [5, 10, 20]
   );
+});
+
+test('limits automatic game selection and respects the item order setting', function () {
+  const questions = Array.from({ length: 50 }, function (value, index) {
+    return `Question ${index}`;
+  });
+  const normal = QuestionSelector.selectForGame(questions, 'normal');
+  const random = QuestionSelector.selectForGame(
+    questions,
+    'random',
+    createRandom([0.1, 0.9, 0.3, 0.7])
+  );
+
+  assert.deepEqual(normal.indices, Array.from({ length: 20 }, function (value, index) {
+    return index;
+  }));
+  assert.equal(random.indices.length, 20);
+  assert.equal(random.indices.some(function (index) {
+    return index >= 20;
+  }), true);
 });
 
 test('rejects invalid selection arguments', function () {

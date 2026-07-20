@@ -1,6 +1,7 @@
 'use strict';
 
-const COUNT_CHOICES = [5, 10, 20, 50, 100];
+const COUNT_CHOICES = [5, 10, 20];
+const MAX_SELECTABLE_ITEMS = 20;
 
 const normalizeCount = function (total, requested) {
   if (!Number.isInteger(total) || total < 0) {
@@ -93,7 +94,35 @@ const selectFirst = function (items, requested) {
 };
 
 /**
- * Return scalable quantity choices with the complete pool as the final choice.
+ * Select the items that will be active in one game.
+ *
+ * @param {Array} items Complete source pool.
+ * @param {string} order Item order setting.
+ * @param {function} [random] Random number generator.
+ * @returns {{indices: number[], items: Array}} Active game selection.
+ */
+const selectForGame = function (items, order, random = Math.random) {
+  if (!Array.isArray(items)) {
+    throw new TypeError('The question pool must be an array.');
+  }
+  if (items.length === 0) {
+    return { indices: [], items: [] };
+  }
+
+  const count = Math.min(items.length, MAX_SELECTABLE_ITEMS);
+  return order === 'normal' ?
+    selectFirst(items, count) :
+    selectSubset(items, count, random);
+};
+
+const isSelectionWithinLimit = function (indices) {
+  return Array.isArray(indices) &&
+    indices.length > 0 &&
+    indices.length <= MAX_SELECTABLE_ITEMS;
+};
+
+/**
+ * Return scalable quantity choices without exceeding the safe selection limit.
  *
  * @param {number} total Number of available items.
  * @returns {number[]} Quantity choices.
@@ -109,15 +138,19 @@ const getCountChoices = function (total) {
     });
   }
 
+  const maximum = Math.min(total, MAX_SELECTABLE_ITEMS);
   return COUNT_CHOICES.filter(function (count) {
-    return count < total;
-  }).concat(total);
+    return count < maximum;
+  }).concat(maximum);
 };
 
 module.exports = {
+  MAX_SELECTABLE_ITEMS,
   getCountChoices,
+  isSelectionWithinLimit,
   sampleIndices,
   selectByIndices,
   selectFirst,
+  selectForGame,
   selectSubset
 };

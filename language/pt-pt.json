@@ -95,7 +95,7 @@
     },
     {
       "label": "Configurações de comportamento.",
-      "description": "Estas configurações permitem controlar o comportamento da tarefa.",
+      "description": "Estas configurações permitem controlar o comportamento da tarefa. Cada jogo utiliza no máximo 20 itens. Se a seleção do número de itens pelo utilizador estiver desativada e existirem mais de 20 itens disponíveis, o GuessIt seleciona 20 de acordo com a configuração Ordem dos itens.",
       "fields": [
         {
           "label": "Pontuar esta atividade com o valor unitário, para qualquer número de afirmações descobertas.",
@@ -107,7 +107,7 @@
         },
         {
           "label": "Permitir ao utilizador escolher o número de elementos",
-          "description": "Permitir ao utilizador escolher quantas palavras ou frases são retiradas da lista antes do início da atividade. Esta opção é ignorada quando o utilizador introduz a sua própria palavra ou frase. Não combinar com a opção de escolha do número de palavras por frase."
+          "description": "Permitir ao utilizador escolher quantas palavras ou frases são retiradas da lista antes do início da atividade. O utilizador pode selecionar no máximo 20 itens; Todos só é apresentado quando a lista contém 20 itens ou menos. Esta opção é ignorada quando o utilizador introduz a sua própria palavra ou frase. Não combinar com a opção de escolha do número de palavras por frase."
         },
         {
           "label": "Permitir o botão \"Mostrar Solução\""

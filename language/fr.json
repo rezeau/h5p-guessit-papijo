@@ -95,7 +95,7 @@
     },
     {
       "label": "Options générales.",
-      "description": "Ces options vous permettent de paramétrer le déroulement de l'exercice.",
+      "description": "Ces options vous permettent de paramétrer le déroulement de l'exercice. Un maximum de 20 éléments est utilisé dans chaque partie. Si le choix du nombre d'éléments par le joueur est désactivé et que plus de 20 éléments sont disponibles, GuessIt en sélectionne 20 selon le paramètre Ordre des éléments.",
       "fields": [
         {
           "label": "Sensible à la casse",
@@ -107,7 +107,7 @@
         },
         {
           "label": "Permettre au joueur de choisir le nombre d'éléments",
-          "description": "Permettre au joueur de choisir combien de mots ou de phrases seront tirés de la liste avant le début de la partie. Cette option est ignorée lorsque le joueur saisit son propre mot ou sa propre phrase. Ne pas la combiner avec l'option de choix du nombre de mots par phrase."
+          "description": "Permettre au joueur de choisir combien de mots ou de phrases seront tirés de la liste avant le début de la partie. Le joueur peut sélectionner au maximum 20 éléments ; Tous n'est proposé que si la liste contient 20 éléments ou moins. Cette option est ignorée lorsque le joueur saisit son propre mot ou sa propre phrase. Ne pas la combiner avec l'option de choix du nombre de mots par phrase."
         },
         {
           "label": "Activer le bouton \"Montrer la solution\""

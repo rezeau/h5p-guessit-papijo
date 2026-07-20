@@ -95,7 +95,7 @@
     },
     {
       "label": "Behavioural settings.",
-      "description": "These options will let you control how the task behaves.",
+      "description": "These options will let you control how the task behaves. A maximum of 20 items is used in each game. If learner item selection is disabled and more than 20 items are available, GuessIt selects 20 according to the Items Order setting.",
       "fields": [
         {
           "label": "Case sensitive",
@@ -107,7 +107,7 @@
         },
         {
           "label": "Allow learner to select the number of items",
-          "description": "Allow the learner to select how many words or sentences are drawn from the available list before play starts. This option is ignored when learners enter their own word or sentence. Do not combine it with \"Enable Number of words Choice\"."
+          "description": "Allow the learner to select how many words or sentences are drawn from the available list before play starts. Learners can select at most 20 items; All is offered only when the list contains 20 items or fewer. This option is ignored when learners enter their own word or sentence. Do not combine it with \"Enable Number of words Choice\"."
         },
         {
           "label": "Enable \"Show solution\" button"
