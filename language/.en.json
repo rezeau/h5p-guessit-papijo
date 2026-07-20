@@ -98,10 +98,6 @@
       "description": "These options will let you control how the task behaves.",
       "fields": [
         {
-          "label": "Enable \"Continue game\"",
-          "description": "Add a \"Continue game\" button to the summary when unfinished sentences remain. This option is ignored when Number of words Choice is enabled."
-        },
-        {
           "label": "Case sensitive",
           "description": "Makes sure the user input has to be exactly the same as the answer."
         },

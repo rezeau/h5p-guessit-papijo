@@ -98,10 +98,6 @@
       "description": "Estas configurações permitem controlar o comportamento da tarefa.",
       "fields": [
         {
-          "label": "Permitir \"Continuar o jogo\"",
-          "description": "Adiciona ao resumo um botão \"Continuar o jogo\" quando ainda existem frases. Esta opção é ignorada quando a escolha do número de palavras está ativada."
-        },
-        {
           "label": "Pontuar esta atividade com o valor unitário, para qualquer número de afirmações descobertas.",
           "description": "Não selecionar esta opção, se pretender que a pontuação seja em percentagem do número total de afirmações ou frases."
         },

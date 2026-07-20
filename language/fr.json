@@ -98,10 +98,6 @@
       "description": "Ces options vous permettent de paramétrer le déroulement de l'exercice.",
       "fields": [
         {
-          "label": "Activer le bouton \"Continuer la partie\"",
-          "description": "Ajouter un bouton \"Continuer la partie\" au résumé lorsqu'il reste des phrases. Cette option est ignorée lorsque le choix du nombre de mots est activé."
-        },
-        {
           "label": "Sensible à la casse",
           "description": "Tenir compte de l'utilisation des minuscules et majuscules dans les réponses."
         },

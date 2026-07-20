@@ -184,7 +184,6 @@ H5P.GuessIt = (function ($, Question) {
         confirmLabel: 'Reset'
       },
       behaviour: {
-        enableRetry: false,
         enableAudio: false,
         enableNumChoice: false,
         enableItemCountChoice: false,

@@ -287,15 +287,6 @@
     "optional": true,
     "fields": [      
       {
-        "name": "enableRetry",
-        "label": "Enable \"Continue game\"",
-        "type": "boolean",
-        "importance": "low",
-        "default": false,
-        "description": "Add a \"Continue game\" button to the summary when unfinished sentences remain. This option is ignored when Number of words Choice is enabled.",
-        "optional": true
-      },
-      {
         "name": "caseSensitive",
         "importance": "low",
         "type": "boolean",

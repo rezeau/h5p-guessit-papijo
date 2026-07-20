@@ -6,19 +6,6 @@ const SummaryUtils = require('../src/scripts/guessit-summary-utils');
 
 test('offers continue and reset for an unfinished standard game', function () {
   assert.deepEqual(SummaryUtils.getSummaryActions({
-    enableRetry: true,
-    enableNumChoice: false,
-    hasRemainingQuestions: true,
-    wordle: false
-  }), {
-    continueGame: true,
-    resetGame: true
-  });
-});
-
-test('offers continuation without the obsolete retry flag', function () {
-  assert.deepEqual(SummaryUtils.getSummaryActions({
-    enableRetry: false,
     enableNumChoice: false,
     hasRemainingQuestions: true,
     wordle: false
@@ -30,7 +17,6 @@ test('offers continuation without the obsolete retry flag', function () {
 
 test('offers only reset when number-of-words choice is enabled', function () {
   assert.deepEqual(SummaryUtils.getSummaryActions({
-    enableRetry: true,
     enableNumChoice: true,
     hasRemainingQuestions: true,
     wordle: false
@@ -42,7 +28,6 @@ test('offers only reset when number-of-words choice is enabled', function () {
 
 test('offers only reset after all standard questions are completed', function () {
   assert.deepEqual(SummaryUtils.getSummaryActions({
-    enableRetry: true,
     enableNumChoice: false,
     hasRemainingQuestions: false,
     wordle: false
@@ -54,7 +39,6 @@ test('offers only reset after all standard questions are completed', function ()
 
 test('offers continue and reset for an unfinished Wordle game', function () {
   assert.deepEqual(SummaryUtils.getSummaryActions({
-    enableRetry: true,
     enableNumChoice: false,
     hasRemainingQuestions: true,
     wordle: true
@@ -66,7 +50,6 @@ test('offers continue and reset for an unfinished Wordle game', function () {
 
 test('offers only reset after all Wordle words are completed', function () {
   assert.deepEqual(SummaryUtils.getSummaryActions({
-    enableRetry: true,
     enableNumChoice: false,
     hasRemainingQuestions: false,
     wordle: true
