@@ -24,6 +24,19 @@ item selection is enabled, **All** is offered only for lists containing 20 items
 or fewer. With larger lists, normal order uses the first 20 items and random
 order draws 20 items from the complete pool.
 
+## Compatibility and Installation
+
+H5P GuessIt 1.6 requires H5P Core API 1.28. It has been tested successfully on
+current WordPress and Moodle installations that support Core API 1.28.
+
+Current Lumi releases are not compatible because they do not yet support H5P
+Core API 1.28. This limitation is expected and does not indicate a problem with
+the GuessIt package.
+
+The release asset is a library-only H5P package. Install
+`H5P.GuessIt-1.6.0.h5p` through the platform's H5P library administration
+interface. Do not import it as ordinary learner content.
+
 ## Development
 
 Source JavaScript and CSS live under `src/`. Webpack generates the runtime files
@@ -39,6 +52,14 @@ npm run build
 
 Use `npm run watch` during local H5P development. Run the tests, lint check, and
 production build before packaging or publishing the library.
+
+### Existing ESLint Baseline
+
+The current ESLint failures predate version 1.6.0. With the repository's
+`.eslintrc.json`, the baseline is 121 errors in `guessit-blanks.js`: 115
+indentation errors, five trailing-space errors, and one `no-undef` finding for
+`$content`. This baseline is intentionally deferred; `npm run lint` does not
+currently pass. Avoid broad formatting changes when addressing it.
 
 ## License
 

@@ -8,5 +8,8 @@ package.json
 package-lock.json
 README.md
 webpack.config.js
-LICENSE
+AGENTS.md
+tests
+WORDLE-FRENCH-ACCENTS.md
+CHANGELOG.md
 

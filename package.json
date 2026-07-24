@@ -1,8 +1,7 @@
 {
   "name": "h5p-guessit",
-  "version": "1.7.3",
-  "description": "H5P Guessit ==========",
-  "main": "index.js",
+  "version": "1.6.0",
+  "description": "Custom H5P question type for guessing words and sentences, including a Wordle mode.",
   "scripts": {
     "build": "cross-env NODE_ENV='production' webpack",
     "lint": "eslint \"src/**/*.js\"",
@@ -14,7 +13,7 @@
     "url": "git+https://github.com/rezeau/h5p-guessit-papijo.git"
   },
   "keywords": [],
-  "author": "Joubel",
+  "author": "Joseph Rezeau (Papi Jo)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rezeau/h5p-guessit-papijo/issues"
