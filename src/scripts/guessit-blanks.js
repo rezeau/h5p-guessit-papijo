@@ -1,3 +1,4 @@
+/* global Set */
 const WordleUtils = require('./guessit-wordle-utils');
 const QuestionSelector = require('./guessit-question-selector');
 const SummaryUtils = require('./guessit-summary-utils');
@@ -152,6 +153,7 @@ H5P.GuessIt = (function ($, Question) {
       endGame: 'View Summary',
       checkAnswer: "Check",
       notFilledOut: "Please fill in all the blanks before checking your answer!",
+      wordNotInList: "Sorry, this word is not in the word list.",
       notEnoughRounds: "This option won't be available before Round @round",
       answerIsCorrect: "':ans' is correct",
       answerIsWrong: "':ans' is wrong",
@@ -205,6 +207,7 @@ H5P.GuessIt = (function ($, Question) {
         enableAudio: false,
         enableNumChoice: false,
         enableItemCountChoice: false,
+        enableWordListValidation: false,
         enableSolutionsButton: false,
         enableEndGameButton: false,
         listGuessedSentences: false,
@@ -240,6 +243,11 @@ H5P.GuessIt = (function ($, Question) {
     }
 
     this.questionPool = this.params.questions;
+    this.wordListValidationEnabled =
+      WordleUtils.isWordListValidationEnabled(this.params);
+    this.acceptedWordSet = this.wordListValidationEnabled ?
+      WordleUtils.createAcceptedWordSet(this.questionPool) :
+      new Set();
     this.itemCountChoiceEnabled = Boolean(
       this.params.behaviour.enableItemCountChoice &&
       this.params.playMode === 'availableSentences'
@@ -323,6 +331,7 @@ H5P.GuessIt = (function ($, Question) {
 
     this.currentAnswer = '';
     this.currentItemCompleted = false;
+    this.wordListRejectedState = null;
     this.totalTimeSpent = 0;
     this.totalRounds = 0;
     this.solutionsViewed = [];
@@ -677,12 +686,29 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     // Register task content area, or populate the section that H5P.Question
     // already attached while the item-count prompt was displayed.
     const $questions = self.createQuestions(labelId);
+    if (this.wordListValidationEnabled) {
+      this.$wordListValidationMessage = $('<div>', {
+        'aria-atomic': 'true',
+        'aria-live': 'polite',
+        'class': 'h5p-guessit-word-list-warning',
+        'hidden': true,
+        'role': 'status'
+      });
+    }
     const $questionContent = $content.find('.h5p-question-content');
     if ($questionContent.length) {
       $questionContent.empty().append($questions);
+      if (this.$wordListValidationMessage) {
+        $questionContent.append(this.$wordListValidationMessage);
+      }
     }
     else {
-      self.setContent($questions, {
+      const $contentElements = this.$wordListValidationMessage ?
+        $('<div>', {
+          'class': 'h5p-guessit-wordle-content'
+        }).append($questions, this.$wordListValidationMessage) :
+        $questions;
+      self.setContent($contentElements, {
       });
     }
 
@@ -870,6 +896,111 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
   };
 
+  GuessIt.prototype.clearWordListValidationWarning = function () {
+    if (!this.$wordListValidationMessage) {
+      return;
+    }
+
+    this.$wordListValidationMessage
+      .text('')
+      .prop('hidden', true);
+  };
+
+  GuessIt.prototype.showWordListValidationWarning = function () {
+    if (this.$wordListValidationMessage) {
+      this.$wordListValidationMessage
+        .text(this.params.wordNotInList)
+        .prop('hidden', false);
+      this.trigger('resize');
+    }
+  };
+
+  GuessIt.prototype.focusFirstEnabledInput = function () {
+    this.$questions
+      .eq(this.currentSentenceId)
+      .filter(':first')
+      .find('input:enabled:first')
+      .focus();
+  };
+
+  GuessIt.prototype.getPreviouslyLockedWordleCells = function () {
+    const currentClozes =
+      this.currentSentenceClozes[this.currentSentenceId] || [];
+    const lockedCells = [];
+
+    currentClozes.forEach(function (cloze, index) {
+      if (cloze.isCorrectlyLocked()) {
+        lockedCells.push(index);
+      }
+    });
+
+    return lockedCells;
+  };
+
+  GuessIt.prototype.enterWordListRejectedState = function () {
+    const self = this;
+
+    this.wordListRejectedState = {
+      lockedCells: this.getPreviouslyLockedWordleCells()
+    };
+    this.showWordListValidationWarning();
+    this.hideButton('check-answer');
+    this.showButton('try-again');
+    this.trigger('resize');
+
+    // H5P.Question attaches shown buttons on the next event-loop tick.
+    setTimeout(function () {
+      self.focusButton('try-again');
+    }, 20);
+  };
+
+  GuessIt.prototype.retryWordListRejectedSubmission = function () {
+    if (!this.wordListRejectedState) {
+      return false;
+    }
+
+    const lockedCells = new Set(
+      this.wordListRejectedState.lockedCells
+    );
+    const currentClozes =
+      this.currentSentenceClozes[this.currentSentenceId] || [];
+
+    currentClozes.forEach(function (cloze, index) {
+      if (lockedCells.has(index)) {
+        return;
+      }
+
+      cloze.resetWordListRejectedCell();
+    });
+
+    this.wordListRejectedState = null;
+    this.currentAnswer = '';
+    this.currentWordleAnswer = '';
+    this.clearWordListValidationWarning();
+    this.hideButton('try-again');
+    this.showButton('check-answer');
+    this.resetGrowTextField();
+    this.trigger('resize');
+    this.focusFirstEnabledInput();
+    return true;
+  };
+
+  GuessIt.prototype.validateWordListSubmission = function (word) {
+    if (!this.wordListValidationEnabled) {
+      this.clearWordListValidationWarning();
+      return true;
+    }
+
+    if (WordleUtils.isAcceptedWord(word, this.acceptedWordSet)) {
+      this.wordListRejectedState = null;
+      this.clearWordListValidationWarning();
+      return true;
+    }
+
+    this.enterWordListRejectedState();
+    return false;
+  };
+
   /**
    * Create all the buttons for the task
    */
@@ -893,14 +1024,17 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
     // Check answer button
     self.addButton('check-answer', self.params.checkAnswer, function () {
-      if (self.$timer === undefined) {
-        self.initCounters();
-      }
-      self.setFeedback();
+      let $currentInputs = self.$questions
+        .eq(self.currentSentenceId)
+        .find('input');
+
       if (!self.allBlanksFilledOut()) {
+        if (self.$timer === undefined) {
+          self.initCounters();
+        }
+        self.setFeedback();
         self.updateFeedbackContent(self.params.notFilledOut);
         // Sets focus on first empty blank input.
-        let $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
         $currentInputs.each(function () {
           if ($(this).val() === '') {
             $(this).focus();
@@ -910,15 +1044,28 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
       }
       else {
-        self.currentAnswer = '';
-        self.currentWordleAnswer = '';
-        let $currentInputs = self.$questions.eq(self.currentSentenceId).find('input');
+        let currentAnswer = '';
+        let currentWordleAnswer = '';
         $currentInputs.each(function () {
           if ($(this).val() !== '') {
-            self.currentAnswer += $(this).val() + ' ';
-            self.currentWordleAnswer += $(this).val();
+            currentAnswer += $(this).val() + ' ';
+            currentWordleAnswer += $(this).val();
           }
         });
+        if (self.params.wordle) {
+          currentWordleAnswer =
+            WordleUtils.normalizeCanonicalWord(currentWordleAnswer);
+        }
+        if (!self.validateWordListSubmission(currentWordleAnswer)) {
+          return;
+        }
+
+        if (self.$timer === undefined) {
+          self.initCounters();
+        }
+        self.setFeedback();
+        self.currentAnswer = currentAnswer;
+        self.currentWordleAnswer = currentWordleAnswer;
         self.toggleButtonVisibility(STATE_CHECKING);
         self.updateFeedbackContent('');
         self.markResults();
@@ -1022,14 +1169,13 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       'try-again',
       self.params.tryAgain,
       function () {
+        if (self.retryWordListRejectedSubmission()) {
+          return;
+        }
+
         self.updateFeedbackContent('');
         self.reTry();
-
-        self.$questions
-          .eq(self.currentSentenceId)
-          .filter(':first')
-          .find('input:enabled:first')
-          .focus();
+        self.focusFirstEnabledInput();
       },
       true,
       {
@@ -1296,6 +1442,9 @@ GuessIt.prototype.registerDomElements = function (sentence) {
           return;
         }
 
+        if (!self.wordListRejectedState) {
+          self.clearWordListValidationWarning();
+        }
         let $this = $(this);
         const $inputs = self.$questions.eq(self.currentSentenceId)
           .find('.h5p-input-wrapper:not(.h5p-correct) .h5p-text-input.wordle');
@@ -1697,6 +1846,8 @@ GuessIt.prototype.registerDomElements = function (sentence) {
    * @public
    */
   GuessIt.prototype.reTry = function () {
+    this.wordListRejectedState = null;
+    this.clearWordListValidationWarning();
     this.answered = false;
     this.currentItemCompleted = false;
     this.hideSolutions();
@@ -1823,6 +1974,8 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
   GuessIt.prototype.initTask = function () {
     let self = this;
+    this.wordListRejectedState = null;
+    this.clearWordListValidationWarning();
     let $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
     $content.find('.h5p-container').removeClass('h5p-guessit-hide');
 
@@ -2111,6 +2264,8 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   GuessIt.prototype.resetTask = function () {
     const $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
 
+    this.wordListRejectedState = null;
+    this.clearWordListValidationWarning();
     if (this.timer) {
       this.timer.stop();
     }

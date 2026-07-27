@@ -110,6 +110,10 @@
           "description": "Permitir ao utilizador escolher quantas palavras ou frases são retiradas da lista antes do início da atividade. O utilizador pode selecionar no máximo 20 itens; Todos só é apresentado quando a lista contém 20 itens ou menos. Esta opção é ignorada quando o utilizador introduz a sua própria palavra ou frase. Não combinar com a opção de escolha do número de palavras por frase."
         },
         {
+          "label": "Exigir que as tentativas estejam na lista de palavras",
+          "description": "Quando ativada no modo Wordle, apenas podem ser submetidas palavras da lista completa de palavras mistério configurada."
+        },
+        {
           "label": "Permitir o botão \"Mostrar Solução\""
         },
         {
@@ -212,6 +216,11 @@
     {
       "label": "Texto para \"Preencher Todos os Espaços\"",
       "default": "Por favor preencha todos os espaços antes de verificar as suas respostas!"
+    },
+    {
+      "label": "Texto do aviso de validação da lista de palavras",
+      "default": "Desculpe, esta palavra não está na lista de palavras.",
+      "description": "Apresentado quando a validação da lista de palavras Wordle está ativada e a palavra submetida não consta da lista de palavras mistério configurada."
     },
     {
       "label": "Texto para \"Quantas palavras deseja na sua afirmação mistério?\"",

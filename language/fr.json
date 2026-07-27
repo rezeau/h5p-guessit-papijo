@@ -110,6 +110,10 @@
           "description": "Permettre au joueur de choisir combien de mots ou de phrases seront tirés de la liste avant le début de la partie. Le joueur peut sélectionner au maximum 20 éléments ; Tous n'est proposé que si la liste contient 20 éléments ou moins. Cette option est ignorée lorsque le joueur saisit son propre mot ou sa propre phrase. Ne pas la combiner avec l'option de choix du nombre de mots par phrase."
         },
         {
+          "label": "Exiger que les propositions figurent dans la liste de mots",
+          "description": "Lorsque cette option est activée en mode Wordle, seuls les mots de la liste complète des mots mystères configurés peuvent être proposés."
+        },
+        {
           "label": "Activer le bouton \"Montrer la solution\""
         },
         {
@@ -212,6 +216,11 @@
     {
       "label": "Texte du message \"Remplissez tous les blancs\"",
       "default": "Vous devez avoir rempli tous les blancs avant de vérifier votre réponse."
+    },
+    {
+      "label": "Texte de l'avertissement de validation de la liste de mots",
+      "default": "Désolé, ce mot ne figure pas dans la liste de mots.",
+      "description": "Affiché lorsque la validation de la liste de mots Wordle est activée et que le mot proposé ne figure pas dans la liste des mots mystères configurés."
     },
     {
       "label": "Texte du message \"Combien de mots voulez-vous dans votre phrase mystère ?\"",

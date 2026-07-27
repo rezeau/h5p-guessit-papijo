@@ -108,6 +108,62 @@ test('preserves existing unaccented English Wordle scoring', function () {
   );
 });
 
+test('builds accepted words from valid configured sentence strings', function () {
+  const acceptedWordSet = WordleUtils.createAcceptedWordSet([
+    { sentence: ' ÉTAGE ' },
+    { sentence: 'etage' },
+    { sentence: 'GARÇON' },
+    { sentence: 'E\u0301TAGE' },
+    { sentence: '' },
+    { sentence: '   ' },
+    { sentence: 'MOT-DEUX' },
+    { sentence: 12345 },
+    {},
+    null
+  ]);
+
+  assert.equal(acceptedWordSet.size, 2);
+  assert.equal(WordleUtils.isAcceptedWord('ETAGE', acceptedWordSet), true);
+  assert.equal(WordleUtils.isAcceptedWord(' étage ', acceptedWordSet), true);
+  assert.equal(WordleUtils.isAcceptedWord('garcon', acceptedWordSet), true);
+  assert.equal(WordleUtils.isAcceptedWord('INCONNU', acceptedWordSet), false);
+});
+
+test('returns an empty accepted-word Set for malformed question pools', function () {
+  assert.deepEqual(
+    Array.from(WordleUtils.createAcceptedWordSet(undefined)),
+    []
+  );
+  assert.deepEqual(
+    Array.from(WordleUtils.createAcceptedWordSet({ sentence: 'ÉTAGE' })),
+    []
+  );
+});
+
+test('enables validation only for configured-list Wordle mode', function () {
+  assert.equal(WordleUtils.isWordListValidationEnabled({
+    behaviour: { enableWordListValidation: true },
+    playMode: 'availableSentences',
+    wordle: true
+  }), true);
+  assert.equal(WordleUtils.isWordListValidationEnabled({
+    behaviour: {},
+    playMode: 'availableSentences',
+    wordle: true
+  }), false);
+  assert.equal(WordleUtils.isWordListValidationEnabled({
+    behaviour: { enableWordListValidation: true },
+    playMode: 'userSentence',
+    wordle: true
+  }), false);
+  assert.equal(WordleUtils.isWordListValidationEnabled({
+    behaviour: { enableWordListValidation: true },
+    playMode: 'availableSentences',
+    wordle: false
+  }), false);
+  assert.equal(WordleUtils.isWordListValidationEnabled(undefined), false);
+});
+
 test('author semantics accept uppercase and lowercase Western European words', function () {
   const semantics = JSON.parse(fs.readFileSync(
     path.join(__dirname, '..', 'semantics.json'),
