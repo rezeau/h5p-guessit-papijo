@@ -218,6 +218,11 @@
       "default": "Please fill in all the blanks before checking your answer!"
     },
     {
+      "label": "Text shown when no usable configured items are available",
+      "default": "No usable words or sentences are available.",
+      "description": "Shown instead of starting the activity when the active configured list contains no usable words or sentences."
+    },
+    {
       "label": "Text for the word-list validation warning",
       "default": "Sorry, this word is not in the word list.",
       "description": "Shown when Wordle word-list validation is enabled and the submitted word is not in the configured mystery-word list."

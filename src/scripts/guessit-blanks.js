@@ -1,5 +1,6 @@
 /* global Set */
 const WordleUtils = require('./guessit-wordle-utils');
+const ContentUtils = require('./guessit-content-utils');
 const QuestionSelector = require('./guessit-question-selector');
 const SummaryUtils = require('./guessit-summary-utils');
 
@@ -153,6 +154,7 @@ H5P.GuessIt = (function ($, Question) {
       endGame: 'View Summary',
       checkAnswer: "Check",
       notFilledOut: "Please fill in all the blanks before checking your answer!",
+      noQuestionsAvailable: "No usable words or sentences are available.",
       wordNotInList: "Sorry, this word is not in the word list.",
       notEnoughRounds: "This option won't be available before Round @round",
       answerIsCorrect: "':ans' is correct",
@@ -240,6 +242,16 @@ H5P.GuessIt = (function ($, Question) {
       this.params.behaviour.listGuessedSentences = true;
       this.params.behaviour.enableNumChoice = false;
       this.params.behaviour.enableSolutionsButton = false;
+    }
+
+    this.params.questions = ContentUtils.toQuestionArray(
+      this.params.questions
+    );
+    if (this.params.playMode === 'availableSentences') {
+      this.params.questions = ContentUtils.getUsableQuestions(
+        this.params.questions,
+        this.params.wordle ? WordleUtils.isValidWordleWord : undefined
+      );
     }
 
     this.questionPool = this.params.questions;
@@ -573,9 +585,12 @@ GuessIt.prototype.registerDomElements = function (sentence) {
           return;
         }
         $content.find('.h5p-guessit-usersentencedescription').remove();
-        self.params.questions[0].sentence = sentence;
-        self.params.questions[0].tip = $tip;
-        self.params.questions.length = 1;
+        ContentUtils.setLearnerQuestion(
+          self,
+          sentence,
+          $tip,
+          true
+        );
       }
       else {
         // Case guess a word.
@@ -665,9 +680,25 @@ GuessIt.prototype.registerDomElements = function (sentence) {
           return;
         }
         $content.find('.h5p-guessit-usersentencedescription').remove();
-        self.params.questions[0].sentence = sentence;
-        self.params.questions.length = 1;
+        ContentUtils.setLearnerQuestion(
+          self,
+          sentence,
+          undefined,
+          false
+        );
       }
+    }
+
+    if (this.params.playMode === 'availableSentences' &&
+      this.params.questions.length === 0) {
+      self.numQuestions = 0;
+      self.setContent($('<div>', {
+        'class': 'h5p-guessit-no-questions',
+        'role': 'alert',
+        'text': self.params.noQuestionsAvailable
+      }), {});
+      self.trigger('resize');
+      return;
     }
 
     if (this.itemCountChoicePending) {

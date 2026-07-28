@@ -233,8 +233,10 @@
           "label": "Word",
           "importance": "high",
           "description": "Type one word of 4 to 8 letters. Uppercase, lowercase, and Western European accented letters are accepted.",
+          "optional": true,
           "regexp": {
-            "pattern": "^[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝŸŒàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿœ]{4,8}$"
+            "pattern": "^[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝŸŒàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿœ]{4,8}$",
+            "modifiers": "u"
           }
         },
         {
@@ -650,6 +652,16 @@
     "name": "notFilledOut",
     "type": "text",
     "default": "Please fill in all the blanks before checking your answer!",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text shown when no usable configured items are available",
+    "importance": "low",
+    "name": "noQuestionsAvailable",
+    "type": "text",
+    "default": "No usable words or sentences are available.",
+    "description": "Shown instead of starting the activity when the active configured list contains no usable words or sentences.",
     "common": true,
     "optional": true
   },

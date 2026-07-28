@@ -218,6 +218,11 @@
       "default": "Por favor preencha todos os espaços antes de verificar as suas respostas!"
     },
     {
+      "label": "Texto apresentado quando não existem elementos configurados utilizáveis",
+      "default": "Não estão disponíveis palavras ou frases utilizáveis.",
+      "description": "Apresentado em vez da atividade quando a lista configurada ativa não contém palavras ou frases utilizáveis."
+    },
+    {
       "label": "Texto do aviso de validação da lista de palavras",
       "default": "Desculpe, esta palavra não está na lista de palavras.",
       "description": "Apresentado quando a validação da lista de palavras Wordle está ativada e a palavra submetida não consta da lista de palavras mistério configurada."

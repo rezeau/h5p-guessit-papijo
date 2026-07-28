@@ -218,6 +218,11 @@
       "default": "Vous devez avoir rempli tous les blancs avant de vérifier votre réponse."
     },
     {
+      "label": "Texte affiché lorsqu'aucun élément configuré utilisable n'est disponible",
+      "default": "Aucun mot ou aucune phrase utilisable n'est disponible.",
+      "description": "Affiché à la place de l'activité lorsque la liste configurée active ne contient aucun mot ni aucune phrase utilisable."
+    },
+    {
       "label": "Texte de l'avertissement de validation de la liste de mots",
       "default": "Désolé, ce mot ne figure pas dans la liste de mots.",
       "description": "Affiché lorsque la validation de la liste de mots Wordle est activée et que le mot proposé ne figure pas dans la liste des mots mystères configurés."
