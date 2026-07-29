@@ -1,4 +1,5 @@
 'use strict';
+/* global Set */
 
 const WESTERN_EUROPEAN_LETTER_PATTERN = /^[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝŸŒàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿœ]$/;
 
@@ -40,6 +41,48 @@ const isValidWordleWord = function (text) {
     });
 };
 
+const createAcceptedWordSet = function (questions) {
+  const acceptedWordSet = new Set();
+  if (!Array.isArray(questions)) {
+    return acceptedWordSet;
+  }
+
+  questions.forEach(function (question) {
+    if (!question || typeof question.sentence !== 'string') {
+      return;
+    }
+
+    const word = question.sentence.trim();
+    if (!word || !isValidWordleWord(word)) {
+      return;
+    }
+
+    acceptedWordSet.add(normalizeForComparison(word));
+  });
+
+  return acceptedWordSet;
+};
+
+const isAcceptedWord = function (word, acceptedWordSet) {
+  if (typeof word !== 'string' || !(acceptedWordSet instanceof Set)) {
+    return false;
+  }
+
+  const trimmedWord = word.trim();
+  return trimmedWord !== '' &&
+    acceptedWordSet.has(normalizeForComparison(trimmedWord));
+};
+
+const isWordListValidationEnabled = function (params) {
+  return Boolean(
+    params &&
+    params.wordle &&
+    params.playMode === 'availableSentences' &&
+    params.behaviour &&
+    params.behaviour.enableWordListValidation === true
+  );
+};
+
 const evaluateWordleGuess = function (canonicalAnswer, learnerGuess) {
   const answerLetters = toWordleLetters(canonicalAnswer);
   const guessLetters = toWordleLetters(learnerGuess);
@@ -72,8 +115,11 @@ const evaluateWordleGuess = function (canonicalAnswer, learnerGuess) {
 };
 
 module.exports = {
+  createAcceptedWordSet,
   evaluateWordleGuess,
+  isAcceptedWord,
   isValidWordleWord,
+  isWordListValidationEnabled,
   normalizeCanonical,
   normalizeCanonicalWord,
   normalizeForComparison,

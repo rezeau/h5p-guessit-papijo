@@ -103,11 +103,15 @@
         },
         {
           "label": "Enable Number of words Choice",
-          "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!"
+          "description": "Check this option to allow the learner to select the number of words per sentence to guess. Do not enable this option if your sentences form a story. This option is ignored when \"Allow learner to select the number of items\" is also enabled."
         },
         {
           "label": "Allow learner to select the number of items",
           "description": "Allow the learner to select how many words or sentences are drawn from the available list before play starts. Learners can select at most 20 items; All is offered only when the list contains 20 items or fewer. This option is ignored when learners enter their own word or sentence. Do not combine it with \"Enable Number of words Choice\"."
+        },
+        {
+          "label": "Require guesses to be in the word list",
+          "description": "When enabled in Wordle mode, only words from the complete configured mystery-word list can be submitted."
         },
         {
           "label": "Enable \"Show solution\" button"
@@ -212,6 +216,16 @@
     {
       "label": "Text for \"Fill in all the blanks\" message",
       "default": "Please fill in all the blanks before checking your answer!"
+    },
+    {
+      "label": "Text shown when no usable configured items are available",
+      "default": "No usable words or sentences are available.",
+      "description": "Shown instead of starting the activity when the active configured list contains no usable words or sentences."
+    },
+    {
+      "label": "Text for the word-list validation warning",
+      "default": "Sorry, this word is not in the word list.",
+      "description": "Shown when Wordle word-list validation is enabled and the submitted word is not in the configured mystery-word list."
     },
     {
       "label": "Text for \"How many words do you want in your mystery sentence?\" message",

@@ -144,6 +144,32 @@ const WordleUtils = require('./guessit-wordle-utils');
     this.toggleInput = function (enabled) {
       $input.attr('disabled', !enabled);
     };
+
+    /**
+     * Check whether this cell was already established as correctly placed.
+     *
+     * @returns {boolean}
+     */
+    this.isCorrectlyLocked = function () {
+      return $input.is(':disabled') &&
+        $wrapper.hasClass('h5p-correct-wordle');
+    };
+
+    /**
+     * Clear an unevaluated word-list rejection without comparing answers.
+     */
+    this.resetWordListRejectedCell = function () {
+      checkedAnswer = null;
+      $wrapper.removeClass(
+        'h5p-correct h5p-correct-wordle h5p-misplaced ' +
+        'h5p-wrong h5p-wrong-wordle'
+      );
+      $('.h5p-guessit-markup', $wrapper).remove();
+      $input.val('')
+        .attr('disabled', false)
+        .attr('aria-label', inputLabel);
+    };
+
     /**
      * Show the correct solution.
      */

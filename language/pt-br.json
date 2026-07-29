@@ -103,11 +103,15 @@
         },
         {
           "label": "Permitir a escolha do número de palavras",
-          "description": "Selecionar esta opção para permitir ao utilizador selecionar um número determinado de palavras (por afirmação) a descobrir. Não selecionar esta opção se as ideas ou frases fazem parte de uma história!"
+          "description": "Marque esta opção para permitir que o usuário escolha o número de palavras por frase a serem adivinhadas. Não ative esta opção se as frases formarem uma história. Esta opção será ignorada quando “Permitir que o usuário escolha o número de elementos” também estiver ativada."
         },
         {
           "label": "Permitir que o usuário escolha o número de elementos",
           "description": "Permitir que o usuário escolha quantas palavras ou frases serão retiradas da lista antes do início da atividade. O usuário pode selecionar no máximo 20 itens; Todos só é oferecido quando a lista contém 20 itens ou menos. Esta opção é ignorada quando o usuário digita sua própria palavra ou frase. Não combinar com a opção de escolha do número de palavras por frase."
+        },
+        {
+          "label": "Exigir que os palpites estejam na lista de palavras",
+          "description": "Quando ativada no modo Wordle, somente palavras da lista completa de palavras misteriosas configurada podem ser enviadas."
         },
         {
           "label": "Permitir o botão \"Mostrar Solução\""
@@ -212,6 +216,16 @@
     {
       "label": "Texto para \"Preencher Todos os Espaços\"",
       "default": "Por favor preencha todos os espaços antes de verificar as suas respostas!"
+    },
+    {
+      "label": "Texto exibido quando não há elementos configurados utilizáveis",
+      "default": "Não há palavras ou frases utilizáveis disponíveis.",
+      "description": "Exibido no lugar da atividade quando a lista configurada ativa não contém palavras ou frases utilizáveis."
+    },
+    {
+      "label": "Texto do aviso de validação da lista de palavras",
+      "default": "Desculpe, esta palavra não está na lista de palavras.",
+      "description": "Exibido quando a validação da lista de palavras do Wordle está ativada e a palavra enviada não consta da lista de palavras misteriosas configurada."
     },
     {
       "label": "Texto para \"Quantas palavras deseja na sua afirmação mistério?\"",

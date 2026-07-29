@@ -126,6 +126,12 @@
   text-decoration: none;
 }
 
+.h5p-guessit .h5p-guessit-word-list-warning {
+  color: var(--h5p-theme-feedback-incorrect-main, #b71c1c);
+  font-weight: 600;
+  margin: var(--h5p-theme-spacing-xs, 0.5rem) 0;
+}
+
 /* Misplaced letter in Wordle */
 .h5p-guessit .h5p-misplaced .h5p-text-input {
   background-color: #ffff99;

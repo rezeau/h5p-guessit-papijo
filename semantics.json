@@ -233,8 +233,10 @@
           "label": "Word",
           "importance": "high",
           "description": "Type one word of 4 to 8 letters. Uppercase, lowercase, and Western European accented letters are accepted.",
+          "optional": true,
           "regexp": {
-            "pattern": "^[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝŸŒàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿœ]{4,8}$"
+            "pattern": "^[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝŸŒàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿœ]{4,8}$",
+            "modifiers": "u"
           }
         },
         {
@@ -306,7 +308,7 @@
       {
         "label": "Enable Number of words Choice",
         "importance": "low",
-        "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!",
+        "description": "Check this option to allow the learner to select the number of words per sentence to guess. Do not enable this option if your sentences form a story. This option is ignored when \"Allow learner to select the number of items\" is also enabled.",
         "name": "enableNumChoice",
         "type": "boolean",
         "default": false,
@@ -334,6 +336,29 @@
         "type": "boolean",
         "default": false,
         "optional": true
+      },
+      {
+        "label": "Require guesses to be in the word list",
+        "importance": "low",
+        "description": "When enabled in Wordle mode, only words from the complete configured mystery-word list can be submitted.",
+        "name": "enableWordListValidation",
+        "type": "boolean",
+        "default": false,
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "type": "and",
+          "rules": [
+            {
+              "field": "../wordle",
+              "equals": true
+            },
+            {
+              "field": "../playModeW",
+              "equals": "availableSentences"
+            }
+          ]
+        }
       },
       {
         "label": "Enable \"Show solution\" button",
@@ -627,6 +652,26 @@
     "name": "notFilledOut",
     "type": "text",
     "default": "Please fill in all the blanks before checking your answer!",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text shown when no usable configured items are available",
+    "importance": "low",
+    "name": "noQuestionsAvailable",
+    "type": "text",
+    "default": "No usable words or sentences are available.",
+    "description": "Shown instead of starting the activity when the active configured list contains no usable words or sentences.",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for the word-list validation warning",
+    "importance": "low",
+    "name": "wordNotInList",
+    "type": "text",
+    "default": "Sorry, this word is not in the word list.",
+    "description": "Shown when Wordle word-list validation is enabled and the submitted word is not in the configured mystery-word list.",
     "common": true,
     "optional": true
   },

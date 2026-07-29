@@ -103,11 +103,15 @@
         },
         {
           "label": "Activer le choix du nombre de mots",
-          "description": "Cochez cette option pour permettre à l'utilisateur de sélectionner le nombre de mots (par phrase) à deviner. Ne cochez PAS cette option si vos phrases constituent une histoire !"
+          "description": "Cochez cette option pour permettre à l'apprenant de sélectionner le nombre de mots par phrase à deviner. N'activez pas cette option si vos phrases forment une histoire. Cette option est ignorée lorsque « Permettre au joueur de choisir le nombre d'éléments » est également activée."
         },
         {
           "label": "Permettre au joueur de choisir le nombre d'éléments",
           "description": "Permettre au joueur de choisir combien de mots ou de phrases seront tirés de la liste avant le début de la partie. Le joueur peut sélectionner au maximum 20 éléments ; Tous n'est proposé que si la liste contient 20 éléments ou moins. Cette option est ignorée lorsque le joueur saisit son propre mot ou sa propre phrase. Ne pas la combiner avec l'option de choix du nombre de mots par phrase."
+        },
+        {
+          "label": "Exiger que les propositions figurent dans la liste de mots",
+          "description": "Lorsque cette option est activée en mode Wordle, seuls les mots de la liste complète des mots mystères configurés peuvent être proposés."
         },
         {
           "label": "Activer le bouton \"Montrer la solution\""
@@ -212,6 +216,16 @@
     {
       "label": "Texte du message \"Remplissez tous les blancs\"",
       "default": "Vous devez avoir rempli tous les blancs avant de vérifier votre réponse."
+    },
+    {
+      "label": "Texte affiché lorsqu'aucun élément configuré utilisable n'est disponible",
+      "default": "Aucun mot ou aucune phrase utilisable n'est disponible.",
+      "description": "Affiché à la place de l'activité lorsque la liste configurée active ne contient aucun mot ni aucune phrase utilisable."
+    },
+    {
+      "label": "Texte de l'avertissement de validation de la liste de mots",
+      "default": "Désolé, ce mot ne figure pas dans la liste de mots.",
+      "description": "Affiché lorsque la validation de la liste de mots Wordle est activée et que le mot proposé ne figure pas dans la liste des mots mystères configurés."
     },
     {
       "label": "Texte du message \"Combien de mots voulez-vous dans votre phrase mystère ?\"",
