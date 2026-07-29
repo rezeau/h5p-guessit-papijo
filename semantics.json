@@ -308,7 +308,7 @@
       {
         "label": "Enable Number of words Choice",
         "importance": "low",
-        "description": "Check this option to allow the user to select the number of words (per sentence) to guess. Do NOT check this option if your sentences make up a story!",
+        "description": "Check this option to allow the learner to select the number of words per sentence to guess. Do not enable this option if your sentences form a story. This option is ignored when \"Allow learner to select the number of items\" is also enabled.",
         "name": "enableNumChoice",
         "type": "boolean",
         "default": false,

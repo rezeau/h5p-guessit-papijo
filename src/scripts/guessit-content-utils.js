@@ -15,6 +15,21 @@ const getUsableQuestions = function (questions, isWordleWord) {
   });
 };
 
+const getConfiguredListState = function (
+  playMode,
+  questionPool,
+  itemCountChoicePending
+) {
+  if (playMode !== 'availableSentences') {
+    return 'learner-supplied';
+  }
+  if (toQuestionArray(questionPool).length === 0) {
+    return 'empty';
+  }
+
+  return itemCountChoicePending ? 'item-count-choice' : 'ready';
+};
+
 const setLearnerQuestion = function (
   instance,
   sentence,
@@ -44,6 +59,7 @@ const setLearnerQuestion = function (
 };
 
 module.exports = {
+  getConfiguredListState,
   getUsableQuestions,
   setLearnerQuestion,
   toQuestionArray

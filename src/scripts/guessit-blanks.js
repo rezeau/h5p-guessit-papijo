@@ -689,8 +689,12 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       }
     }
 
-    if (this.params.playMode === 'availableSentences' &&
-      this.params.questions.length === 0) {
+    const configuredListState = ContentUtils.getConfiguredListState(
+      this.params.playMode,
+      this.questionPool,
+      this.itemCountChoicePending
+    );
+    if (configuredListState === 'empty') {
       self.numQuestions = 0;
       self.setContent($('<div>', {
         'class': 'h5p-guessit-no-questions',
@@ -701,7 +705,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       return;
     }
 
-    if (this.itemCountChoicePending) {
+    if (configuredListState === 'item-count-choice') {
       this.createItemCountChoice().appendTo(this.$taskdescription);
       self.setContent('');
       return;

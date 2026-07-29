@@ -103,7 +103,7 @@
         },
         {
           "label": "Activer le choix du nombre de mots",
-          "description": "Cochez cette option pour permettre à l'utilisateur de sélectionner le nombre de mots (par phrase) à deviner. Ne cochez PAS cette option si vos phrases constituent une histoire !"
+          "description": "Cochez cette option pour permettre à l'apprenant de sélectionner le nombre de mots par phrase à deviner. N'activez pas cette option si vos phrases forment une histoire. Cette option est ignorée lorsque « Permettre au joueur de choisir le nombre d'éléments » est également activée."
         },
         {
           "label": "Permettre au joueur de choisir le nombre d'éléments",
