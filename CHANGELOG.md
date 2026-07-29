@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.7.0 - 2026-07-29
+
+### New
+
+- Added optional Wordle validation requiring submitted guesses to belong to
+  the complete configured mystery-word list.
+- Rejected words do not consume a turn or reveal new letter-position
+  information.
+- Added an accessible rejected-word retry flow. Check is replaced by Try again,
+  previously established correctly placed letters are preserved, all other
+  letters are cleared, the round count remains unchanged, and keyboard
+  activation works with Enter and Space.
+
+### Fixed
+
+- Fixed crashes in learner-supplied sentence and Wordle modes when the
+  configured item list is empty, missing, or malformed.
+- Added Unicode-aware PHP/WordPress semantic validation for composed accented
+  words such as “précéder”.
+- Fixed false “No usable words or sentences are available” warnings while
+  learner item-count selection is pending.
+- Added graceful accessible handling when an active configured-list mode
+  genuinely contains no usable items.
+- Clarified that learner item-count selection takes priority when both
+  sentence-selection options are enabled.
+
+### Compatibility
+
+- Existing content remains compatible.
+- Word-list validation is disabled by default.
+- Non-Wordle modes and learner-supplied-word mode are unaffected.
+- Composed NFC accented author input is supported; decomposed NFD author input
+  is not claimed as supported.
+- Requires H5P Core API 1.28.
+
 ## 1.6.0 - 2026-07-24
 
 - Modernized question controls for H5P's new-look interface and added a

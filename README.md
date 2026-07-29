@@ -13,6 +13,8 @@ misplaced, and incorrect letter feedback.
   solution access, and a final summary.
 - Wordle comparison that accepts Western European accented letters and their
   unaccented equivalents while preserving the canonical accented spelling.
+- Optional Wordle validation that restricts submitted guesses to the complete
+  configured mystery-word list without consuming a turn for rejected words.
 - Continue and Reset controls for unfinished games.
 - Optional learner selection of the number of items used in a game.
 - Responsive H5P new-look controls with accessible labels and keyboard support.
@@ -26,7 +28,7 @@ order draws 20 items from the complete pool.
 
 ## Compatibility and Installation
 
-H5P GuessIt 1.6 requires H5P Core API 1.28. It has been tested successfully on
+H5P GuessIt 1.7 requires H5P Core API 1.28. It has been tested successfully on
 current WordPress and Moodle installations that support Core API 1.28.
 
 Current Lumi releases are not compatible because they do not yet support H5P
@@ -34,7 +36,7 @@ Core API 1.28. This limitation is expected and does not indicate a problem with
 the GuessIt package.
 
 The release asset is a library-only H5P package. Install
-`H5P.GuessIt-1.6.0.h5p` through the platform's H5P library administration
+`H5P.GuessIt-1.7.0.h5p` through the platform's H5P library administration
 interface. Do not import it as ordinary learner content.
 
 ## Development

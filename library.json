@@ -3,7 +3,7 @@
   "description": "Guess a word letter by letter or a short sentence word by word.",
   "machineName": "H5P.GuessIt",
   "majorVersion": 1,
-  "minorVersion": 6,
+  "minorVersion": 7,
   "patchVersion": 0,
   "runnable": 1,
   "license": "MIT",
