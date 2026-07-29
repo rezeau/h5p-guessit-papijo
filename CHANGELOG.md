@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.1 - 2026-07-29
+
+### Fixed
+
+- Repacked the release archive without explicit ZIP directory entries, fixing
+  WordPress installation failures caused by the forbidden
+  `H5PEditor.VerticalTabs-1.3/styles/` entry in the published 1.7.0 archive.
+- No runtime or content-model behavior changed from 1.7.0.
+
 ## 1.7.0 - 2026-07-29
 
 ### New
