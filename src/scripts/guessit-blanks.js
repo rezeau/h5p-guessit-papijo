@@ -16,6 +16,99 @@ const normalizeWordleQuestions = function (questions) {
   });
 };
 
+const getNormalizedWordleQuestionPool = function (questions) {
+  if (!Array.isArray(questions)) {
+    return [];
+  }
+
+  return questions.map(function (question) {
+    const normalizedQuestion = JSON.parse(JSON.stringify(question));
+    normalizedQuestion.sentence = WordleUtils.normalizeCanonicalWord(
+      normalizedQuestion.sentence
+    );
+    return normalizedQuestion;
+  });
+};
+
+/**
+ * Selected question indices are always local to the complete pool from
+ * which the active questions are drawn. For a selected word length, that
+ * means indices are local to selectedLengthQuestionPool, never to the mixed
+ * configuredWordleQuestionPool.
+ */
+const isSelectionValidForPool = function (pool, indices) {
+  if (!Array.isArray(pool) ||
+    !QuestionSelector.isSelectionWithinLimit(indices)) {
+    return false;
+  }
+
+  const uniqueIndices = new Set(indices);
+  return uniqueIndices.size === indices.length && indices.every(function (index) {
+    return Number.isInteger(index) && index >= 0 && index < pool.length;
+  });
+};
+
+const rebuildAcceptedWordSet = function (instance) {
+  instance.acceptedWordSet = instance.wordListValidationEnabled ?
+    WordleUtils.createAcceptedWordSet(instance.questionPool) :
+    new Set();
+};
+
+const setCompleteQuestionPool = function (
+  instance,
+  questionPool,
+  selectedWordLength = null
+) {
+  if (selectedWordLength === null) {
+    instance.selectedLengthQuestionPool = [];
+    instance.questionPool = questionPool;
+  }
+  else {
+    instance.selectedLengthQuestionPool = questionPool.slice();
+    // questionPool is the legacy selection-source name. In this path it is
+    // deliberately group-local and aliases the complete selected-length pool.
+    instance.questionPool = instance.selectedLengthQuestionPool;
+  }
+  instance.selectedWordLength = selectedWordLength;
+  rebuildAcceptedWordSet(instance);
+};
+
+const activateSelectedWordLength = function (instance, wordLength) {
+  if (!Number.isInteger(wordLength) ||
+    !instance.wordLengthGroups.has(wordLength)) {
+    return false;
+  }
+
+  setCompleteQuestionPool(
+    instance,
+    instance.wordLengthGroups.get(wordLength),
+    wordLength
+  );
+  instance.wordLengthChoiceCompleted = true;
+  instance.wordLengthChoicePending = false;
+  return true;
+};
+
+const requestWordLengthChoice = function (
+  instance,
+  discardPreviousState = false
+) {
+  if (discardPreviousState) {
+    instance.previousState = undefined;
+  }
+  instance.params.questions = [];
+  instance.originalQuestions = [];
+  instance.activeQuestionPool = [];
+  instance.questionPool = [];
+  instance.selectedLengthQuestionPool = [];
+  instance.acceptedWordSet = new Set();
+  instance.totalNumQuestions = 0;
+  instance.selectedWordLength = null;
+  instance.wordLengthChoiceCompleted = false;
+  instance.wordLengthChoicePending = true;
+  instance.wordLengthChoiceActivationStarted = false;
+};
+
 const activateQuestionPool = function (instance, sourceIndices) {
   const questions = [];
   const selectedSourceIndices = [];
@@ -53,6 +146,7 @@ const activateQuestionPool = function (instance, sourceIndices) {
   });
 
   instance.params.questions = questions;
+  instance.activeQuestionPool = questions;
   instance.originalQuestions = questions;
   instance.totalNumQuestions = questions.length;
   instance.selectedItemCount = questions.length;
@@ -67,6 +161,7 @@ const requestItemCountChoice = function (instance, discardPreviousState = false)
   }
   instance.params.questions = [];
   instance.originalQuestions = [];
+  instance.activeQuestionPool = [];
   instance.totalNumQuestions = 0;
   instance.itemCountChoicePending = true;
 };
@@ -188,6 +283,9 @@ H5P.GuessIt = (function ($, Question) {
       scoreExplanationforSentencesWithNumberWords: 'Score = number of guessed sentences / number of sentences containing @words words.',
       userSentenceDescriptionLabel: 'Type a sentence, phrase or word to be guessed by your friends. Words can be split with forward slashes, e.g. electr/o/cardi/o/gram',
       userWordDescriptionLabel: 'Type one word of 4 to 8 letters to be guessed by your friends. Typed lower-case letters will be automatically changed to upper-case.',
+      wordLengthQuestion: 'Select the word length:',
+      letter: 'letter',
+      letters: 'letters',
       userSentencenumRoundsLabel: 'Minimum number of rounds before Solutions can be displayed:',
       userWordnumRoundsLabel: 'Maximum number of tries before Game is over and Solution is displayed:',
       userSentenceTipLabel: 'Type a Tip for this sentence (optional)',
@@ -209,6 +307,7 @@ H5P.GuessIt = (function ($, Question) {
         enableAudio: false,
         enableNumChoice: false,
         enableItemCountChoice: false,
+        enableWordLengthChoice: false,
         enableWordListValidation: false,
         enableSolutionsButton: false,
         enableEndGameButton: false,
@@ -229,11 +328,13 @@ H5P.GuessIt = (function ($, Question) {
     if (questionPools.questionsW !== undefined) {
       this.params.questionsW = questionPools.questionsW;
     }
+    this.configuredWordleSourceList = this.params.wordle ?
+      ContentUtils.toQuestionArray(this.params.questionsW).slice() :
+      [];
 
     // Delete empty questions. Should normally not happen, but...
     // This check is needed if this GuessIt activity instance was saved with an empty item/sentence.
-// Number choice is incompatible with Wordle mode
-  
+    // Number choice is incompatible with Wordle mode.
     if (this.params.wordle) {
       // "Convert" following 2 params from Wordle option to Sentences.
       this.params.playMode = this.params.playModeW;
@@ -253,24 +354,50 @@ H5P.GuessIt = (function ($, Question) {
         this.params.wordle ? WordleUtils.isValidWordleWord : undefined
       );
     }
+    this.normalizedUsableWordleQuestionPool = [];
+    if (this.params.wordle &&
+      this.params.playMode === 'availableSentences') {
+      this.normalizedUsableWordleQuestionPool =
+        getNormalizedWordleQuestionPool(this.params.questions);
+      this.params.questions = this.normalizedUsableWordleQuestionPool;
+    }
+    this.configuredWordleQuestionPool =
+      this.normalizedUsableWordleQuestionPool;
 
-    this.questionPool = this.params.questions;
+    this.configuredQuestionPool = this.params.questions;
+    this.wordLengthGroups = WordleUtils.groupWordleQuestionsByLength(
+      this.configuredWordleQuestionPool
+    );
+    this.selectedLengthQuestionPool = [];
+    this.activeQuestionPool = [];
     this.wordListValidationEnabled =
       WordleUtils.isWordListValidationEnabled(this.params);
-    this.acceptedWordSet = this.wordListValidationEnabled ?
-      WordleUtils.createAcceptedWordSet(this.questionPool) :
-      new Set();
     this.itemCountChoiceEnabled = Boolean(
       this.params.behaviour.enableItemCountChoice &&
       this.params.playMode === 'availableSentences'
+    );
+    this.wordLengthSelectionApplies =
+      WordleUtils.isWordLengthSelectionApplicable(
+        this.params,
+        this.itemCountChoiceEnabled
+      );
+    this.wordLengthChoiceEnabled = WordleUtils.isWordLengthChoiceEnabled(
+      this.params,
+      this.itemCountChoiceEnabled,
+      this.wordLengthGroups.size
     );
     this.enableNumChoiceConfigured = Boolean(
       this.params.behaviour.enableNumChoice && !this.itemCountChoiceEnabled
     );
     this.itemCountChoicePending = false;
     this.itemCountChoiceCompleted = false;
+    this.wordLengthChoicePending = false;
+    this.wordLengthChoiceCompleted = false;
+    this.wordLengthChoiceActivationStarted = false;
+    this.selectedWordLength = null;
     this.selectedQuestionIndices = null;
     this.selectedItemCount = 0;
+    setCompleteQuestionPool(this, this.configuredQuestionPool);
 
     if (this.itemCountChoiceEnabled) {
       this.params.behaviour.enableNumChoice = false;
@@ -278,50 +405,106 @@ H5P.GuessIt = (function ($, Question) {
 
     const hasPreviousState = this.previousState !== undefined &&
       Object.keys(this.previousState).length !== 0;
-    if (this.itemCountChoiceEnabled && hasPreviousState) {
-      const hasItemChoiceState = Object.prototype.hasOwnProperty.call(
-        this.previousState,
-        'itemCountChoiceCompleted'
-      );
-      if (hasItemChoiceState && !this.previousState.itemCountChoiceCompleted &&
-        this.questionPool.length > 1) {
-        requestItemCountChoice(this);
-      }
-      else if (this.previousState.itemCountChoiceCompleted &&
-        QuestionSelector.isSelectionWithinLimit(
-          this.previousState.selectedQuestionIndices
-        )) {
-        activateQuestionPool(this, this.previousState.selectedQuestionIndices);
-        if (this.params.questions.length === 0) {
+    if (this.itemCountChoiceEnabled) {
+      if (hasPreviousState) {
+        const hasItemChoiceState = Object.prototype.hasOwnProperty.call(
+          this.previousState,
+          'itemCountChoiceCompleted'
+        );
+        if (hasItemChoiceState &&
+          !this.previousState.itemCountChoiceCompleted &&
+          this.questionPool.length > 1) {
+          requestItemCountChoice(this);
+        }
+        else if (this.previousState.itemCountChoiceCompleted &&
+          QuestionSelector.isSelectionWithinLimit(
+            this.previousState.selectedQuestionIndices
+          )) {
+          activateQuestionPool(
+            this,
+            this.previousState.selectedQuestionIndices
+          );
+          if (this.params.questions.length === 0) {
+            requestItemCountChoice(this, true);
+          }
+        }
+        else if (
+          this.questionPool.length > QuestionSelector.MAX_SELECTABLE_ITEMS
+        ) {
           requestItemCountChoice(this, true);
         }
+        else {
+          // Preserve legacy or all-items state without asking for a new subset.
+          activateQuestionPool(this);
+        }
       }
-      else if (this.questionPool.length > QuestionSelector.MAX_SELECTABLE_ITEMS) {
-        requestItemCountChoice(this, true);
+      else if (this.questionPool.length > 1) {
+        requestItemCountChoice(this);
       }
       else {
-        // Preserve legacy or all-items state without asking for a new subset.
         activateQuestionPool(this);
       }
     }
-    else if (this.itemCountChoiceEnabled && this.questionPool.length > 1) {
-      requestItemCountChoice(this);
-    }
-    else if (hasPreviousState && QuestionSelector.isSelectionWithinLimit(
-      this.previousState.selectedQuestionIndices
-    )) {
-      activateQuestionPool(this, this.previousState.selectedQuestionIndices);
-      if (this.params.questions.length === 0) {
-        this.previousState = undefined;
-        activateAutomaticQuestionPool(this);
+    else if (this.wordLengthChoiceEnabled) {
+      if (!hasPreviousState) {
+        requestWordLengthChoice(this);
+      }
+      else {
+        const hasWordLengthChoiceState =
+          Object.prototype.hasOwnProperty.call(
+            this.previousState,
+            'wordLengthChoiceCompleted'
+          );
+        if (hasWordLengthChoiceState &&
+          !this.previousState.wordLengthChoiceCompleted) {
+          requestWordLengthChoice(this);
+        }
+        else if (hasWordLengthChoiceState &&
+          this.previousState.wordLengthChoiceCompleted &&
+          activateSelectedWordLength(
+            this,
+            this.previousState.selectedWordLength
+          ) &&
+          isSelectionValidForPool(
+            this.questionPool,
+            this.previousState.selectedQuestionIndices
+          )) {
+          activateQuestionPool(
+            this,
+            this.previousState.selectedQuestionIndices
+          );
+        }
+        else {
+          requestWordLengthChoice(this, true);
+        }
       }
     }
     else {
-      if (hasPreviousState &&
-        this.questionPool.length > QuestionSelector.MAX_SELECTABLE_ITEMS) {
-        this.previousState = undefined;
+      if (this.wordLengthSelectionApplies &&
+        this.wordLengthGroups.size === 1) {
+        const onlyLength = Array.from(this.wordLengthGroups.keys())[0];
+        activateSelectedWordLength(this, onlyLength);
       }
-      activateAutomaticQuestionPool(this);
+
+      if (hasPreviousState && QuestionSelector.isSelectionWithinLimit(
+        this.previousState.selectedQuestionIndices
+      )) {
+        activateQuestionPool(
+          this,
+          this.previousState.selectedQuestionIndices
+        );
+        if (this.params.questions.length === 0) {
+          this.previousState = undefined;
+          activateAutomaticQuestionPool(this);
+        }
+      }
+      else {
+        if (hasPreviousState &&
+          this.questionPool.length > QuestionSelector.MAX_SELECTABLE_ITEMS) {
+          this.previousState = undefined;
+        }
+        activateAutomaticQuestionPool(this);
+      }
     }
 
     if (this.params.playMode === 'userSentence') {
@@ -426,6 +609,89 @@ H5P.GuessIt = (function ($, Question) {
 
       $optionButtons.append(button);
     });
+
+    return $choice;
+  };
+
+  GuessIt.prototype.createWordLengthChoice = function () {
+    const self = this;
+    const headingId = `h5p-guessit-word-length-title-${this.contentId}`;
+    const $choice = $('<div>', {
+      'class': [
+        'h5p-guessit',
+        'h5p-guessit-options',
+        'h5p-guessit-number-choice',
+        'h5p-guessit-word-length-choice'
+      ].join(' ')
+    });
+
+    $('<div>', {
+      'class': 'h5p-guessit-number-choice-title',
+      'id': headingId,
+      'text': this.params.wordLengthQuestion
+    }).appendTo($choice);
+
+    const $optionButtons = $('<div>', {
+      'aria-labelledby': headingId,
+      'class': [
+        'h5p-guessit-optionsbuttons',
+        'h5p-guessit-number-choice-options',
+        'h5p-guessit-word-length-options'
+      ].join(' '),
+      'role': 'group'
+    }).appendTo($choice);
+
+    Array.from(this.wordLengthGroups.keys())
+      .sort(function (a, b) {
+        return a - b;
+      })
+      .forEach(function (wordLength) {
+        const wordCount = self.wordLengthGroups.get(wordLength).length;
+        const letterLabel = wordLength === 1 ?
+          self.params.letter :
+          self.params.letters;
+        const wordLabel = wordCount === 1 ?
+          self.params.word :
+          self.params.words;
+        const label = `${wordLength} ${letterLabel} ` +
+          `[${wordCount} ${wordLabel}]`;
+        const button = H5P.Components.Button({
+          label,
+          ariaLabel: label,
+          styleType: 'secondary',
+          classes: 'h5p-guessit-number-button',
+          onClick: function () {
+            if (self.wordLengthChoiceActivationStarted) {
+              return;
+            }
+            self.wordLengthChoiceActivationStarted = true;
+
+            if (self.previousState &&
+              !self.previousState.wordLengthChoiceCompleted) {
+              self.previousState = undefined;
+            }
+            if (!activateSelectedWordLength(self, wordLength)) {
+              self.wordLengthChoiceActivationStarted = false;
+              return;
+            }
+
+            self.$wordLengthChoice.remove();
+            activateAutomaticQuestionPool(self);
+            // This is the established item-count lifecycle. No question DOM
+            // exists while a choice is pending, and registerDomElements()
+            // removes the previous title before creating the game once.
+            self.registerDomElements();
+            self.trigger('resize');
+            setTimeout(function () {
+              $('[data-content-id="' + self.contentId + '"].h5p-content')
+                .find('.h5p-question-content input:enabled:first')
+                .focus();
+            }, 0);
+          }
+        });
+
+        $optionButtons.append(button);
+      });
 
     return $choice;
   };
@@ -691,8 +957,9 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
     const configuredListState = ContentUtils.getConfiguredListState(
       this.params.playMode,
-      this.questionPool,
-      this.itemCountChoicePending
+      this.configuredQuestionPool,
+      this.itemCountChoicePending,
+      this.wordLengthChoicePending
     );
     if (configuredListState === 'empty') {
       self.numQuestions = 0;
@@ -708,6 +975,19 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     if (configuredListState === 'item-count-choice') {
       this.createItemCountChoice().appendTo(this.$taskdescription);
       self.setContent('');
+      return;
+    }
+
+    if (configuredListState === 'word-length-choice') {
+      this.$wordLengthChoice =
+        this.createWordLengthChoice().appendTo(this.$taskdescription);
+      self.setContent('');
+      self.trigger('resize');
+      setTimeout(function () {
+        if (self.$wordLengthChoice) {
+          self.$wordLengthChoice.find('button:first').focus();
+        }
+      }, 0);
       return;
     }
 
@@ -2332,6 +2612,13 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.selectedItemCount = 0;
     this.itemCountChoiceCompleted = false;
     this.itemCountChoicePending = false;
+    this.wordLengthChoiceCompleted = false;
+    this.wordLengthChoicePending = false;
+    this.wordLengthChoiceActivationStarted = false;
+    this.selectedWordLength = null;
+    this.selectedLengthQuestionPool = [];
+    this.activeQuestionPool = [];
+    this.$wordLengthChoice = undefined;
     this.params.behaviour.enableNumChoice = this.enableNumChoiceConfigured;
     delete this.currentSentenceId;
 
@@ -2342,13 +2629,24 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.$progress = undefined;
     this.$divGuessedSentences = undefined;
 
-    if (this.itemCountChoiceEnabled && this.questionPool.length > 1) {
+    setCompleteQuestionPool(this, this.configuredQuestionPool);
+    if (this.itemCountChoiceEnabled &&
+      this.configuredQuestionPool.length > 1) {
       this.params.questions = [];
       this.originalQuestions = [];
+      this.activeQuestionPool = [];
       this.totalNumQuestions = 0;
       this.itemCountChoicePending = true;
     }
+    else if (this.wordLengthChoiceEnabled) {
+      requestWordLengthChoice(this);
+    }
     else {
+      if (this.wordLengthSelectionApplies &&
+        this.wordLengthGroups.size === 1) {
+        const onlyLength = Array.from(this.wordLengthGroups.keys())[0];
+        activateSelectedWordLength(this, onlyLength);
+      }
       activateAutomaticQuestionPool(this);
     }
 
@@ -2583,6 +2881,8 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     state.totalTimeSpent = this.totalTimeSpent;
     if (this.params.playMode === 'availableSentences') {
       state.itemCountChoiceCompleted = this.itemCountChoiceCompleted;
+      state.wordLengthChoiceCompleted = this.wordLengthChoiceCompleted;
+      state.selectedWordLength = this.selectedWordLength;
       state.selectedItemCount = this.selectedItemCount;
       state.selectedQuestionIndices = this.selectedQuestionIndices;
     }

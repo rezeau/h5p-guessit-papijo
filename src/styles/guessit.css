@@ -274,6 +274,15 @@
   gap: 10px;
   flex-wrap: wrap;
 }
+.h5p-guessit-word-length-options .h5p-guessit-number-button {
+  white-space: normal;
+}
+@media (max-width: 30rem) {
+  .h5p-guessit-word-length-options .h5p-guessit-number-button {
+    box-sizing: border-box;
+    width: 100%;
+  }
+}
 .h5p-guessit .h5p-guessit-optionsbuttons {
   box-sizing: border-box;
   padding: var(--h5p-theme-spacing-l);

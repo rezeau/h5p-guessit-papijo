@@ -493,7 +493,7 @@ test('runtime derives the no-items warning from the configured pool', function (
 
   assert.match(
     source,
-    /getConfiguredListState\(\s*this\.params\.playMode,\s*this\.questionPool,\s*this\.itemCountChoicePending/
+    /getConfiguredListState\(\s*this\.params\.playMode,\s*this\.configuredQuestionPool,\s*this\.itemCountChoicePending,\s*this\.wordLengthChoicePending/
   );
   assert.match(
     source,
@@ -502,6 +502,10 @@ test('runtime derives the no-items warning from the configured pool', function (
   assert.match(
     source,
     /configuredListState === 'item-count-choice'/
+  );
+  assert.match(
+    source,
+    /configuredListState === 'word-length-choice'/
   );
   assert.match(
     source,
