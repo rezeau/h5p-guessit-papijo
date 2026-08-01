@@ -90,6 +90,102 @@ test('validates four to eight Western European letters after NFC normalization',
   assert.equal(WordleUtils.isValidWordleWord('MOT-DEUX'), false);
 });
 
+test('counts valid Wordle words by normalized Unicode code points', function () {
+  assert.equal(WordleUtils.getWordleWordLength('ÉTAGE'), 5);
+  assert.equal(WordleUtils.getWordleWordLength('E\u0301TAGE'), 5);
+  assert.equal(WordleUtils.getWordleWordLength('ŒUVRE'), 5);
+  assert.equal(WordleUtils.getWordleWordLength('ÆTHER'), 5);
+  assert.equal(WordleUtils.getWordleWordLength('WORD'), 4);
+  assert.equal(WordleUtils.getWordleWordLength('ABCDEFGH'), 8);
+
+  assert.equal(Buffer.byteLength('ÉTAGE', 'utf8') > 5, true);
+  assert.equal(WordleUtils.getWordleWordLength('ÉTAGE'), 5);
+  assert.equal(WordleUtils.getWordleWordLength('ETE'), null);
+  assert.equal(WordleUtils.getWordleWordLength('ABCDEFGHI'), null);
+  assert.equal(WordleUtils.getWordleWordLength('MOT-DEUX'), null);
+  assert.equal(WordleUtils.getWordleWordLength(''), null);
+  assert.equal(WordleUtils.getWordleWordLength(null), null);
+  assert.equal(WordleUtils.getWordleWordLength(12345), null);
+});
+
+test('groups only usable Wordle questions by length in source order', function () {
+  const fourA = { sentence: 'WORD' };
+  const fiveA = { sentence: 'ÉTAGE' };
+  const fiveB = { sentence: 'E\u0301TAGE' };
+  const fiveC = { sentence: 'ŒUVRE' };
+  const fiveD = { sentence: 'ÆTHER' };
+  const eight = { sentence: 'ABCDEFGH' };
+  const groups = WordleUtils.groupWordleQuestionsByLength([
+    fiveA,
+    null,
+    fourA,
+    { sentence: '' },
+    { sentence: 'MOT-DEUX' },
+    { sentence: 12345 },
+    {},
+    fiveB,
+    fiveC,
+    fiveD,
+    eight
+  ]);
+
+  assert.deepEqual(Array.from(groups.keys()), [5, 4, 8]);
+  assert.deepEqual(groups.get(4), [fourA]);
+  assert.deepEqual(groups.get(5), [fiveA, fiveB, fiveC, fiveD]);
+  assert.deepEqual(groups.get(8), [eight]);
+  assert.equal(
+    WordleUtils.groupWordleQuestionsByLength(undefined).size,
+    0
+  );
+  assert.equal(fiveB.sentence, 'E\u0301TAGE');
+});
+
+test('enables word-length choice only for the supported precedence path', function () {
+  const params = {
+    behaviour: { enableWordLengthChoice: true },
+    playMode: 'availableSentences',
+    wordle: true
+  };
+
+  assert.equal(
+    WordleUtils.isWordLengthSelectionApplicable(params, false),
+    true
+  );
+  assert.equal(
+    WordleUtils.isWordLengthChoiceEnabled(params, false, 2),
+    true
+  );
+  assert.equal(
+    WordleUtils.isWordLengthChoiceEnabled(params, false, 1),
+    false
+  );
+  assert.equal(
+    WordleUtils.isWordLengthChoiceEnabled(params, true, 2),
+    false
+  );
+  assert.equal(
+    WordleUtils.isWordLengthChoiceEnabled({
+      ...params,
+      behaviour: {}
+    }, false, 2),
+    false
+  );
+  assert.equal(
+    WordleUtils.isWordLengthChoiceEnabled({
+      ...params,
+      playMode: 'userSentence'
+    }, false, 2),
+    false
+  );
+  assert.equal(
+    WordleUtils.isWordLengthChoiceEnabled({
+      ...params,
+      wordle: false
+    }, false, 2),
+    false
+  );
+});
+
 test('normalizes canonical words from previous-state data', function () {
   const previousState = {
     originalQuestions: [{ sentence: 'E\u0301TE\u0301' }]

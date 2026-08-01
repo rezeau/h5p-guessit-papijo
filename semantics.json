@@ -1,4 +1,4 @@
-[ 
+[
   {
     "name": "info",
     "type": "boolean",
@@ -33,7 +33,7 @@
       "color": true,
       "background": true
     }
-  },  
+  },
   {
     "name": "wordle",
     "label": "Wordle Option: Guess a word",
@@ -164,7 +164,9 @@
           "description": "Audio for this sentence (optional)",
           "importance": "low",
           "optional": true,
-          "widgetExtensions": ["AudioRecorder"],
+          "widgetExtensions": [
+            "AudioRecorder"
+          ],
           "widget": "showWhen",
           "showWhen": {
             "type": "and",
@@ -180,7 +182,7 @@
             ]
           }
         },
-        {  
+        {
           "name": "tip",
           "label": "Tip",
           "type": "text",
@@ -246,7 +248,9 @@
           "description": "Audio for this word (optional)",
           "importance": "low",
           "optional": true,
-          "widgetExtensions": ["AudioRecorder"],
+          "widgetExtensions": [
+            "AudioRecorder"
+          ],
           "widget": "showWhen",
           "showWhen": {
             "type": "and",
@@ -262,7 +266,7 @@
             ]
           }
         },
-        {  
+        {
           "name": "tip",
           "label": "Tip",
           "type": "text",
@@ -287,7 +291,7 @@
     "importance": "low",
     "description": "These options will let you control how the task behaves. A maximum of 20 items is used in each game. If learner item selection is disabled and more than 20 items are available, GuessIt selects 20 according to the Items Order setting.",
     "optional": true,
-    "fields": [      
+    "fields": [
       {
         "name": "caseSensitive",
         "importance": "low",
@@ -336,6 +340,33 @@
         "type": "boolean",
         "default": false,
         "optional": true
+      },
+      {
+        "label": "Allow the learner to select the word length",
+        "importance": "low",
+        "description": "Allow the learner to select the length of Wordle mystery words before play starts. Only lengths present in the usable configured word list are offered. This option is ignored when \"Allow learner to select the number of items\" is also enabled.",
+        "name": "enableWordLengthChoice",
+        "type": "boolean",
+        "default": false,
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "type": "and",
+          "rules": [
+            {
+              "field": "../wordle",
+              "equals": true
+            },
+            {
+              "field": "../playModeW",
+              "equals": "availableSentences"
+            },
+            {
+              "field": "enableItemCountChoice",
+              "equals": false
+            }
+          ]
+        }
       },
       {
         "label": "Require guesses to be in the word list",
@@ -392,7 +423,7 @@
         "optional": true,
         "widget": "showWhen",
         "showWhen": {
-        "type": "and",
+          "type": "and",
           "rules": [
             {
               "field": "../playMode",
@@ -404,7 +435,7 @@
             },
             {
               "field": "../wordle",
-              "equals":false
+              "equals": false
             }
           ]
         }
@@ -466,14 +497,14 @@
         "description": "If a sentence has an audio attached to it, select WHEN you want to display the audio buttons.",
         "default": "correct",
         "widget": "showWhen",
-          "showWhen": {
-            "rules": [
-              {
-                "field": "../enableAudio",
-                "equals": true
-              }
-            ]
-          },
+        "showWhen": {
+          "rules": [
+            {
+              "field": "../enableAudio",
+              "equals": true
+            }
+          ]
+        },
         "options": [
           {
             "value": "correct",
@@ -508,10 +539,10 @@
         "name": "listGuessedAudioAndTips",
         "description": "Select how you want to display the audio and tip buttons in front of each sentence in the list of guessed sentences.",
         "type": "select",
-        "default": "none",        
+        "default": "none",
         "widget": "showWhen",
         "showWhen": {
-        "type": "and",
+          "type": "and",
           "rules": [
             {
               "field": "../playMode",
@@ -552,7 +583,7 @@
         "label": "Items Order",
         "importance": "low",
         "description": "Select the order in which the words or sentences will be displayed. Use normal order if the items form a phrase or story.",
-        "default": "normal",        
+        "default": "normal",
         "options": [
           {
             "value": "normal",
@@ -715,6 +746,35 @@
     "optional": true
   },
   {
+    "label": "Word-length selector heading",
+    "importance": "low",
+    "name": "wordLengthQuestion",
+    "type": "text",
+    "default": "Select the word length:",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"letter\" singular word",
+    "description": "Used in the Wordle word-length selector",
+    "importance": "low",
+    "name": "letter",
+    "type": "text",
+    "default": "letter",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Text for \"letters\" plural word",
+    "description": "Used in the Wordle word-length selector",
+    "importance": "low",
+    "name": "letters",
+    "type": "text",
+    "default": "letters",
+    "common": true,
+    "optional": true
+  },
+  {
     "label": "Text for \"Type a sentence to be guessed by your friends\" message",
     "importance": "low",
     "name": "userSentenceDescriptionLabel",
@@ -762,7 +822,7 @@
     "default": "Maximum number of tries before Game is over and Solution is displayed:",
     "common": true,
     "optional": true,
-    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+    "description": "Only used if playmode is set to \"Allow user to enter their own word\" and Wordle option selected."
   },
   {
     "label": "Text for the \"Never show\" radio button choice",
@@ -782,7 +842,7 @@
     "default": "No limit",
     "common": true,
     "optional": true,
-    "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+    "description": "Only used if playmode is set to \"Allow user to enter their own word\" and Wordle option selected."
   },
   {
     "name": "sentence",
@@ -792,7 +852,7 @@
     "importance": "low",
     "default": "sentence",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "word",
@@ -802,7 +862,7 @@
     "importance": "low",
     "default": "word",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "words",
@@ -822,7 +882,7 @@
     "importance": "low",
     "default": "sentences",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "round",
@@ -832,7 +892,7 @@
     "importance": "low",
     "default": "Round @round",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "timeSpent",
@@ -842,7 +902,7 @@
     "default": "Time Spent",
     "description": "Label for showing the time spent while guessing one sentence",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "scoreExplanationButtonLabel",
@@ -852,7 +912,7 @@
     "default": "Show score explanation",
     "description": "Label for the 'Show score explanation' feedback text",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "scoreExplanationforSinglePoint",
@@ -861,7 +921,7 @@
     "type": "text",
     "default": "The maximum score for this activity is 1 and you got the point for any number of sentences guessed.",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "scoreExplanationforAllSentences",
@@ -870,7 +930,7 @@
     "type": "text",
     "default": "Score = number of guessed sentences / number of sentences in this activity.",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "scoreExplanationforAllWords",
@@ -879,7 +939,7 @@
     "type": "text",
     "default": "Score = number of words found / number of words tried.",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "scoreExplanationforSentencesWithNumberWords",
@@ -889,7 +949,7 @@
     "default": "Score = number of guessed sentences / number of sentences containing @words words.",
     "description": "@words will be replaced by the number of words per sentence selected by the user on the initial screen",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "summary",
@@ -898,7 +958,7 @@
     "type": "text",
     "default": "Summary",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "sentencesGuessed",
@@ -907,7 +967,7 @@
     "type": "text",
     "default": "Sentences guessed",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "wordsFound",
@@ -916,7 +976,7 @@
     "type": "text",
     "default": "Words found: ",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "wordFound",
@@ -925,7 +985,7 @@
     "type": "text",
     "default": "Word found: ",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "wordNotFound",
@@ -934,7 +994,7 @@
     "type": "text",
     "default": "Word not found: ",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "solutionsViewed",
@@ -943,7 +1003,7 @@
     "type": "text",
     "default": "Solutions viewed",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "totalTimeSpent",
@@ -952,7 +1012,7 @@
     "type": "text",
     "default": "Total Time Spent",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "name": "totalRounds",
@@ -961,7 +1021,7 @@
     "type": "text",
     "default": "Total Rounds",
     "common": true,
-    "optional": true 
+    "optional": true
   },
   {
     "label": "Text for \"':ans' is correct\" message",

@@ -110,6 +110,10 @@
           "description": "Allow the learner to select how many words or sentences are drawn from the available list before play starts. Learners can select at most 20 items; All is offered only when the list contains 20 items or fewer. This option is ignored when learners enter their own word or sentence. Do not combine it with \"Enable Number of words Choice\"."
         },
         {
+          "label": "Allow the learner to select the word length",
+          "description": "Allow the learner to select the length of Wordle mystery words before play starts. Only lengths present in the usable configured word list are offered. This option is ignored when \"Allow learner to select the number of items\" is also enabled."
+        },
+        {
           "label": "Require guesses to be in the word list",
           "description": "When enabled in Wordle mode, only words from the complete configured mystery-word list can be submitted."
         },
@@ -247,6 +251,20 @@
       "default": "All"
     },
     {
+      "label": "Word-length selector heading",
+      "default": "Select the word length:"
+    },
+    {
+      "label": "Text for \"letter\" singular word",
+      "description": "Used in the Wordle word-length selector",
+      "default": "letter"
+    },
+    {
+      "label": "Text for \"letters\" plural word",
+      "description": "Used in the Wordle word-length selector",
+      "default": "letters"
+    },
+    {
       "label": "Text for \"Type a sentence to be guessed by your friends\" message",
       "default": "Type a sentence to be guessed by your friends",
       "description": "Only used if playmode is set to \"Allow users to enter their own sentence\""
@@ -269,7 +287,7 @@
     {
       "label": "Text for \"Maximum number of tries before Game is over and Solution is displayed:\" message",
       "default": "Maximum number of tries before Game is over and Solution is displayed:",
-      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+      "description": "Only used if playmode is set to \"Allow user to enter their own word\" and Wordle option selected."
     },
     {
       "label": "Text for the \"Never show\" radio button choice",
@@ -279,7 +297,7 @@
     {
       "label": "Text for the \"No limit\" radio button choice",
       "default": "No limit",
-      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+      "description": "Only used if playmode is set to \"Allow user to enter their own word\" and Wordle option selected."
     },
     {
       "label": "Text for \"sentence\" singular word",

@@ -18,7 +18,8 @@ const getUsableQuestions = function (questions, isWordleWord) {
 const getConfiguredListState = function (
   playMode,
   questionPool,
-  itemCountChoicePending
+  itemCountChoicePending,
+  wordLengthChoicePending
 ) {
   if (playMode !== 'availableSentences') {
     return 'learner-supplied';
@@ -27,7 +28,10 @@ const getConfiguredListState = function (
     return 'empty';
   }
 
-  return itemCountChoicePending ? 'item-count-choice' : 'ready';
+  if (itemCountChoicePending) {
+    return 'item-count-choice';
+  }
+  return wordLengthChoicePending ? 'word-length-choice' : 'ready';
 };
 
 const setLearnerQuestion = function (

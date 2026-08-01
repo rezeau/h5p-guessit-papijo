@@ -1,7 +1,7 @@
 {
   "semantics": [
     {
-      "label": "<span style=\"position: absolute;top: -40px;\">Tutoriel et exemples : <a href=\"http://www.h5p.rezeau.org\" target=\"_blank\" rel=\"noopener\">Site Moodle-H5P de Papi Jo</a></span>",
+      "label": "<span style=\"position: absolute;top: -40px;\">Tutoriel et exemples : <a href=\"http://www.h5p.rezeau.org\" target=\"_blank\" rel=\"noopener\">Site WordPress-H5P de Papi Jo</a></span>",
       "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
     },
     {
@@ -108,6 +108,10 @@
         {
           "label": "Permettre au joueur de choisir le nombre d'éléments",
           "description": "Permettre au joueur de choisir combien de mots ou de phrases seront tirés de la liste avant le début de la partie. Le joueur peut sélectionner au maximum 20 éléments ; Tous n'est proposé que si la liste contient 20 éléments ou moins. Cette option est ignorée lorsque le joueur saisit son propre mot ou sa propre phrase. Ne pas la combiner avec l'option de choix du nombre de mots par phrase."
+        },
+        {
+          "label": "Permettre au joueur de sélectionner la longueur du mot",
+          "description": "Permettre au joueur de sélectionner la longueur des mots mystères Wordle avant le début de la partie. Seules les longueurs présentes dans la liste configurée de mots utilisables sont proposées. Cette option est ignorée lorsque « Permettre au joueur de choisir le nombre d'éléments » est également activée."
         },
         {
           "label": "Exiger que les propositions figurent dans la liste de mots",
@@ -245,6 +249,20 @@
     {
       "label": "Libellé permettant de sélectionner tous les éléments disponibles",
       "default": "Tout"
+    },
+    {
+      "label": "Titre du sélecteur de longueur du mot",
+      "default": "Sélectionnez la longueur du mot :"
+    },
+    {
+      "label": "Texte pour le singulier « lettre »",
+      "description": "Utilisé dans le sélecteur de longueur du mot Wordle",
+      "default": "lettre"
+    },
+    {
+      "label": "Texte pour le pluriel « lettres »",
+      "description": "Utilisé dans le sélecteur de longueur du mot Wordle",
+      "default": "lettres"
     },
     {
       "label": "Texte du message \"Tapez une phrase à faire deviner par vos amis\"",

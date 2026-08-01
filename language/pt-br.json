@@ -1,7 +1,7 @@
 {
   "semantics": [
     {
-      "label": "<span style=\"position: absolute;top: -40px;left: 0px;\">Tutoriais e Exemplos: <a href=\"http://www.h5p.rezeau.org\" target=\"_blank\" rel=\"noopener\">Papi Jo's Moodle H5P site</a></span>",
+      "label": "<span style=\"position: absolute;top: -40px;left: 0px;\">Tutoriais e Exemplos: <a href=\"http://www.h5p.rezeau.org\" target=\"_blank\" rel=\"noopener\">site WordPress com H5P do Papi Jo</a></span>",
       "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
     },
     {
@@ -10,8 +10,8 @@
       "description": "Guia de instruções para o utilizador, de como realizar a tarefa."
     },
     {
-      "label": "Wordle Option: Guess a word",
-      "description": "Check this option if you want the player to have to guess single words of 4 to 8 letters instead of sentences."
+      "label": "Opção do Wordle: adivinhar uma palavra",
+      "description": "Marque esta opção se quiser que o jogador tenha que adivinhar palavras individuais de 4 a 8 letras em vez de frases."
     },
     {
       "label": "Modo de Jogo",
@@ -26,14 +26,14 @@
       ]
     },
     {
-      "label": "Play Mode Wordle",
-      "description": "Select your play mode",
+      "label": "Modo de jogo do Wordle",
+      "description": "Selecione o modo de jogo",
       "options": [
         {
-          "label": "Use available words (below)"
+          "label": "Usar as palavras disponíveis (abaixo)"
         },
         {
-          "label": "Allow user to enter their own word"
+          "label": "Permitir que o usuário digite sua própria palavra"
         }
       ]
     },
@@ -68,24 +68,24 @@
       }
     },
     {
-      "label": "Words",
+      "label": "Palavras",
       "entity": "word",
-      "description": "Type the words of 4 to 8 letters to be guessed by the students.",
+      "description": "Digite as palavras de 4 a 8 letras que os alunos deverão adivinhar.",
       "widgets": [
         {
-          "label": "Default"
+          "label": "Padrão"
         }
       ],
       "field": {
-        "label": "Word",
+        "label": "Palavra",
         "fields": [
           {
-            "label": "Word",
-            "description": "Type one word of 4 to 8 letters. Uppercase, lowercase, and Western European accented letters are accepted."
+            "label": "Palavra",
+            "description": "Digite uma palavra de 4 a 8 letras. São aceitas letras maiúsculas, minúsculas e letras acentuadas da Europa Ocidental."
           },
           {
-            "label": "Audio",
-            "description": "Audio for this sentence (optional)"
+            "label": "Áudio",
+            "description": "Áudio para esta palavra (opcional)"
           },
           {
             "label": "Ajuda"
@@ -98,8 +98,8 @@
       "description": "Estas configurações permitem controlar o comportamento da tarefa. Cada jogo usa no máximo 20 itens. Se a seleção do número de itens pelo usuário estiver desativada e houver mais de 20 itens disponíveis, o GuessIt selecionará 20 de acordo com a configuração Ordem dos itens.",
       "fields": [
         {
-          "label": "Pontuar esta atividade com o valor unitário, para qualquer número de afirmações descobertas.",
-          "description": "Não selecionar esta opção, se pretender que a pontuação seja em percentagem do número total de afirmações ou frases."
+          "label": "Diferenciar maiúsculas de minúsculas",
+          "description": "Garante que o texto digitado pelo usuário corresponda exatamente à resposta."
         },
         {
           "label": "Permitir a escolha do número de palavras",
@@ -108,6 +108,10 @@
         {
           "label": "Permitir que o usuário escolha o número de elementos",
           "description": "Permitir que o usuário escolha quantas palavras ou frases serão retiradas da lista antes do início da atividade. O usuário pode selecionar no máximo 20 itens; Todos só é oferecido quando a lista contém 20 itens ou menos. Esta opção é ignorada quando o usuário digita sua própria palavra ou frase. Não combinar com a opção de escolha do número de palavras por frase."
+        },
+        {
+          "label": "Permitir que o aluno selecione o tamanho da palavra",
+          "description": "Permite que o aluno selecione o tamanho das palavras misteriosas do Wordle antes do início da atividade. Somente os tamanhos presentes na lista configurada de palavras utilizáveis são oferecidos. Esta opção é ignorada quando a seleção do número de elementos pelo aluno também está ativada."
         },
         {
           "label": "Exigir que os palpites estejam na lista de palavras",
@@ -125,15 +129,15 @@
           "description": "Número mínimo de tentativas antes de exibir os botões \"Mostrar solução\" ou \"Ver resumo\"."
         },
         {
-          "label": "Maximum number of tries to guess the word (Wordle option)",
-          "description": "Maximum number of tries before Game is over and Solution is displayed:"
+          "label": "Número máximo de tentativas para adivinhar a palavra (modo Wordle)",
+          "description": "Número máximo de tentativas antes que o jogo termine e a solução seja exibida:"
         },
         {
           "label": "Quando mostrar os símbolos do Áudio",
           "description": "Se a afirmação possui um Áudio associado, selecionar QUANDO se pretende mostrar o acesso ao mesmo.",
           "options": [
             {
-              "label": "Apenas quando es espaços forem preenchidos"
+              "label": "Somente quando os espaços tiverem sido preenchidos corretamente"
             },
             {
               "label": "Sempre"
@@ -145,14 +149,14 @@
           "description": "Selecionar esta opção para adicionar a afirmação descoberta a uma lista, após cada tentativa com sucesso. Esta opção é útil se as afirmações/frases fazem parte de uma história."
         },
         {
-          "label": "Mostar os os botões de Áudio e Ajuda nas afirmações/frases descobertas",
-          "description": "Selecionar a forma de mostrar os botões de Áudio e de Ajuda, em frente a cada afirmação, na lista das afirmações descobertas.",          
+          "label": "Exibir os botões de Áudio e Ajuda nas afirmações/frases descobertas",
+          "description": "Selecionar a forma de mostrar os botões de Áudio e de Ajuda, em frente a cada afirmação, na lista das afirmações descobertas.",
           "options": [
             {
               "label": "Nenhum"
             },
             {
-              "label": "Ambos os botões(Áudio e Ajuda)"
+              "label": "Ambos os botões (Áudio e Ajuda)"
             },
             {
               "label": "Apenas o botão de Ajuda"
@@ -185,8 +189,8 @@
       "default": "Descobrir Nova Afirmação"
     },
     {
-      "label": "Text for \"New word\" button",
-      "default": "Guess another word"
+      "label": "Texto do botão “Nova palavra”",
+      "default": "Adivinhar outra palavra"
     },
     {
       "label": "Texto do botão \"Ver resumo\"",
@@ -209,9 +213,9 @@
       "default": "Reiniciar o jogo"
     },
     {
-      "label": "Text for \"Not enough rounds\" message",
-      "default": "This option won't be available before round @round",
-      "description": "@round será substituído pelo número mínimo de tentativas necessário antes de exibir as soluções ou o resumo"
+      "label": "Texto da mensagem “Rodadas insuficientes”",
+      "default": "Esta opção não estará disponível antes da rodada @round",
+      "description": "@round será substituído pelo número mínimo de rodadas necessário antes de exibir as soluções ou o resumo"
     },
     {
       "label": "Texto para \"Preencher Todos os Espaços\"",
@@ -247,14 +251,28 @@
       "default": "Todas"
     },
     {
+      "label": "Título do seletor de tamanho da palavra",
+      "default": "Selecione o tamanho da palavra:"
+    },
+    {
+      "label": "Texto para a palavra “letra” no singular",
+      "description": "Usado no seletor de tamanho da palavra do Wordle",
+      "default": "letra"
+    },
+    {
+      "label": "Texto para a palavra “letras” no plural",
+      "description": "Usado no seletor de tamanho da palavra do Wordle",
+      "default": "letras"
+    },
+    {
       "label": "Texto para \"Escreva a afirmação ou frase a ser descoberta pelos seus amigos\"",
       "default": "Escreva a afirmação ou frase a ser descoberta pelos seus amigos",
       "description": "Aplicável apenas se o Modo de jogo foi selecionado para \"Permitir ao utilizador escolher a afirmação\""
     },
     {
-      "label": "Text for the user-entered Wordle instruction",
-      "default": "Type one word of 4 to 8 letters to be guessed by your friends. Typed lower-case letters will be automatically changed to upper-case.",
-      "description": "Only used if playmode is set to \"Allow user to enter their own word\""
+      "label": "Texto da instrução para a palavra digitada pelo usuário",
+      "default": "Digite uma palavra de 4 a 8 letras para seus amigos adivinharem. As letras minúsculas digitadas serão convertidas automaticamente em maiúsculas.",
+      "description": "Usado apenas se o modo de jogo estiver definido como “Permitir que o usuário digite sua própria palavra”"
     },
     {
       "label": "Texto para \"Escreva uma frase de Ajuda para a afirmação (opcional)\"",
@@ -267,9 +285,9 @@
       "description": "Aplicável apenas se o Modo de jogo foi selecionado para \"Permitir ao utilizador escolher a afirmação\""
     },
     {
-      "label": "Text for \"Maximum number of tries before Game is over and Solution is displayed:\" message",
-      "default": "Maximum number of tries before Game is over and Solution is displayed:",
-      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+      "label": "Texto da mensagem “Número máximo de tentativas antes que o jogo termine e a solução seja exibida:”",
+      "default": "Número máximo de tentativas antes que o jogo termine e a solução seja exibida:",
+      "description": "Usado apenas se o modo de jogo estiver definido como “Permitir que o usuário digite sua própria palavra” e o modo Wordle estiver selecionado."
     },
     {
       "label": "Texto do botão de seleção \"Não Mostrar\"",
@@ -277,9 +295,9 @@
       "description": "Aplicável apenas se o Modo de jogo foi selecionado para \"Permitir ao utilizador escolher a afirmação\""
     },
     {
-      "label": "Text for the \"No limit\" radio button choice",
-      "default": "No limit",
-      "description": "Only used if playmode is set to \"Allow users to enter their own sentence\" and Wordle option selected."
+      "label": "Texto da opção “Sem limite”",
+      "default": "Sem limite",
+      "description": "Usado apenas se o modo de jogo estiver definido como “Permitir que o usuário digite sua própria palavra” e o modo Wordle estiver selecionado."
     },
     {
       "label": "Texto para \"Afirmação\", no singular",
@@ -303,13 +321,13 @@
     },
     {
       "label": "Texto para a mensagem \"Tentativa\" abaixo das afirmações/frases a descobrir",
-      "description": "@round será substituido pelo número da tentativa atual",
+      "description": "@round será substituído pelo número da rodada atual",
       "default": "@round ª Tentativa"
     },
     {
       "label": "Texto relativo ao tempo decorrido",
       "default": "Tempo Decorrido",
-      "description": "Legenda para mostar o tempo decorrido enquando tenta descobrir a afirmação"
+      "description": "Legenda para mostrar o tempo decorrido enquanto tenta descobrir a afirmação"
     },
     {
       "label": "Texto a visualizar no botão explicativo da pontuação obtida",
@@ -317,21 +335,21 @@
       "description": "Legenda do botão de Feedback 'Mostrar Explicação da Pontuação'"
     },
     {
-      "label": "Expicação da pontuação para o caso de ponto único pela atividade",
+      "label": "Explicação da pontuação para o caso de ponto único pela atividade",
       "default": "A pontuação máxima para esta atividade é 1 e obteve esse ponto independentemente do número de afirmações descobertas."
     },
     {
-      "label": "Expicação da pontuação para o caso de pontuação percentual",
+      "label": "Explicação da pontuação para o caso de pontuação percentual",
       "default": "Pontuação = número de afirmações descobertas / número de afirmações desta atividade."
     },
     {
-      "label": "Score Explanation for All Words (Wordle option)",
-      "default": "Score = number of guessed words / number of words in this activity."
+      "label": "Explicação da pontuação para todas as palavras (modo Wordle)",
+      "default": "Pontuação = número de palavras encontradas / número de palavras tentadas."
     },
     {
       "label": "Explicação da pontuação para todas as afirmações com o número selecionado de palavras",
       "default": "Pontuação = número de afirmações descobertas / número de afirmações contendo @words palavras.",
-      "description": "@words will be replaced by the number of words per sentence selected by the user on the initial screen"
+      "description": "@words será substituído pelo número de palavras por frase selecionado pelo usuário na tela inicial"
     },
     {
       "label": "Texto para o cabeçalho da página de resumo",
@@ -342,16 +360,16 @@
       "default": "Afirmações Descobertas"
     },
     {
-      "label": "Text for the number of Words  guessed (on the summary page)",
-      "default": "Words found: "
+      "label": "Texto do número de palavras encontradas (na página de resumo)",
+      "default": "Palavras encontradas: "
     },
     {
-      "label": "Text for Word Found (Wordle Option)",
-      "default": "Word found: "
+      "label": "Texto para palavra encontrada (modo Wordle)",
+      "default": "Palavra encontrada: "
     },
     {
-      "label": "Text for Word not found (Wordle option)",
-      "default": "Word not found: "
+      "label": "Texto para palavra não encontrada (modo Wordle)",
+      "default": "Palavra não encontrada: "
     },
     {
       "label": "Texto para o número total de soluções visualizadas (na página resumo final)",

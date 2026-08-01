@@ -203,3 +203,176 @@ test('NFD words are not claimed as valid in the authoring save path', function (
 
   assert.equal(pattern.test('pre\u0301ce\u0301der'), false);
 });
+
+
+const englishLocalisation = JSON.parse(fs.readFileSync(
+  path.join(__dirname, '..', 'language', '.en.json'),
+  'utf8'
+));
+
+const portugueseLocalisations = [
+  {
+    code: 'pt',
+    caseSensitiveLabel: 'Distinguir maiúsculas de minúsculas'
+  },
+  {
+    code: 'pt-br',
+    caseSensitiveLabel: 'Diferenciar maiúsculas de minúsculas'
+  },
+  {
+    code: 'pt-pt',
+    caseSensitiveLabel: 'Distinguir maiúsculas de minúsculas'
+  }
+].map(function (locale) {
+  return {
+    ...locale,
+    data: JSON.parse(fs.readFileSync(
+      path.join(__dirname, '..', 'language', locale.code + '.json'),
+      'utf8'
+    ))
+  };
+});
+
+const getTranslationShape = function (value) {
+  if (Array.isArray(value)) {
+    return value.map(getTranslationShape);
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(function (entry) {
+      return [entry[0], getTranslationShape(entry[1])];
+    }));
+  }
+
+  return typeof value;
+};
+
+const getValueAtPath = function (value, valuePath) {
+  return valuePath.reduce(function (current, segment) {
+    return current[segment];
+  }, value);
+};
+
+const getPlaceholderMap = function (
+  value,
+  valuePath = '$',
+  placeholders = {}
+) {
+  if (Array.isArray(value)) {
+    value.forEach(function (item, index) {
+      getPlaceholderMap(
+        item,
+        valuePath + '[' + index + ']',
+        placeholders
+      );
+    });
+  }
+  else if (value && typeof value === 'object') {
+    Object.entries(value).forEach(function (entry) {
+      getPlaceholderMap(
+        entry[1],
+        valuePath + '.' + entry[0],
+        placeholders
+      );
+    });
+  }
+  else if (typeof value === 'string') {
+    placeholders[valuePath] = (
+      value.match(/@[A-Za-z][A-Za-z0-9_]*|:ans/g) || []
+    ).sort();
+  }
+
+  return placeholders;
+};
+
+test('Portuguese localisations retain semantic alignment', function () {
+  assert.equal(
+    englishLocalisation.semantics.length,
+    semantics.length
+  );
+  assert.equal(semantics[8].fields[0].name, 'caseSensitive');
+
+  const englishShape = getTranslationShape(englishLocalisation);
+  portugueseLocalisations.forEach(function (locale) {
+    assert.deepEqual(
+      getTranslationShape(locale.data),
+      englishShape,
+      locale.code
+    );
+    assert.equal(
+      locale.data.semantics.length,
+      semantics.length,
+      locale.code
+    );
+    assert.equal(
+      locale.data.semantics[8].fields[0].label,
+      locale.caseSensitiveLabel,
+      locale.code
+    );
+  });
+});
+
+test('required Portuguese Wordle strings are translated', function () {
+  const requiredPaths = [
+    ['semantics', 2, 'label'],
+    ['semantics', 2, 'description'],
+    ['semantics', 4, 'label'],
+    ['semantics', 4, 'description'],
+    ['semantics', 4, 'options', 0, 'label'],
+    ['semantics', 4, 'options', 1, 'label'],
+    ['semantics', 7, 'label'],
+    ['semantics', 7, 'description'],
+    ['semantics', 7, 'widgets', 0, 'label'],
+    ['semantics', 7, 'field', 'label'],
+    ['semantics', 7, 'field', 'fields', 0, 'label'],
+    ['semantics', 7, 'field', 'fields', 0, 'description'],
+    ['semantics', 7, 'field', 'fields', 1, 'label'],
+    ['semantics', 7, 'field', 'fields', 1, 'description'],
+    ['semantics', 8, 'fields', 8, 'label'],
+    ['semantics', 8, 'fields', 8, 'description'],
+    ['semantics', 11, 'label'],
+    ['semantics', 11, 'default'],
+    ['semantics', 17, 'label'],
+    ['semantics', 17, 'default'],
+    ['semantics', 29, 'label'],
+    ['semantics', 29, 'default'],
+    ['semantics', 29, 'description'],
+    ['semantics', 32, 'label'],
+    ['semantics', 32, 'default'],
+    ['semantics', 32, 'description'],
+    ['semantics', 34, 'label'],
+    ['semantics', 34, 'default'],
+    ['semantics', 34, 'description'],
+    ['semantics', 44, 'label'],
+    ['semantics', 44, 'default'],
+    ['semantics', 45, 'description'],
+    ['semantics', 48, 'label'],
+    ['semantics', 48, 'default'],
+    ['semantics', 49, 'label'],
+    ['semantics', 49, 'default'],
+    ['semantics', 50, 'label'],
+    ['semantics', 50, 'default']
+  ];
+
+  portugueseLocalisations.forEach(function (locale) {
+    requiredPaths.forEach(function (valuePath) {
+      assert.notEqual(
+        getValueAtPath(locale.data, valuePath),
+        getValueAtPath(englishLocalisation, valuePath),
+        locale.code + ': ' + valuePath.join('.')
+      );
+    });
+  });
+});
+
+test('Portuguese localisation placeholders match English', function () {
+  const englishPlaceholders = getPlaceholderMap(englishLocalisation);
+
+  portugueseLocalisations.forEach(function (locale) {
+    assert.deepEqual(
+      getPlaceholderMap(locale.data),
+      englishPlaceholders,
+      locale.code
+    );
+  });
+});
