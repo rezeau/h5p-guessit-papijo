@@ -17,6 +17,8 @@ misplaced, and incorrect letter feedback.
   configured mystery-word list without consuming a turn for rejected words.
 - Continue and Reset controls for unfinished games.
 - Optional learner selection of the number of items used in a game.
+- Optional learner selection of the Wordle mystery-word length from the
+  lengths available in the configured usable word list.
 - Responsive H5P new-look controls with accessible labels and keyboard support.
 - Previous-state restoration when Save Content State is supported and enabled
   by the hosting H5P integration.
@@ -28,7 +30,7 @@ order draws 20 items from the complete pool.
 
 ## Compatibility and Installation
 
-H5P GuessIt 1.7 requires H5P Core API 1.28. It has been tested successfully on
+H5P GuessIt 1.8 requires H5P Core API 1.28. It has been tested successfully on
 current WordPress and Moodle installations that support Core API 1.28.
 
 Current Lumi releases are not compatible because they do not yet support H5P
@@ -36,7 +38,7 @@ Core API 1.28. This limitation is expected and does not indicate a problem with
 the GuessIt package.
 
 The release asset is a library-only H5P package. Install
-`H5P.GuessIt-1.7.0.h5p` through the platform's H5P library administration
+`H5P.GuessIt-1.8.0.h5p` through the platform's H5P library administration
 interface. Do not import it as ordinary learner content.
 
 ## Development
@@ -58,8 +60,8 @@ production build before packaging or publishing the library.
 ### Existing ESLint Baseline
 
 The current ESLint failures predate version 1.6.0. With the repository's
-`.eslintrc.json`, the baseline is 121 errors in `guessit-blanks.js`: 115
-indentation errors, five trailing-space errors, and one `no-undef` finding for
+`.eslintrc.json`, the baseline is 119 errors in `guessit-blanks.js`: 114
+indentation errors, four trailing-space errors, and one `no-undef` finding for
 `$content`. This baseline is intentionally deferred; `npm run lint` does not
 currently pass. Avoid broad formatting changes when addressing it.
 

@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.8.0 - 2026-08-01
+
+### New
+
+- Added an optional learner-facing selector for the Wordle mystery-word length.
+- Only lengths present in the usable configured word list are offered.
+- Word-list validation continues to accept every configured word in the
+  complete selected-length pool, including words outside the active maximum-20
+  subset.
+
+### Improved
+
+- Added responsive, accessible word-length controls and localized the new
+  editor and learner strings in English, French, Portuguese, Brazilian
+  Portuguese, and European Portuguese.
+- Completed and corrected older Portuguese Wordle translations.
+- Corrected learner-supplied Wordle descriptions that referred to sentences
+  instead of words.
+
+### Compatibility
+
+- Existing content remains compatible; word-length selection is disabled by
+  default.
+- Learner item-count selection takes priority when both selectors are enabled.
+- Sentence mode and learner-supplied-word mode are unchanged.
+- Valid saved selections restore their chosen length and active subset; stale
+  selections safely return to the length selector.
+- Requires H5P Core API 1.28.
+
 ## 1.7.1 - 2026-07-29
 
 ### Fixed
