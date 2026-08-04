@@ -4,8 +4,8 @@
   "description": "Custom H5P question type for guessing words and sentences, including a Wordle mode.",
   "scripts": {
     "build": "cross-env NODE_ENV='production' webpack",
-    "lint": "eslint \"src/**/*.js\"",
-    "test": "node --test tests/guessit-wordle-utils.test.js tests/guessit-word-length-choice.test.js tests/guessit-word-list-validation.test.js tests/guessit-content-utils.test.js tests/guessit-semantics-validation.test.js tests/guessit-cloze-wordle.test.js tests/guessit-question-selector.test.js tests/guessit-summary-utils.test.js",
+    "lint": "cross-env ESLINT_USE_FLAT_CONFIG=false eslint \"src/**/*.js\"",
+    "test": "node --test tests/guessit-wordle-utils.test.js tests/guessit-word-length-choice.test.js tests/guessit-word-list-validation.test.js tests/guessit-content-utils.test.js tests/guessit-semantics-validation.test.js tests/guessit-cloze-wordle.test.js tests/guessit-question-selector.test.js tests/guessit-summary-utils.test.js tests/guessit-correctness.test.js",
     "watch": "webpack --watch"
   },
   "repository": {

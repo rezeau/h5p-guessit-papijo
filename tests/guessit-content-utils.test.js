@@ -10,6 +10,8 @@ const QuestionSelector = require('../src/scripts/guessit-question-selector');
 
 const createInstance = function (questions) {
   return {
+    activeQuestionPool: [],
+    learnerQuestion: null,
     originalQuestions: [],
     params: {
       questions
@@ -111,15 +113,109 @@ test('creates a learner sentence when the configured list is empty', function ()
   );
 
   assert.deepEqual(question, {
+    ID: 0,
     sentence: 'A learner sentence',
     tip: 'A useful tip'
   });
   assert.equal(instance.params.questions.length, 1);
   assert.equal(instance.params.questions, instance.questionPool);
+  assert.equal(instance.params.questions, instance.activeQuestionPool);
   assert.equal(instance.params.questions, instance.originalQuestions);
+  assert.equal(instance.learnerQuestion, question);
   assert.equal(instance.totalNumQuestions, 1);
   assert.equal(instance.selectedItemCount, 1);
   assert.equal(instance.selectedQuestionIndices, null);
+});
+
+test('sorts single- and double-digit word-count choices numerically', function () {
+  const counts = {
+    4: 4,
+    5: 3,
+    6: 5,
+    7: 4,
+    8: 2,
+    10: 1,
+    11: 1
+  };
+  const choices = ContentUtils.getWordCountChoices(
+    [4, 5, 6, 7, 8, 10, 11, 4, 6],
+    counts,
+    'translated sentence',
+    'translated sentences'
+  );
+
+  assert.deepEqual(choices.map(function (choice) {
+    return choice.wordCount;
+  }), [4, 5, 6, 7, 8, 10, 11]);
+  assert.deepEqual(choices.map(function (choice) {
+    return choice.label;
+  }), [
+    '4 [4 translated sentences]',
+    '5 [3 translated sentences]',
+    '6 [5 translated sentences]',
+    '7 [4 translated sentences]',
+    '8 [2 translated sentences]',
+    '10 [1 translated sentence]',
+    '11 [1 translated sentence]'
+  ]);
+});
+
+test('keeps a single numeric word-count choice unchanged', function () {
+  assert.deepEqual(ContentUtils.getWordCountChoices(
+    [10, 10],
+    { 10: 2 },
+    'sentence',
+    'sentences'
+  ), [{
+    label: '10 [2 sentences]',
+    sentenceCount: 2,
+    wordCount: 10
+  }]);
+});
+
+test('number-of-words selection remains bypassed when disabled', function () {
+  const result = simulateConfiguredSentenceFlow({
+    enableItemCountChoice: false,
+    enableNumChoice: false,
+    order: 'normal',
+    questions: [
+      { sentence: 'Four words appear right here' },
+      { sentence: 'This sentence contains more than ten separate words for testing today' }
+    ]
+  });
+
+  assert.deepEqual(result.screens, []);
+  assert.equal(result.initializationCount, 1);
+  assert.equal(result.numQuestions, 2);
+});
+
+test('reset learner input establishes a new authoritative question', function () {
+  const instance = createInstance([]);
+  const firstQuestion = ContentUtils.setLearnerQuestion(
+    instance,
+    'FIRST',
+    undefined,
+    false
+  );
+
+  instance.params.questions = [];
+  instance.questionPool = [];
+  instance.activeQuestionPool = [];
+  instance.originalQuestions = [];
+  instance.learnerQuestion = null;
+
+  const retryQuestion = ContentUtils.setLearnerQuestion(
+    instance,
+    'SECOND',
+    undefined,
+    false
+  );
+
+  assert.notEqual(retryQuestion, firstQuestion);
+  assert.deepEqual(retryQuestion, { ID: 0, sentence: 'SECOND' });
+  assert.equal(instance.params.questions, instance.questionPool);
+  assert.equal(instance.params.questions, instance.activeQuestionPool);
+  assert.equal(instance.params.questions, instance.originalQuestions);
 });
 
 test('creates a learner Wordle word when the configured list is empty', function () {
@@ -133,7 +229,7 @@ test('creates a learner Wordle word when the configured list is empty', function
   );
 
   assert.deepEqual(instance.params.questions, [
-    { sentence: 'PRÉCÉDER' }
+    { ID: 0, sentence: 'PRÉCÉDER' }
   ]);
 });
 

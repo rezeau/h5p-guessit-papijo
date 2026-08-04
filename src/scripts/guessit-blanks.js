@@ -397,6 +397,7 @@ H5P.GuessIt = (function ($, Question) {
     this.selectedWordLength = null;
     this.selectedQuestionIndices = null;
     this.selectedItemCount = 0;
+    this.learnerQuestion = null;
     setCompleteQuestionPool(this, this.configuredQuestionPool);
 
     if (this.itemCountChoiceEnabled) {
@@ -1073,28 +1074,23 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
       this.$numberWords.appendTo(this.$taskdescription);
         if (nbDifferentNums > 1) {
-        // Remove duplicates from numWords array. Using filter and indexOf instead of Set method.
-          const uniquenumWords = numWords.filter((value, index, self) => {
-            return self.indexOf(value) === index;
-          });
-          // Sort uniquenumWords array
-          uniquenumWords.sort();
-          // Get last item from uniquenumWords array
-          uniquenumWords.slice(-1).pop();
+          const wordCountChoices = ContentUtils.getWordCountChoices(
+            numWords,
+            self.numQuestionsInWords,
+            self.params.sentence,
+            self.params.sentences
+          );
           // Init iteratation
           let numSentencesWithWords = [];
 
-          // Iterate uniquenumWords array
-          uniquenumWords.forEach(function (item) {
-            let n = self.numQuestionsInWords[item];
+          // Iterate numeric word counts in ascending order.
+          wordCountChoices.forEach(function (choice) {
+            const item = choice.wordCount;
+            const n = choice.sentenceCount;
             numSentencesWithWords[item] = n;
-            let s = self.params.sentence;
-            if (n > 1) {
-              s = self.params.sentences;
-            }
             const numberButton = H5P.Components.Button({
-            label: item + ' [' + n + ' ' + s + ']',
-            ariaLabel: item + ' [' + n + ' ' + s + ']',
+            label: choice.label,
+            ariaLabel: choice.label,
             styleType: 'secondary',
             classes: 'h5p-guessit-number-button',
             onClick: function () {
@@ -1398,12 +1394,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
             self.hideButton('try-again');
             self.nbSentencesGuessed--;
           }
-          let currentGuessedSentenceId = self.params.questions[self.currentSentenceId].ID;
-          self.sentencesGuessed.push(currentGuessedSentenceId);
-          self.nbSentencesGuessed++;
-          if (self.params.wordle && !wordGuessed) {
-            self.wordsNotFound.push(currentGuessedSentenceId);
-          }
+          self.recordCompletedItem(wordGuessed);
           self.$questions.eq(self.currentSentenceId)
             .find('.h5p-guessit-audio-wrapper')
             .removeClass('hidden');
@@ -1724,7 +1715,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         clozeNumber ++;
         return cloze;
       });
-      html += '<div class = "h5p-guessit-sentence h5p-guessit-sentence-hidden" id=role="group" aria-labelledby="' + labelId + '">' + question + '</div>';
+      html += '<div class = "h5p-guessit-sentence h5p-guessit-sentence-hidden" role="group" aria-labelledby="' + labelId + '">' + question + '</div>';
     }
 
     self.hasClozes = clozeNumber > 0;
@@ -2234,7 +2225,6 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
     this.timer.play();
     // Counter part.
-    $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     const counterText = self.params.round
       .replace('@round', '<span class="h5p-counter">1</span>');
     /*
@@ -2357,6 +2347,22 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       this.$questions.eq(this.currentSentenceId).removeClass('h5p-guessit-sentence-hidden');
     }
 
+  };
+
+  /**
+   * Record the stable original-pool ID of the completed active question.
+   *
+   * @param {boolean} wordGuessed Whether a Wordle word was found.
+   * @returns {number} Stable question ID used by history and xAPI reporting.
+   */
+  GuessIt.prototype.recordCompletedItem = function (wordGuessed) {
+    const questionId = this.params.questions[this.currentSentenceId].ID;
+    this.sentencesGuessed.push(questionId);
+    this.nbSentencesGuessed++;
+    if (this.params.wordle && !wordGuessed) {
+      this.wordsNotFound.push(questionId);
+    }
+    return questionId;
   };
 
   GuessIt.prototype.showFinalPage = function () {
@@ -2610,6 +2616,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.sentenceClozeNumber = [];
     this.selectedQuestionIndices = null;
     this.selectedItemCount = 0;
+    this.learnerQuestion = null;
     this.itemCountChoiceCompleted = false;
     this.itemCountChoicePending = false;
     this.wordLengthChoiceCompleted = false;
@@ -2900,9 +2907,13 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     if (!isValidState) {
       return;
     }
-    this.originalQuestions = this.previousState.originalQuestions;
-    if (this.params.wordle) {
-      normalizeWordleQuestions(this.originalQuestions);
+    if (this.params.playMode !== 'userSentence' || !this.learnerQuestion) {
+      this.originalQuestions = ContentUtils.toQuestionArray(
+        this.previousState.originalQuestions
+      );
+      if (this.params.wordle) {
+        normalizeWordleQuestions(this.originalQuestions);
+      }
     }
     this.sentencesGuessed = this.previousState.sentencesGuessed;
     this.wordsNotFound = this.previousState.wordsNotFound;
@@ -2937,7 +2948,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   GuessIt.prototype.eventCompleted = function () {
     // Create and trigger xAPI event 'completed'
     let completedEvent = this.createXAPIEventTemplate('completed');
-    completedEvent.setScoredResult(1, 1, self, true, true);
+    completedEvent.setScoredResult(1, 1, this, true, true);
     completedEvent.data.statement.result.duration = 'PT' + (Math.round(this.timer.getTime() / 10) / 100) + 'S';
     this.trigger(completedEvent);
   };
