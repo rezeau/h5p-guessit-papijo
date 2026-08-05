@@ -527,6 +527,7 @@ H5P.GuessIt = (function ($, Question) {
 
     this.currentAnswer = '';
     this.currentItemCompleted = false;
+    this.incompleteAnswerWarningVisible = false;
     this.wordListRejectedState = null;
     this.totalTimeSpent = 0;
     this.totalRounds = 0;
@@ -1217,6 +1218,21 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       .prop('hidden', true);
   };
 
+  GuessIt.prototype.showIncompleteAnswerWarning = function () {
+    this.setFeedback();
+    this.updateFeedbackContent(this.params.notFilledOut);
+    this.incompleteAnswerWarningVisible = true;
+  };
+
+  GuessIt.prototype.clearIncompleteAnswerWarning = function () {
+    if (!this.incompleteAnswerWarningVisible) {
+      return;
+    }
+
+    this.incompleteAnswerWarningVisible = false;
+    this.updateFeedbackContent('');
+  };
+
   GuessIt.prototype.showWordListValidationWarning = function () {
     if (this.$wordListValidationMessage) {
       this.$wordListValidationMessage
@@ -1343,8 +1359,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         if (self.$timer === undefined) {
           self.initCounters();
         }
-        self.setFeedback();
-        self.updateFeedbackContent(self.params.notFilledOut);
+        self.showIncompleteAnswerWarning();
         // Sets focus on first empty blank input.
         $currentInputs.each(function () {
           if ($(this).val() === '') {
@@ -1743,6 +1758,10 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       self.clozes[i].setInput($(this), '', function () {
       }, n, t);
     }).on('input', function (event) {
+      if (!(event.originalEvent && event.originalEvent.isComposing)) {
+        self.clearIncompleteAnswerWarning();
+      }
+
       if (self.params.wordle) {
         if (event.originalEvent && event.originalEvent.isComposing) {
           return;
@@ -2154,6 +2173,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   GuessIt.prototype.reTry = function () {
     this.wordListRejectedState = null;
     this.clearWordListValidationWarning();
+    this.clearIncompleteAnswerWarning();
     this.answered = false;
     this.currentItemCompleted = false;
     this.hideSolutions();
@@ -2275,12 +2295,17 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       this.$progress.appendTo($counterStatus);
     }
 
+    setTimeout(function () {
+      self.trigger('resize');
+    }, 0);
+
   };
 
   GuessIt.prototype.initTask = function () {
     let self = this;
     this.wordListRejectedState = null;
     this.clearWordListValidationWarning();
+    this.clearIncompleteAnswerWarning();
     let $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
     $content.find('.h5p-container').removeClass('h5p-guessit-hide');
 
@@ -2587,6 +2612,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
     this.wordListRejectedState = null;
     this.clearWordListValidationWarning();
+    this.clearIncompleteAnswerWarning();
     if (this.timer) {
       this.timer.stop();
     }

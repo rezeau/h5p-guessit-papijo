@@ -23,6 +23,30 @@ const getPrototypeMethodSource = function (methodName, nextMethodName) {
   return source.slice(start, end);
 };
 
+const getAnswerInputHandler = function (sandbox) {
+  const createQuestionsSource = getPrototypeMethodSource(
+    'createQuestions',
+    'autoGrowTextField'
+  );
+  const marker = "}).on('input', function (event) {";
+  const markerIndex = createQuestionsSource.indexOf(marker);
+  const start = createQuestionsSource.indexOf(
+    'function (event) {',
+    markerIndex
+  );
+  const end = createQuestionsSource.indexOf(
+    "    }).on('compositionend'",
+    start
+  );
+
+  assert.notEqual(markerIndex, -1, 'answer inputs must use the input event');
+  assert.notEqual(end, -1, 'composition completion handler must follow input');
+  return vm.runInNewContext(
+    `(${createQuestionsSource.slice(start, end)}})`,
+    sandbox
+  );
+};
+
 const createElement = function (tag, options = {}) {
   return {
     appendedTo: null,
@@ -45,10 +69,15 @@ const createElement = function (tag, options = {}) {
 };
 
 test('initCounters preserves progress behavior without creating global $content', function () {
+  const deferredCallbacks = [];
   const sandbox = {
     GuessIt: function () {},
     $: function (tag, options) {
       return createElement(tag, options);
+    },
+    setTimeout: function (callback, delay) {
+      assert.equal(delay, 0);
+      deferredCallbacks.push(callback);
     }
   };
   const timerEvents = [];
@@ -71,6 +100,7 @@ test('initCounters preserves progress behavior without creating global $content'
   );
 
   const progressWrapper = createElement('progress-wrapper');
+  let resizeCount = 0;
   const instance = {
     $progressWrapper: progressWrapper,
     contentId: 17,
@@ -82,6 +112,10 @@ test('initCounters preserves progress behavior without creating global $content'
       timeSpent: 'Time Spent',
       word: 'Word',
       wordle: false
+    },
+    trigger: function (eventName) {
+      assert.equal(eventName, 'resize');
+      resizeCount++;
     }
   };
 
@@ -93,6 +127,10 @@ test('initCounters preserves progress behavior without creating global $content'
   assert.equal(instance.$counter.options.html.includes('Round '), true);
   assert.equal(instance.$progress.options.text, 'Sentence 1/3');
   assert.equal(Object.hasOwn(sandbox, '$content'), false);
+  assert.equal(resizeCount, 0);
+  assert.equal(deferredCallbacks.length, 1);
+  deferredCallbacks.shift()();
+  assert.equal(resizeCount, 1);
 
   const learnerInstance = {
     $progressWrapper: createElement('progress-wrapper'),
@@ -105,12 +143,192 @@ test('initCounters preserves progress behavior without creating global $content'
       timeSpent: 'Time Spent',
       word: 'Word',
       wordle: false
+    },
+    trigger: function (eventName) {
+      assert.equal(eventName, 'resize');
+      resizeCount++;
     }
   };
   sandbox.GuessIt.prototype.initCounters.call(learnerInstance);
 
   assert.equal(learnerInstance.$progress, undefined);
   assert.equal(Object.hasOwn(sandbox, '$content'), false);
+  assert.equal(deferredCallbacks.length, 1);
+  deferredCallbacks.shift()();
+  assert.equal(resizeCount, 2);
+});
+
+test('first timer activation requests one deferred resize in every mode', function () {
+  const modes = [
+    { playMode: 'availableSentences', wordle: false },
+    { playMode: 'availableSentences', wordle: true },
+    { playMode: 'userSentence', wordle: false },
+    { playMode: 'userSentence', wordle: true }
+  ];
+
+  modes.forEach(function (mode) {
+    const deferredCallbacks = [];
+    const timerEvents = [];
+    const counterEvents = [];
+    const sandbox = {
+      GuessIt: function () {},
+      $: function (tag, options) {
+        return createElement(tag, options);
+      },
+      setTimeout: function (callback, delay) {
+        assert.equal(delay, 0);
+        deferredCallbacks.push(callback);
+      }
+    };
+    sandbox.GuessIt.Timer = function () {
+      this.play = function () { timerEvents.push('play'); };
+    };
+    sandbox.GuessIt.Counter = function () {
+      this.increment = function () { counterEvents.push('increment'); };
+    };
+    vm.runInNewContext(
+      getPrototypeMethodSource('initCounters', 'initTask'),
+      sandbox
+    );
+
+    let resizeCount = 0;
+    const instance = {
+      $progressWrapper: createElement('progress-wrapper'),
+      numQuestions: 2,
+      params: {
+        playMode: mode.playMode,
+        round: 'Round @round',
+        sentence: 'sentence',
+        timeSpent: 'Time Spent',
+        word: 'word',
+        wordle: mode.wordle
+      },
+      trigger: function (eventName) {
+        assert.equal(eventName, 'resize');
+        resizeCount++;
+      }
+    };
+
+    sandbox.GuessIt.prototype.initCounters.call(instance);
+
+    assert.deepEqual(timerEvents, ['play'], JSON.stringify(mode));
+    assert.deepEqual(counterEvents, ['increment'], JSON.stringify(mode));
+    assert.equal(resizeCount, 0, JSON.stringify(mode));
+    assert.equal(deferredCallbacks.length, 1, JSON.stringify(mode));
+    deferredCallbacks[0]();
+    assert.equal(resizeCount, 1, JSON.stringify(mode));
+  });
+});
+
+test('incomplete warning clears only on completed answer input changes', function () {
+  const sandbox = {
+    GuessIt: function () {},
+    WordleUtils: {
+      normalizeInputLetter: function (value) { return value; }
+    }
+  };
+  vm.runInNewContext(
+    getPrototypeMethodSource(
+      'showIncompleteAnswerWarning',
+      'clearIncompleteAnswerWarning'
+    ),
+    sandbox
+  );
+  vm.runInNewContext(
+    getPrototypeMethodSource(
+      'clearIncompleteAnswerWarning',
+      'showWordListValidationWarning'
+    ),
+    sandbox
+  );
+
+  [false, true].forEach(function (wordle) {
+    const feedback = [];
+    const field = {
+      value: wordle ? 'É' : 'pasted answer',
+      focus: function () {},
+      val: function (value) {
+        if (value !== undefined) {
+          this.value = value;
+          return this;
+        }
+        return this.value;
+      }
+    };
+    const inputs = {
+      length: 1,
+      eq: function () { return field; },
+      index: function () { return 0; }
+    };
+    const instance = Object.assign(Object.create(sandbox.GuessIt.prototype), {
+      $questions: {
+        eq: function () {
+          return { find: function () { return inputs; } };
+        }
+      },
+      currentSentenceId: 0,
+      incompleteAnswerWarningVisible: false,
+      params: {
+        notFilledOut: 'Fill every blank',
+        wordle
+      },
+      setFeedback: function () { feedback.push('set'); },
+      updateFeedbackContent: function (message) { feedback.push(message); },
+      clearWordListValidationWarning: function () {},
+      wordListRejectedState: null
+    });
+    sandbox.self = instance;
+    sandbox.$ = function (element) { return element; };
+    const inputHandler = getAnswerInputHandler(sandbox);
+
+    instance.showIncompleteAnswerWarning();
+    assert.deepEqual(feedback, ['set', 'Fill every blank']);
+    assert.equal(instance.incompleteAnswerWarningVisible, true);
+
+    field.focus();
+    assert.equal(instance.incompleteAnswerWarningVisible, true);
+    assert.deepEqual(feedback, ['set', 'Fill every blank']);
+
+    inputHandler.call(field, {
+      originalEvent: { inputType: 'insertFromPaste' }
+    });
+    assert.equal(instance.incompleteAnswerWarningVisible, false);
+    assert.deepEqual(feedback, ['set', 'Fill every blank', '']);
+
+    instance.showIncompleteAnswerWarning();
+    inputHandler.call(field, { originalEvent: { isComposing: true } });
+    assert.equal(instance.incompleteAnswerWarningVisible, true);
+    inputHandler.call(field, {});
+    assert.equal(instance.incompleteAnswerWarningVisible, false);
+    assert.equal(feedback.at(-1), '');
+
+    feedback.push('Correct feedback');
+    instance.clearIncompleteAnswerWarning();
+    assert.equal(feedback.at(-1), 'Correct feedback');
+  });
+});
+
+test('later attempts retain guarded timer and counter lifecycle', function () {
+  const createQuestionsSource = getPrototypeMethodSource(
+    'createQuestions',
+    'autoGrowTextField'
+  );
+  const retrySource = getPrototypeMethodSource('reTry', 'newSentence');
+  const initTaskSource = getPrototypeMethodSource('initTask', 'eventCompleted');
+  const resetSource = getPrototypeMethodSource('resetTask', 'hideButtons');
+
+  assert.match(
+    createQuestionsSource,
+    /if \(self\.\$timer === undefined\) \{\s+self\.initCounters\(\);\s+\}/
+  );
+  assert.doesNotMatch(retrySource, /initCounters/);
+  assert.match(retrySource, /this\.timer\.play\(\);\s+this\.counter\.increment\(\);/);
+  assert.match(
+    initTaskSource,
+    /this\.timer\.reset\(\);\s+this\.timer\.play\(\);\s+this\.counter\.reset\(\);/
+  );
+  assert.match(resetSource, /this\.timer = undefined;/);
+  assert.match(resetSource, /this\.counter = undefined;/);
 });
 
 test('sentence groups emit a valid role without a malformed id attribute', function () {
@@ -266,6 +484,7 @@ test('learner Wordle completes the real summary and xAPI sequence', function () 
     $questions: createSelection(),
     activeQuestionPool: [],
     answered: false,
+    clearIncompleteAnswerWarning: function () {},
     clearWordListValidationWarning: function () {},
     clozes: [],
     configuredQuestionPool: [],
