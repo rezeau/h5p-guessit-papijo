@@ -703,44 +703,44 @@ H5P.GuessIt = (function ($, Question) {
    * Called from H5P.Question.
    */
 
-GuessIt.prototype.registerDomElements = function (sentence) {
-  let self = this;
+  GuessIt.prototype.registerDomElements = function (sentence) {
+    let self = this;
 
-  let $content = $(
-    '[data-content-id="' + self.contentId + '"].h5p-content'
-  );
+    let $content = $(
+      '[data-content-id="' + self.contentId + '"].h5p-content'
+    );
 
-  $content.addClass('h5p-guessit h5p-frame');
+    $content.addClass('h5p-guessit h5p-frame');
 
-  /*
-   * Remove a previous header when registerDomElements() is called
-   * again, for example after an invalid user sentence.
-   */
-  $content
-    .children('.h5p-guessit-title-container')
-    .remove();
+    /*
+     * Remove a previous header when registerDomElements() is called
+     * again, for example after an invalid user sentence.
+     */
+    $content
+      .children('.h5p-guessit-title-container')
+      .remove();
 
-  // Complete header: description on left, progress on right.
-  this.$titleContainer = $('<div>', {
-    class: 'h5p-guessit-title-container'
-  });
+    // Complete header: description on left, progress on right.
+    this.$titleContainer = $('<div>', {
+      class: 'h5p-guessit-title-container'
+    });
 
-  // Left section.
-  this.$titleWrapper = $('<div>', {
-    class: 'h5p-guessit-title-wrapper'
-  }).appendTo(this.$titleContainer);
+    // Left section.
+    this.$titleWrapper = $('<div>', {
+      class: 'h5p-guessit-title-wrapper'
+    }).appendTo(this.$titleContainer);
 
-  this.$taskdescription = $('<div>', {
-    class: 'h5p-guessit h5p-guessit-description',
-    html: this.params.description
-  }).appendTo(this.$titleWrapper);
+    this.$taskdescription = $('<div>', {
+      class: 'h5p-guessit h5p-guessit-description',
+      html: this.params.description
+    }).appendTo(this.$titleWrapper);
 
-  // Right section: timer and counters will be inserted here later.
-  this.$progressWrapper = $('<div>', {
-    class: 'h5p-guessit-progress-wrapper'
-  }).appendTo(this.$titleContainer);
+    // Right section: timer and counters will be inserted here later.
+    this.$progressWrapper = $('<div>', {
+      class: 'h5p-guessit-progress-wrapper'
+    }).appendTo(this.$titleContainer);
 
-  this.$titleContainer.prependTo($content);
+    this.$titleContainer.prependTo($content);
     // Special case of userSentence mode.
     if (this.params.playMode === 'userSentence') {
       // Case guess a sentence.
@@ -768,12 +768,12 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         usersentence.setAttribute("class", "h5p-text-input-user");
         usersentence.setAttribute("autocomplete", "off");
         usersentence.setAttribute("autocapitalize", "off");
-/*
+        /*
         let usertip = document.createElement('input');
         usertip.setAttribute("type", "text");
         usertip.setAttribute("id", "usertip");
         usertip.setAttribute("class", "h5p-text-input-user");
-*/
+        */
         this.$userSentenceDescription
           .appendTo(this.$taskdescription);
         this.$userSentence = $('<div>', {
@@ -782,7 +782,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         });
         this.$userSentence.appendTo(this.$userSentenceDescription);
         usersentence.focus();
-        
+
         // Validate user sentence & possibly other options...
         const $optionButtons = $('<div>', {
           'class': 'h5p-guessit-optionsbuttons',
@@ -1052,28 +1052,28 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       if (nbDifferentNums > 1) {
         this.numQuestionsInWords = result;
         this.$numberWords = $('<div>', {
-        'class': [
-          'h5p-guessit',
-          'h5p-guessit-options',
-          'h5p-guessit-number-choice'
-        ].join(' ')
-      });
+          'class': [
+            'h5p-guessit',
+            'h5p-guessit-options',
+            'h5p-guessit-number-choice'
+          ].join(' ')
+        });
 
-      // Heading
-      $('<div>', {
-        'class': 'h5p-guessit-number-choice-title',
-        'html': this.params.numWords
-      }).appendTo(this.$numberWords);
+        // Heading
+        $('<div>', {
+          'class': 'h5p-guessit-number-choice-title',
+          'html': this.params.numWords
+        }).appendTo(this.$numberWords);
 
-      // Container for the choice buttons
-      let $optionButtons = $('<div>', {
-        'class': [
-          'h5p-guessit-optionsbuttons',
-          'h5p-guessit-number-choice-options'
-        ].join(' ')
-      }).appendTo(this.$numberWords);
+        // Container for the choice buttons
+        let $optionButtons = $('<div>', {
+          'class': [
+            'h5p-guessit-optionsbuttons',
+            'h5p-guessit-number-choice-options'
+          ].join(' ')
+        }).appendTo(this.$numberWords);
 
-      this.$numberWords.appendTo(this.$taskdescription);
+        this.$numberWords.appendTo(this.$taskdescription);
         if (nbDifferentNums > 1) {
           const wordCountChoices = ContentUtils.getWordCountChoices(
             numWords,
@@ -1090,21 +1090,21 @@ GuessIt.prototype.registerDomElements = function (sentence) {
             const n = choice.sentenceCount;
             numSentencesWithWords[item] = n;
             const numberButton = H5P.Components.Button({
-            label: choice.label,
-            ariaLabel: choice.label,
-            styleType: 'secondary',
-            classes: 'h5p-guessit-number-button',
-            onClick: function () {
-              self.$numberWords.addClass('h5p-guessit-hide');
-              self.numWords = item;
-              self.numQuestions = numSentencesWithWords[item];
-              self.initTask();
-            }
-          });
-          numberButton.id = 'dc-number-' + item;
-          numberButton.title = item;
+              label: choice.label,
+              ariaLabel: choice.label,
+              styleType: 'secondary',
+              classes: 'h5p-guessit-number-button',
+              onClick: function () {
+                self.$numberWords.addClass('h5p-guessit-hide');
+                self.numWords = item;
+                self.numQuestions = numSentencesWithWords[item];
+                self.initTask();
+              }
+            });
+            numberButton.id = 'dc-number-' + item;
+            numberButton.title = item;
 
-          $optionButtons.append(numberButton);
+            $optionButtons.append(numberButton);
           });
           const n = self.params.questions.length;
           const s = self.params.sentences;
@@ -1507,24 +1507,24 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         icon: 'retry'
       }
     );
- 
+
     // Show solution button
     //if (this.params.behaviour.enableSolutionsButton) {
-      self.addButton(
-        'show-solution', 
-        self.params.showSolutions, 
-        function () {
-          self.showCorrectAnswers(false);
-        },
-        false,
-        {
-          'aria-label': self.params.showSolutions
-        },
-        {
-          styleType: 'secondary',
-          icon: 'show-solutions'
-        }
-      );
+    self.addButton(
+      'show-solution',
+      self.params.showSolutions,
+      function () {
+        self.showCorrectAnswers(false);
+      },
+      false,
+      {
+        'aria-label': self.params.showSolutions
+      },
+      {
+        styleType: 'secondary',
+        icon: 'show-solutions'
+      }
+    );
     //}
 
     // New Sentence button
@@ -2213,35 +2213,35 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   };
 
   GuessIt.prototype.initCounters = function () {
-  let self = this;
+    let self = this;
 
-  // Container for all three progress elements.
-  this.$timer = $('<div>', {
-    class: 'h5p-guessit-time-status',
-    tabindex: -1
-  });
+    // Container for all three progress elements.
+    this.$timer = $('<div>', {
+      class: 'h5p-guessit-time-status',
+      tabindex: -1
+    });
 
-  // Time spent.
-  const $timeStatus = $('<div>', {
-    class: [
-      'h5p-guessit-progress',
-      'h5p-theme-progress',
-      'h5p-guessit-time'
-    ].join(' '),
-    html:
+    // Time spent.
+    const $timeStatus = $('<div>', {
+      class: [
+        'h5p-guessit-progress',
+        'h5p-theme-progress',
+        'h5p-guessit-time'
+      ].join(' '),
+      html:
       '<span role="term">' +
         '<em class="fa fa-clock-o"></em>' +
         self.params.timeSpent +
       '</span>:' +
       '<span role="definition" class="h5p-time-spent">0:00</span>'
-  }).appendTo(this.$timer);
+    }).appendTo(this.$timer);
 
-  this.timer = new GuessIt.Timer(
-    $timeStatus.find('.h5p-time-spent')
-  );
+    this.timer = new GuessIt.Timer(
+      $timeStatus.find('.h5p-time-spent')
+    );
 
-  // Place the complete status block in the header.
-  this.$timer.appendTo(this.$progressWrapper);
+    // Place the complete status block in the header.
+    this.$timer.appendTo(this.$progressWrapper);
 
     this.timer.play();
     // Counter part.
@@ -2255,20 +2255,20 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     });
     */
     this.$counter = $('<div>', {
-  class: [
-    'counter-status',
-    'h5p-guessit-progress',
-    'h5p-theme-progress',
-    'h5p-guessit-round'
-  ].join(' '),
-  tabindex: -1,
-  html:
+      class: [
+        'counter-status',
+        'h5p-guessit-progress',
+        'h5p-theme-progress',
+        'h5p-guessit-round'
+      ].join(' '),
+      tabindex: -1,
+      html:
     '<div role="term">' +
       '<span role="definition">' +
         counterText +
       '</span>' +
     '</div>'
-});
+    });
     const $counterStatus = $('<div>', {
       class: 'h5p-guessit-counter-status'
     }).appendTo(this.$timer);
@@ -2283,15 +2283,15 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       }
       s = s.charAt(0).toUpperCase() + s.slice(1);
       this.$progress = $('<div>', {
-  class: [
-    'counter-status',
-    'h5p-guessit-progress',
-    'h5p-theme-progress',
-    'h5p-guessit-sentence-progress'
-  ].join(' '),
-  tabindex: -1,
-  text: s + 1 + '/' + this.numQuestions
-});
+        class: [
+          'counter-status',
+          'h5p-guessit-progress',
+          'h5p-theme-progress',
+          'h5p-guessit-sentence-progress'
+        ].join(' '),
+        tabindex: -1,
+        text: s + 1 + '/' + this.numQuestions
+      });
       this.$progress.appendTo($counterStatus);
     }
 
