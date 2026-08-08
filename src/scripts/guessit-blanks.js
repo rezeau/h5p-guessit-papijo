@@ -397,6 +397,7 @@ H5P.GuessIt = (function ($, Question) {
     this.selectedWordLength = null;
     this.selectedQuestionIndices = null;
     this.selectedItemCount = 0;
+    this.learnerQuestion = null;
     setCompleteQuestionPool(this, this.configuredQuestionPool);
 
     if (this.itemCountChoiceEnabled) {
@@ -526,6 +527,7 @@ H5P.GuessIt = (function ($, Question) {
 
     this.currentAnswer = '';
     this.currentItemCompleted = false;
+    this.incompleteAnswerWarningVisible = false;
     this.wordListRejectedState = null;
     this.totalTimeSpent = 0;
     this.totalRounds = 0;
@@ -701,44 +703,44 @@ H5P.GuessIt = (function ($, Question) {
    * Called from H5P.Question.
    */
 
-GuessIt.prototype.registerDomElements = function (sentence) {
-  let self = this;
+  GuessIt.prototype.registerDomElements = function (sentence) {
+    let self = this;
 
-  let $content = $(
-    '[data-content-id="' + self.contentId + '"].h5p-content'
-  );
+    let $content = $(
+      '[data-content-id="' + self.contentId + '"].h5p-content'
+    );
 
-  $content.addClass('h5p-guessit h5p-frame');
+    $content.addClass('h5p-guessit h5p-frame');
 
-  /*
-   * Remove a previous header when registerDomElements() is called
-   * again, for example after an invalid user sentence.
-   */
-  $content
-    .children('.h5p-guessit-title-container')
-    .remove();
+    /*
+     * Remove a previous header when registerDomElements() is called
+     * again, for example after an invalid user sentence.
+     */
+    $content
+      .children('.h5p-guessit-title-container')
+      .remove();
 
-  // Complete header: description on left, progress on right.
-  this.$titleContainer = $('<div>', {
-    class: 'h5p-guessit-title-container'
-  });
+    // Complete header: description on left, progress on right.
+    this.$titleContainer = $('<div>', {
+      class: 'h5p-guessit-title-container'
+    });
 
-  // Left section.
-  this.$titleWrapper = $('<div>', {
-    class: 'h5p-guessit-title-wrapper'
-  }).appendTo(this.$titleContainer);
+    // Left section.
+    this.$titleWrapper = $('<div>', {
+      class: 'h5p-guessit-title-wrapper'
+    }).appendTo(this.$titleContainer);
 
-  this.$taskdescription = $('<div>', {
-    class: 'h5p-guessit h5p-guessit-description',
-    html: this.params.description
-  }).appendTo(this.$titleWrapper);
+    this.$taskdescription = $('<div>', {
+      class: 'h5p-guessit h5p-guessit-description',
+      html: this.params.description
+    }).appendTo(this.$titleWrapper);
 
-  // Right section: timer and counters will be inserted here later.
-  this.$progressWrapper = $('<div>', {
-    class: 'h5p-guessit-progress-wrapper'
-  }).appendTo(this.$titleContainer);
+    // Right section: timer and counters will be inserted here later.
+    this.$progressWrapper = $('<div>', {
+      class: 'h5p-guessit-progress-wrapper'
+    }).appendTo(this.$titleContainer);
 
-  this.$titleContainer.prependTo($content);
+    this.$titleContainer.prependTo($content);
     // Special case of userSentence mode.
     if (this.params.playMode === 'userSentence') {
       // Case guess a sentence.
@@ -766,12 +768,12 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         usersentence.setAttribute("class", "h5p-text-input-user");
         usersentence.setAttribute("autocomplete", "off");
         usersentence.setAttribute("autocapitalize", "off");
-/*
+        /*
         let usertip = document.createElement('input');
         usertip.setAttribute("type", "text");
         usertip.setAttribute("id", "usertip");
         usertip.setAttribute("class", "h5p-text-input-user");
-*/
+        */
         this.$userSentenceDescription
           .appendTo(this.$taskdescription);
         this.$userSentence = $('<div>', {
@@ -780,7 +782,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         });
         this.$userSentence.appendTo(this.$userSentenceDescription);
         usersentence.focus();
-        
+
         // Validate user sentence & possibly other options...
         const $optionButtons = $('<div>', {
           'class': 'h5p-guessit-optionsbuttons',
@@ -1050,64 +1052,59 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       if (nbDifferentNums > 1) {
         this.numQuestionsInWords = result;
         this.$numberWords = $('<div>', {
-        'class': [
-          'h5p-guessit',
-          'h5p-guessit-options',
-          'h5p-guessit-number-choice'
-        ].join(' ')
-      });
+          'class': [
+            'h5p-guessit',
+            'h5p-guessit-options',
+            'h5p-guessit-number-choice'
+          ].join(' ')
+        });
 
-      // Heading
-      $('<div>', {
-        'class': 'h5p-guessit-number-choice-title',
-        'html': this.params.numWords
-      }).appendTo(this.$numberWords);
+        // Heading
+        $('<div>', {
+          'class': 'h5p-guessit-number-choice-title',
+          'html': this.params.numWords
+        }).appendTo(this.$numberWords);
 
-      // Container for the choice buttons
-      let $optionButtons = $('<div>', {
-        'class': [
-          'h5p-guessit-optionsbuttons',
-          'h5p-guessit-number-choice-options'
-        ].join(' ')
-      }).appendTo(this.$numberWords);
+        // Container for the choice buttons
+        let $optionButtons = $('<div>', {
+          'class': [
+            'h5p-guessit-optionsbuttons',
+            'h5p-guessit-number-choice-options'
+          ].join(' ')
+        }).appendTo(this.$numberWords);
 
-      this.$numberWords.appendTo(this.$taskdescription);
+        this.$numberWords.appendTo(this.$taskdescription);
         if (nbDifferentNums > 1) {
-        // Remove duplicates from numWords array. Using filter and indexOf instead of Set method.
-          const uniquenumWords = numWords.filter((value, index, self) => {
-            return self.indexOf(value) === index;
-          });
-          // Sort uniquenumWords array
-          uniquenumWords.sort();
-          // Get last item from uniquenumWords array
-          uniquenumWords.slice(-1).pop();
+          const wordCountChoices = ContentUtils.getWordCountChoices(
+            numWords,
+            self.numQuestionsInWords,
+            self.params.sentence,
+            self.params.sentences
+          );
           // Init iteratation
           let numSentencesWithWords = [];
 
-          // Iterate uniquenumWords array
-          uniquenumWords.forEach(function (item) {
-            let n = self.numQuestionsInWords[item];
+          // Iterate numeric word counts in ascending order.
+          wordCountChoices.forEach(function (choice) {
+            const item = choice.wordCount;
+            const n = choice.sentenceCount;
             numSentencesWithWords[item] = n;
-            let s = self.params.sentence;
-            if (n > 1) {
-              s = self.params.sentences;
-            }
             const numberButton = H5P.Components.Button({
-            label: item + ' [' + n + ' ' + s + ']',
-            ariaLabel: item + ' [' + n + ' ' + s + ']',
-            styleType: 'secondary',
-            classes: 'h5p-guessit-number-button',
-            onClick: function () {
-              self.$numberWords.addClass('h5p-guessit-hide');
-              self.numWords = item;
-              self.numQuestions = numSentencesWithWords[item];
-              self.initTask();
-            }
-          });
-          numberButton.id = 'dc-number-' + item;
-          numberButton.title = item;
+              label: choice.label,
+              ariaLabel: choice.label,
+              styleType: 'secondary',
+              classes: 'h5p-guessit-number-button',
+              onClick: function () {
+                self.$numberWords.addClass('h5p-guessit-hide');
+                self.numWords = item;
+                self.numQuestions = numSentencesWithWords[item];
+                self.initTask();
+              }
+            });
+            numberButton.id = 'dc-number-' + item;
+            numberButton.title = item;
 
-          $optionButtons.append(numberButton);
+            $optionButtons.append(numberButton);
           });
           const n = self.params.questions.length;
           const s = self.params.sentences;
@@ -1219,6 +1216,21 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.$wordListValidationMessage
       .text('')
       .prop('hidden', true);
+  };
+
+  GuessIt.prototype.showIncompleteAnswerWarning = function () {
+    this.setFeedback();
+    this.updateFeedbackContent(this.params.notFilledOut);
+    this.incompleteAnswerWarningVisible = true;
+  };
+
+  GuessIt.prototype.clearIncompleteAnswerWarning = function () {
+    if (!this.incompleteAnswerWarningVisible) {
+      return;
+    }
+
+    this.incompleteAnswerWarningVisible = false;
+    this.updateFeedbackContent('');
   };
 
   GuessIt.prototype.showWordListValidationWarning = function () {
@@ -1347,8 +1359,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         if (self.$timer === undefined) {
           self.initCounters();
         }
-        self.setFeedback();
-        self.updateFeedbackContent(self.params.notFilledOut);
+        self.showIncompleteAnswerWarning();
         // Sets focus on first empty blank input.
         $currentInputs.each(function () {
           if ($(this).val() === '') {
@@ -1398,12 +1409,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
             self.hideButton('try-again');
             self.nbSentencesGuessed--;
           }
-          let currentGuessedSentenceId = self.params.questions[self.currentSentenceId].ID;
-          self.sentencesGuessed.push(currentGuessedSentenceId);
-          self.nbSentencesGuessed++;
-          if (self.params.wordle && !wordGuessed) {
-            self.wordsNotFound.push(currentGuessedSentenceId);
-          }
+          self.recordCompletedItem(wordGuessed);
           self.$questions.eq(self.currentSentenceId)
             .find('.h5p-guessit-audio-wrapper')
             .removeClass('hidden');
@@ -1501,24 +1507,24 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         icon: 'retry'
       }
     );
- 
+
     // Show solution button
     //if (this.params.behaviour.enableSolutionsButton) {
-      self.addButton(
-        'show-solution', 
-        self.params.showSolutions, 
-        function () {
-          self.showCorrectAnswers(false);
-        },
-        false,
-        {
-          'aria-label': self.params.showSolutions
-        },
-        {
-          styleType: 'secondary',
-          icon: 'show-solutions'
-        }
-      );
+    self.addButton(
+      'show-solution',
+      self.params.showSolutions,
+      function () {
+        self.showCorrectAnswers(false);
+      },
+      false,
+      {
+        'aria-label': self.params.showSolutions
+      },
+      {
+        styleType: 'secondary',
+        icon: 'show-solutions'
+      }
+    );
     //}
 
     // New Sentence button
@@ -1724,7 +1730,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
         clozeNumber ++;
         return cloze;
       });
-      html += '<div class = "h5p-guessit-sentence h5p-guessit-sentence-hidden" id=role="group" aria-labelledby="' + labelId + '">' + question + '</div>';
+      html += '<div class = "h5p-guessit-sentence h5p-guessit-sentence-hidden" role="group" aria-labelledby="' + labelId + '">' + question + '</div>';
     }
 
     self.hasClozes = clozeNumber > 0;
@@ -1752,6 +1758,10 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       self.clozes[i].setInput($(this), '', function () {
       }, n, t);
     }).on('input', function (event) {
+      if (!(event.originalEvent && event.originalEvent.isComposing)) {
+        self.clearIncompleteAnswerWarning();
+      }
+
       if (self.params.wordle) {
         if (event.originalEvent && event.originalEvent.isComposing) {
           return;
@@ -2163,6 +2173,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   GuessIt.prototype.reTry = function () {
     this.wordListRejectedState = null;
     this.clearWordListValidationWarning();
+    this.clearIncompleteAnswerWarning();
     this.answered = false;
     this.currentItemCompleted = false;
     this.hideSolutions();
@@ -2202,39 +2213,38 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   };
 
   GuessIt.prototype.initCounters = function () {
-  let self = this;
+    let self = this;
 
-  // Container for all three progress elements.
-  this.$timer = $('<div>', {
-    class: 'h5p-guessit-time-status',
-    tabindex: -1
-  });
+    // Container for all three progress elements.
+    this.$timer = $('<div>', {
+      class: 'h5p-guessit-time-status',
+      tabindex: -1
+    });
 
-  // Time spent.
-  const $timeStatus = $('<div>', {
-    class: [
-      'h5p-guessit-progress',
-      'h5p-theme-progress',
-      'h5p-guessit-time'
-    ].join(' '),
-    html:
+    // Time spent.
+    const $timeStatus = $('<div>', {
+      class: [
+        'h5p-guessit-progress',
+        'h5p-theme-progress',
+        'h5p-guessit-time'
+      ].join(' '),
+      html:
       '<span role="term">' +
         '<em class="fa fa-clock-o"></em>' +
         self.params.timeSpent +
       '</span>:' +
       '<span role="definition" class="h5p-time-spent">0:00</span>'
-  }).appendTo(this.$timer);
+    }).appendTo(this.$timer);
 
-  this.timer = new GuessIt.Timer(
-    $timeStatus.find('.h5p-time-spent')
-  );
+    this.timer = new GuessIt.Timer(
+      $timeStatus.find('.h5p-time-spent')
+    );
 
-  // Place the complete status block in the header.
-  this.$timer.appendTo(this.$progressWrapper);
+    // Place the complete status block in the header.
+    this.$timer.appendTo(this.$progressWrapper);
 
     this.timer.play();
     // Counter part.
-    $content = $('[data-content-id="' + self.contentId + '"].h5p-content');
     const counterText = self.params.round
       .replace('@round', '<span class="h5p-counter">1</span>');
     /*
@@ -2245,20 +2255,20 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     });
     */
     this.$counter = $('<div>', {
-  class: [
-    'counter-status',
-    'h5p-guessit-progress',
-    'h5p-theme-progress',
-    'h5p-guessit-round'
-  ].join(' '),
-  tabindex: -1,
-  html:
+      class: [
+        'counter-status',
+        'h5p-guessit-progress',
+        'h5p-theme-progress',
+        'h5p-guessit-round'
+      ].join(' '),
+      tabindex: -1,
+      html:
     '<div role="term">' +
       '<span role="definition">' +
         counterText +
       '</span>' +
     '</div>'
-});
+    });
     const $counterStatus = $('<div>', {
       class: 'h5p-guessit-counter-status'
     }).appendTo(this.$timer);
@@ -2273,17 +2283,21 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       }
       s = s.charAt(0).toUpperCase() + s.slice(1);
       this.$progress = $('<div>', {
-  class: [
-    'counter-status',
-    'h5p-guessit-progress',
-    'h5p-theme-progress',
-    'h5p-guessit-sentence-progress'
-  ].join(' '),
-  tabindex: -1,
-  text: s + 1 + '/' + this.numQuestions
-});
+        class: [
+          'counter-status',
+          'h5p-guessit-progress',
+          'h5p-theme-progress',
+          'h5p-guessit-sentence-progress'
+        ].join(' '),
+        tabindex: -1,
+        text: s + 1 + '/' + this.numQuestions
+      });
       this.$progress.appendTo($counterStatus);
     }
+
+    setTimeout(function () {
+      self.trigger('resize');
+    }, 0);
 
   };
 
@@ -2291,6 +2305,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     let self = this;
     this.wordListRejectedState = null;
     this.clearWordListValidationWarning();
+    this.clearIncompleteAnswerWarning();
     let $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
     $content.find('.h5p-container').removeClass('h5p-guessit-hide');
 
@@ -2357,6 +2372,22 @@ GuessIt.prototype.registerDomElements = function (sentence) {
       this.$questions.eq(this.currentSentenceId).removeClass('h5p-guessit-sentence-hidden');
     }
 
+  };
+
+  /**
+   * Record the stable original-pool ID of the completed active question.
+   *
+   * @param {boolean} wordGuessed Whether a Wordle word was found.
+   * @returns {number} Stable question ID used by history and xAPI reporting.
+   */
+  GuessIt.prototype.recordCompletedItem = function (wordGuessed) {
+    const questionId = this.params.questions[this.currentSentenceId].ID;
+    this.sentencesGuessed.push(questionId);
+    this.nbSentencesGuessed++;
+    if (this.params.wordle && !wordGuessed) {
+      this.wordsNotFound.push(questionId);
+    }
+    return questionId;
   };
 
   GuessIt.prototype.showFinalPage = function () {
@@ -2581,6 +2612,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
 
     this.wordListRejectedState = null;
     this.clearWordListValidationWarning();
+    this.clearIncompleteAnswerWarning();
     if (this.timer) {
       this.timer.stop();
     }
@@ -2610,6 +2642,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     this.sentenceClozeNumber = [];
     this.selectedQuestionIndices = null;
     this.selectedItemCount = 0;
+    this.learnerQuestion = null;
     this.itemCountChoiceCompleted = false;
     this.itemCountChoicePending = false;
     this.wordLengthChoiceCompleted = false;
@@ -2900,9 +2933,13 @@ GuessIt.prototype.registerDomElements = function (sentence) {
     if (!isValidState) {
       return;
     }
-    this.originalQuestions = this.previousState.originalQuestions;
-    if (this.params.wordle) {
-      normalizeWordleQuestions(this.originalQuestions);
+    if (this.params.playMode !== 'userSentence' || !this.learnerQuestion) {
+      this.originalQuestions = ContentUtils.toQuestionArray(
+        this.previousState.originalQuestions
+      );
+      if (this.params.wordle) {
+        normalizeWordleQuestions(this.originalQuestions);
+      }
     }
     this.sentencesGuessed = this.previousState.sentencesGuessed;
     this.wordsNotFound = this.previousState.wordsNotFound;
@@ -2937,7 +2974,7 @@ GuessIt.prototype.registerDomElements = function (sentence) {
   GuessIt.prototype.eventCompleted = function () {
     // Create and trigger xAPI event 'completed'
     let completedEvent = this.createXAPIEventTemplate('completed');
-    completedEvent.setScoredResult(1, 1, self, true, true);
+    completedEvent.setScoredResult(1, 1, this, true, true);
     completedEvent.data.statement.result.duration = 'PT' + (Math.round(this.timer.getTime() / 10) / 100) + 'S';
     this.trigger(completedEvent);
   };
