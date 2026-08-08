@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.8.1 - 2026-08-08
+
+### Fixed
+
+- Fixed learner-supplied Wordle and sentence modes when configured lists are
+  empty, and assigned stable IDs to learner-created questions.
+- Fixed View Summary and answered-xAPI failures for learner-supplied items.
+- Corrected numeric ordering in the sentence word-count selector.
+- Fixed malformed `role="group"` accessibility markup.
+- Removed an accidental global `$content` assignment and corrected the
+  dormant xAPI instance receiver.
+- Cleared the incomplete-answer warning when learners resume input.
+- Requested a resize when the timer first appears so controls are not clipped.
+- Cleaned the existing source formatting and lint baseline.
+
+### Maintenance
+
+- Updated the transitive `fast-uri` dependency from 3.1.4 to 3.1.5.
+
 ## 1.8.0 - 2026-08-01
 
 ### New
