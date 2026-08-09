@@ -1,0 +1,790 @@
+'use strict';
+/* global Map, Set */
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const ContentUtils = require('../src/scripts/guessit-content-utils');
+const SummaryUtils = require('../src/scripts/guessit-summary-utils');
+
+const source = fs.readFileSync(
+  path.join(__dirname, '..', 'src', 'scripts', 'guessit-blanks.js'),
+  'utf8'
+);
+
+const getPrototypeMethodSource = function (methodName, nextMethodName) {
+  const startMarker = `GuessIt.prototype.${methodName} = function (`;
+  const endMarker = `GuessIt.prototype.${nextMethodName} = function (`;
+  const start = source.indexOf(startMarker);
+  const end = source.indexOf(endMarker, start);
+
+  assert.notEqual(start, -1, `${methodName} must exist`);
+  assert.notEqual(end, -1, `${nextMethodName} must follow ${methodName}`);
+  return source.slice(start, end);
+};
+
+const createSelection = function (name, registry) {
+  return {
+    name,
+    children: [],
+    classes: new Set(),
+    hidden: false,
+    htmlValue: '',
+    length: 1,
+    parent: null,
+    removed: false,
+    textValue: '',
+    addClass: function (classNames) {
+      classNames.split(/\s+/).forEach((className) => this.classes.add(className));
+      return this;
+    },
+    append: function (...children) {
+      children.forEach((child) => {
+        this.children.push(child);
+        if (child && typeof child === 'object') {
+          child.parent = this;
+        }
+      });
+      return this;
+    },
+    appendTo: function (parent) {
+      if (this.parent) {
+        this.parent.children = this.parent.children.filter((child) => child !== this);
+      }
+      parent.children.push(this);
+      this.parent = parent;
+      return this;
+    },
+    empty: function () {
+      this.children = [];
+      return this;
+    },
+    filter: function () {
+      return this;
+    },
+    find: function () {
+      return createSelection(`${name}-find`, registry);
+    },
+    focus: function () {
+      registry.focused = this;
+      return this;
+    },
+    hasClass: function (className) {
+      return this.classes.has(className);
+    },
+    hide: function () {
+      this.hidden = true;
+      return this;
+    },
+    html: function (value) {
+      if (value === undefined) {
+        return this.htmlValue;
+      }
+      this.htmlValue = value;
+      return this;
+    },
+    prependTo: function (parent) {
+      if (this.parent) {
+        this.parent.children = this.parent.children.filter((child) => child !== this);
+      }
+      parent.children.unshift(this);
+      this.parent = parent;
+      return this;
+    },
+    remove: function () {
+      this.removed = true;
+      if (this.parent) {
+        this.parent.children = this.parent.children.filter((child) => child !== this);
+        this.parent = null;
+      }
+      return this;
+    },
+    removeClass: function (classNames) {
+      classNames.split(/\s+/).forEach((className) => this.classes.delete(className));
+      return this;
+    },
+    show: function () {
+      this.hidden = false;
+      return this;
+    },
+    text: function (value) {
+      if (value === undefined) {
+        return this.textValue;
+      }
+      this.textValue = value;
+      return this;
+    }
+  };
+};
+
+const createSelectionGroup = function (selections) {
+  const uniqueSelections = Array.from(new Set(selections));
+  return {
+    length: uniqueSelections.length,
+    hide: function () {
+      uniqueSelections.forEach((selection) => selection.hide());
+      return this;
+    },
+    show: function () {
+      uniqueSelections.forEach((selection) => selection.show());
+      return this;
+    }
+  };
+};
+
+const isAttachedTo = function (selection, root) {
+  let current = selection;
+  while (current) {
+    if (current === root) {
+      return true;
+    }
+    current = current.parent;
+  }
+  return false;
+};
+
+const isEffectivelyVisible = function (selection, root) {
+  let current = selection;
+  while (current) {
+    if (current.hidden || current.removed) {
+      return false;
+    }
+    if (current === root) {
+      return true;
+    }
+    current = current.parent;
+  }
+  return false;
+};
+
+const getSelectionText = function (selection) {
+  return [selection.htmlValue]
+    .concat(selection.children.map(getSelectionText))
+    .filter(Boolean)
+    .join(' ');
+};
+
+const countSelection = function (root, target) {
+  return (root === target ? 1 : 0) + root.children.reduce(function (count, child) {
+    return count + (child && child.children ? countSelection(child, target) : 0);
+  }, 0);
+};
+
+const createHarness = function (options = {}) {
+  const registry = {
+    buttons: [],
+    completedEvents: 0,
+    focused: null,
+    registerButtons: 0,
+    registerDomElements: 0,
+    resizeEvents: 0,
+    summaries: [],
+    xapiEvents: 0
+  };
+  const content = createSelection('content', registry);
+  const gameContainer = createSelection('game-container', registry);
+  const titleContainer = createSelection('title-container', registry);
+  const titleWrapper = createSelection('title-wrapper', registry);
+  const clones = createSelection('clones', registry);
+  const taskDescription = createSelection('task-description', registry);
+  const guessedItems = createSelection('guessed-items', registry);
+  const progress = createSelection('progress', registry);
+  const timerDom = createSelection('timer', registry);
+  const ordinaryFeedback = createSelection('ordinary-feedback', registry);
+  const questionIntroduction = createSelection('question-introduction', registry);
+  const questionContent = createSelection('question-content', registry);
+  const scoreBar = createSelection('score-bar', registry);
+  const input = createSelection('answer-input', registry);
+  guessedItems.addClass('h5p-guessit-hide');
+  guessedItems.appendTo(taskDescription);
+  taskDescription.appendTo(titleWrapper);
+  titleWrapper.appendTo(titleContainer);
+  titleContainer.appendTo(content);
+  questionIntroduction.appendTo(gameContainer);
+  questionContent.appendTo(gameContainer);
+  scoreBar.appendTo(gameContainer);
+  ordinaryFeedback.appendTo(gameContainer);
+  gameContainer.appendTo(content);
+  content.addClass('h5p-no-frame');
+
+  const selectActivityUi = function (selector) {
+    const selections = [];
+    if (selector.includes('.h5p-guessit-title-container')) {
+      selections.push(titleContainer);
+    }
+    if (selector.includes('.h5p-guessit-description')) {
+      selections.push(taskDescription);
+    }
+    if (selector.includes('.h5p-question-introduction')) {
+      selections.push(questionIntroduction);
+    }
+    if (selector.includes('.h5p-question-content')) {
+      selections.push(questionContent);
+    }
+    if (selector.includes('.h5p-question-scorebar')) {
+      selections.push(scoreBar);
+    }
+    if (selector.includes('.h5p-question-feedback')) {
+      selections.push(ordinaryFeedback);
+    }
+    return createSelectionGroup(selections);
+  };
+
+  content.find = function (selector) {
+    if (selector === '.h5p-guessit-summary-screen') {
+      return registry.summaries.at(-1) || createSelection('no-summary', registry);
+    }
+    if (selector === '.cloned') {
+      return clones;
+    }
+    if (selector === '.h5p-container') {
+      return gameContainer;
+    }
+    if (selector === '.h5p-question-content') {
+      return questionContent;
+    }
+    if (selector.includes('.h5p-guessit-title-container') ||
+      selector.includes('.h5p-question-introduction')) {
+      return selectActivityUi(selector);
+    }
+    return createSelection(`content-find:${selector}`, registry);
+  };
+
+  const questionCount = options.questionCount || 3;
+  const questionNodes = Array.from({ length: questionCount }, (_, index) => {
+    const question = createSelection(`question-${index}`, registry);
+    question.find = function () {
+      return input;
+    };
+    return question;
+  });
+  const questions = {
+    length: questionNodes.length,
+    eq: function (index) {
+      const resolved = index === undefined ? 0 : index;
+      return questionNodes[resolved] || createSelection('missing-question', registry);
+    },
+    find: function () {
+      return createSelection('question-find', registry);
+    }
+  };
+
+  const $ = function (selector, context) {
+    if (typeof selector === 'string' && selector.startsWith('<')) {
+      const selection = createSelection('created', registry);
+      if (selector.includes('feedback-container')) {
+        selection.name = 'summary-feedback';
+      }
+      if (context && context.class === 'h5p-guessit-summary-screen') {
+        selection.name = 'summary';
+        registry.summaries.push(selection);
+      }
+      return selection;
+    }
+    if (context) {
+      return selectActivityUi(selector);
+    }
+    if (typeof selector === 'string' && selector.includes(' .h5p-container')) {
+      return gameContainer;
+    }
+    if (typeof selector === 'string' && selector.includes('.h5p-content')) {
+      return content;
+    }
+    return createSelection(`selection:${selector}`, registry);
+  };
+  $.extend = function (deep, target, value) {
+    Object.assign(target, value);
+    return target;
+  };
+
+  const deferred = [];
+  const sandbox = {
+    $,
+    ContentUtils,
+    GuessIt: function () {},
+    H5P: {
+      Components: {
+        Button: function (configuration) {
+          const button = {
+            configuration,
+            focus: function () {
+              registry.focused = button;
+            },
+            addEventListener: function (eventName, callback) {
+              assert.equal(eventName, 'click');
+              button.clickListener = callback;
+            }
+          };
+          registry.buttons.push(button);
+          return button;
+        }
+      },
+      JoubelUI: {
+        createScoreBar: function () {
+          return {
+            appendTo: function () {},
+            setMaxScore: function () {},
+            setScore: function () {}
+          };
+        }
+      }
+    },
+    Math,
+    STATE_ONGOING: 'ongoing',
+    SummaryUtils,
+    activateAutomaticQuestionPool: function (instance) {
+      instance.params.questions = instance.configuredQuestionPool.slice();
+    },
+    activateSelectedWordLength: function () {
+      return true;
+    },
+    normalizeWordleQuestions: function () {},
+    requestWordLengthChoice: function () {},
+    setCompleteQuestionPool: function (instance, pool) {
+      instance.questionPool = pool;
+    },
+    setTimeout: function (callback, delay) {
+      assert.equal(delay, 0);
+      deferred.push(callback);
+    }
+  };
+
+  [
+    ['newSentence', 'initCounters'],
+    ['initTask', 'recordCompletedItem'],
+    ['recordCompletedItem', 'showFinalPage'],
+    ['showFinalPage', 'continueTask'],
+    ['continueTask', 'resetTask'],
+    ['resetTask', 'hideButtons'],
+    ['getCurrentState', 'setH5PUserState'],
+    ['setH5PUserState', 'disableInput']
+  ].forEach(function (methods) {
+    vm.runInNewContext(
+      getPrototypeMethodSource(methods[0], methods[1]),
+      sandbox
+    );
+  });
+
+  const timerCalls = [];
+  const timer = {
+    callbackCount: 1,
+    currentTime: options.time || 2500,
+    getTime: function () {
+      return this.currentTime;
+    },
+    play: function () {
+      timerCalls.push('play');
+    },
+    reset: function () {
+      timerCalls.push('reset');
+      this.currentTime = 0;
+    },
+    stop: function () {
+      timerCalls.push('stop');
+    }
+  };
+  const counterCalls = [];
+  const counter = {
+    currentRound: options.round || 3,
+    getcurrent: function () {
+      return this.currentRound;
+    },
+    reset: function () {
+      counterCalls.push('reset');
+      this.currentRound = 1;
+    }
+  };
+
+  const configuredQuestions = Array.from(
+    { length: questionCount },
+    (_, index) => ({ ID: index, sentence: `ITEM${index}` })
+  );
+  const completed = options.completed || [0];
+  const wordsNotFound = options.wordsNotFound || [];
+  const instance = Object.assign(Object.create(sandbox.GuessIt.prototype), {
+    $divGuessedSentences: guessedItems,
+    $feedbackContainer: ordinaryFeedback,
+    $progress: progress,
+    $questions: questions,
+    $taskdescription: taskDescription,
+    $timer: timerDom,
+    acceptedWordSet: new Set(['ITEM0', 'ITEM1', 'ITEM2']),
+    activeQuestionPool: configuredQuestions,
+    addConfirmationDialogToButton: function () {
+      throw new Error('Reset dialog should already exist');
+    },
+    answered: false,
+    clearAnswers: function () {
+      registry.answersCleared = true;
+    },
+    clearIncompleteAnswerWarning: function () {
+      registry.incompleteWarningCleared = true;
+    },
+    clearWordListValidationWarning: function () {
+      registry.validationWarningCleared = true;
+    },
+    clozes: [],
+    configuredQuestionPool: configuredQuestions,
+    contentId: 17,
+    counter,
+    currentAnswer: '',
+    currentItemCompleted: true,
+    currentSentenceId: 0,
+    enableNumChoiceConfigured: Boolean(options.enableNumChoice),
+    hasAlternatives: false,
+    hadNoFrameBeforeSummary: true,
+    hideButton: function () {},
+    hideSolutions: function () {
+      registry.solutionsHidden = true;
+    },
+    itemCountChoiceCompleted: true,
+    itemCountChoiceEnabled: Boolean(options.itemCountChoice),
+    itemCountChoicePending: false,
+    learnerQuestion: null,
+    nbSentencesGuessed: options.nbSentencesGuessed === undefined ?
+      completed.length - wordsNotFound.length : options.nbSentencesGuessed,
+    nbSsolutionsViewed: 0,
+    numQuestions: questionCount,
+    numQuestionsInWords: [questionCount],
+    numWords: 0,
+    originalQuestions: configuredQuestions,
+    params: {
+      behaviour: {
+        enableNumChoice: Boolean(options.enableNumChoice),
+        sentencesOrder: 'normal'
+      },
+      continueGame: 'Continue game',
+      playMode: options.playMode || 'availableSentences',
+      questions: configuredQuestions,
+      scoreBarLabel: 'Score @score/@total',
+      scoreExplanationButtonLabel: 'Explain',
+      scoreExplanationforAllSentences: 'Sentence score',
+      scoreExplanationforAllWords: 'Word score',
+      scoreExplanationforSentencesWithNumberWords: '@words words',
+      sentence: 'sentence',
+      sentencesGuessed: 'Sentences guessed',
+      solutionsViewed: 'Solutions viewed',
+      summary: 'Summary',
+      totalRounds: 'Total rounds',
+      totalTimeSpent: 'Total time',
+      word: 'word',
+      wordle: Boolean(options.wordle),
+      wordsFound: 'Words found'
+    },
+    previousState: undefined,
+    questionPool: configuredQuestions,
+    registerButtons: function () {
+      registry.registerButtons++;
+    },
+    registerDomElements: function () {
+      registry.registerDomElements++;
+    },
+    removeFeedback: function () {
+      registry.feedbackRemoved = true;
+    },
+    removeMarkedResults: function () {
+      registry.markingsRemoved = true;
+    },
+    resetGameDialog: { show: function () {} },
+    resetGrowTextField: function () {},
+    selectedItemCount: options.selectedItemCount || questionCount,
+    selectedLengthQuestionPool: options.selectedLengthQuestionPool || [],
+    selectedQuestionIndices: options.selectedQuestionIndices || null,
+    selectedWordLength: options.selectedWordLength || null,
+    sentencesFound: 0,
+    sentencesGuessed: completed.slice(),
+    success: Boolean(options.success),
+    timer,
+    toggleAllInputs: function () {},
+    toggleButtonVisibility: function () {},
+    totalNumQuestions: questionCount,
+    totalRounds: options.totalRounds || 0,
+    totalTimeSpent: options.totalTimeSpent || 0,
+    trigger: function (event) {
+      if (event === 'resize') {
+        registry.resizeEvents++;
+      }
+      else if (event && event.verb === 'completed') {
+        registry.completedEvents++;
+      }
+    },
+    triggerAnswered: function () {
+      registry.xapiEvents++;
+    },
+    updateEndGameButtonState: function () {},
+    wordLengthChoiceActivationStarted: false,
+    wordLengthChoiceCompleted: options.selectedWordLength !== undefined,
+    wordLengthChoiceEnabled: false,
+    wordLengthChoicePending: false,
+    wordLengthGroups: new Map(),
+    wordLengthSelectionApplies: false,
+    wordListRejectedState: options.wordListRejectedState || null,
+    wordsNotFound: wordsNotFound.slice()
+  });
+
+  const displayCompletedItem = function (wordGuessed, label) {
+    instance.recordCompletedItem(wordGuessed);
+    const completedItem = createSelection('completed-item', registry);
+    completedItem.html(label).appendTo(guessedItems);
+    guessedItems.removeClass('h5p-guessit-hide');
+    return completedItem;
+  };
+
+  const openSummary = function () {
+    const beforeChildren = gameContainer.children.length;
+    instance.showFinalPage();
+    assert.ok(gameContainer.children.length >= beforeChildren);
+    return registry.buttons.findLast(function (button) {
+      return button.configuration.classes === 'h5p-guessit-continue-button';
+    });
+  };
+
+  return {
+    content,
+    countCompletedItemsContainers: function () {
+      return countSelection(content, guessedItems);
+    },
+    counter,
+    counterCalls,
+    deferred,
+    displayCompletedItem,
+    gameContainer,
+    guessedItems,
+    input,
+    isAttached: function (selection) {
+      return isAttachedTo(selection, content);
+    },
+    isVisible: function (selection) {
+      return isEffectivelyVisible(selection, content);
+    },
+    instance,
+    openSummary,
+    ordinaryFeedback,
+    questionNodes,
+    registry,
+    sandbox,
+    taskDescription,
+    textOf: getSelectionText,
+    titleContainer,
+    timer,
+    timerCalls
+  };
+};
+
+test('configured sentence list survives repeated actual Continue callbacks', function () {
+  const harness = createHarness({
+    completed: [],
+    itemCountChoice: true,
+    nbSentencesGuessed: 0,
+    selectedItemCount: 3,
+    selectedQuestionIndices: [0, 1, 2],
+    time: 2500,
+    round: 3
+  });
+  const guessedItemsIdentity = harness.guessedItems;
+  harness.displayCompletedItem(true, 'ITEM0');
+  assert.equal(harness.guessedItems, guessedItemsIdentity);
+  assert.equal(harness.guessedItems.parent, harness.taskDescription);
+  assert.equal(harness.isAttached(harness.guessedItems), true);
+  assert.equal(harness.isVisible(harness.guessedItems), true);
+  assert.match(harness.textOf(harness.guessedItems), /ITEM0/);
+  assert.deepEqual(harness.instance.sentencesGuessed, [0]);
+  assert.equal(harness.countCompletedItemsContainers(), 1);
+
+  const timerIdentity = harness.instance.timer;
+  const feedbackIdentity = harness.instance.$feedbackContainer;
+  const continueButton = harness.openSummary();
+  const firstSummary = harness.registry.summaries.at(-1);
+
+  assert.ok(continueButton);
+  assert.equal(harness.guessedItems, guessedItemsIdentity);
+  assert.equal(harness.guessedItems.parent, firstSummary);
+  assert.equal(harness.isAttached(harness.guessedItems), true);
+  assert.equal(harness.isVisible(harness.guessedItems), true);
+  assert.match(harness.textOf(harness.guessedItems), /ITEM0/);
+  assert.equal(harness.taskDescription.hidden, true);
+  assert.deepEqual(harness.instance.sentencesGuessed, [0]);
+  assert.equal(harness.instance.totalTimeSpent, 2500);
+  assert.equal(harness.instance.totalRounds, 3);
+  assert.deepEqual(harness.timerCalls, ['stop']);
+  assert.equal(harness.instance.$feedbackContainer, feedbackIdentity);
+  assert.equal(harness.registry.xapiEvents, 1);
+
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+
+  assert.equal(harness.instance.currentSentenceId, 1);
+  assert.equal(harness.instance.sentencesFound, 1);
+  assert.equal(harness.questionNodes[0].hasClass('used'), true);
+  assert.equal(harness.instance.totalTimeSpent, 2500);
+  assert.equal(harness.instance.totalRounds, 3);
+  assert.equal(harness.timer.currentTime, 0);
+  assert.equal(harness.counter.currentRound, 1);
+  assert.deepEqual(harness.timerCalls, ['stop', 'reset', 'play']);
+  assert.deepEqual(harness.counterCalls, ['reset']);
+  assert.deepEqual(harness.instance.sentencesGuessed, [0]);
+  assert.deepEqual(harness.instance.selectedQuestionIndices, [0, 1, 2]);
+  assert.equal(harness.guessedItems, guessedItemsIdentity);
+  assert.equal(harness.guessedItems.parent, harness.taskDescription);
+  assert.equal(harness.isAttached(harness.guessedItems), true);
+  assert.equal(harness.isVisible(harness.guessedItems), true);
+  assert.match(harness.textOf(harness.guessedItems), /ITEM0/);
+  assert.equal(harness.countCompletedItemsContainers(), 1);
+  assert.equal(harness.registry.summaries.at(-1).removed, true);
+  assert.equal(harness.content.hasClass('h5p-no-frame'), true);
+  assert.equal(harness.registry.focused, harness.input);
+  assert.ok(harness.registry.resizeEvents >= 2);
+  assert.equal(harness.registry.xapiEvents, 1);
+  assert.equal(harness.registry.completedEvents, 0);
+  assert.equal(harness.registry.registerDomElements, 0);
+  assert.equal(harness.registry.registerButtons, 0);
+  assert.equal(harness.instance.timer, timerIdentity);
+  assert.equal(harness.instance.timer.callbackCount, 1);
+
+  harness.displayCompletedItem(true, 'ITEM1');
+  assert.match(harness.textOf(harness.guessedItems), /ITEM0/);
+  assert.match(harness.textOf(harness.guessedItems), /ITEM1/);
+  assert.equal(harness.guessedItems.children.length, 2);
+  assert.deepEqual(harness.instance.sentencesGuessed, [0, 1]);
+  harness.timer.currentTime = 1500;
+  harness.counter.currentRound = 2;
+  const secondContinueButton = harness.openSummary();
+  const secondSummary = harness.registry.summaries.at(-1);
+  assert.equal(harness.guessedItems.parent, secondSummary);
+  assert.equal(harness.isAttached(harness.guessedItems), true);
+  assert.equal(harness.isVisible(harness.guessedItems), true);
+  secondContinueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+  assert.equal(harness.guessedItems, guessedItemsIdentity);
+  assert.equal(harness.guessedItems.parent, harness.taskDescription);
+  assert.equal(harness.isAttached(harness.guessedItems), true);
+  assert.equal(harness.isVisible(harness.guessedItems), true);
+  assert.equal(harness.guessedItems.children.length, 2);
+  assert.match(harness.textOf(harness.guessedItems), /ITEM0/);
+  assert.match(harness.textOf(harness.guessedItems), /ITEM1/);
+  assert.equal(harness.countCompletedItemsContainers(), 1);
+  assert.deepEqual(harness.instance.sentencesGuessed, [0, 1]);
+
+  const state = harness.instance.getCurrentState();
+  const restored = {
+    learnerQuestion: null,
+    params: { playMode: 'availableSentences', wordle: false },
+    previousState: state
+  };
+  harness.sandbox.GuessIt.prototype.setH5PUserState.call(restored);
+  assert.deepEqual(restored.sentencesGuessed, [0, 1]);
+  assert.deepEqual(state.selectedQuestionIndices, [0, 1, 2]);
+  assert.equal(state.selectedItemCount, 3);
+
+  harness.instance.resetTask();
+  assert.equal(harness.instance.sentencesGuessed.length, 0);
+  assert.equal(harness.instance.wordsNotFound.length, 0);
+  assert.equal(harness.instance.totalTimeSpent, 0);
+  assert.equal(harness.instance.totalRounds, 0);
+  assert.equal(harness.instance.selectedQuestionIndices, null);
+  assert.equal(harness.instance.selectedItemCount, 0);
+  assert.equal(harness.registry.registerDomElements, 1);
+});
+
+test('Wordle list and selection survive repeated actual Continue callbacks', function () {
+  const selectedLengthPool = [
+    { ID: 0, sentence: 'MARE' },
+    { ID: 1, sentence: 'PINE' },
+    { ID: 2, sentence: 'SAGE' }
+  ];
+  const harness = createHarness({
+    completed: [],
+    nbSentencesGuessed: 0,
+    selectedItemCount: 3,
+    selectedLengthQuestionPool: selectedLengthPool,
+    selectedQuestionIndices: [0, 1, 2],
+    selectedWordLength: 4,
+    success: false,
+    wordle: true,
+    wordListRejectedState: { word: 'NOPE' }
+  });
+  const guessedItemsIdentity = harness.guessedItems;
+  harness.displayCompletedItem(true, 'Word found: ITEM0');
+  const acceptedWordSet = harness.instance.acceptedWordSet;
+  let continueButton = harness.openSummary();
+  const firstSummary = harness.registry.summaries.at(-1);
+
+  assert.equal(harness.instance.success, true);
+  assert.equal(harness.guessedItems.parent, firstSummary);
+  assert.equal(harness.isAttached(harness.guessedItems), true);
+  assert.equal(harness.isVisible(harness.guessedItems), true);
+  assert.match(harness.textOf(harness.guessedItems), /Word found: ITEM0/);
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+  assert.equal(harness.instance.success, false);
+  assert.equal(harness.instance.wordListRejectedState, null);
+  assert.equal(harness.registry.validationWarningCleared, true);
+  assert.equal(harness.instance.acceptedWordSet, acceptedWordSet);
+  assert.equal(harness.instance.selectedWordLength, 4);
+  assert.deepEqual(harness.instance.selectedLengthQuestionPool, selectedLengthPool);
+  assert.deepEqual(harness.instance.selectedQuestionIndices, [0, 1, 2]);
+  assert.equal(harness.guessedItems, guessedItemsIdentity);
+  assert.equal(harness.guessedItems.parent, harness.taskDescription);
+  assert.equal(harness.isAttached(harness.guessedItems), true);
+  assert.equal(harness.isVisible(harness.guessedItems), true);
+  assert.equal(harness.countCompletedItemsContainers(), 1);
+
+  harness.instance.nbSentencesGuessed--;
+  harness.displayCompletedItem(false, 'Word not found: ITEM1');
+  assert.equal(harness.guessedItems.children.length, 2);
+  assert.match(harness.textOf(harness.guessedItems), /Word found: ITEM0/);
+  assert.match(harness.textOf(harness.guessedItems), /Word not found: ITEM1/);
+  harness.timer.currentTime = 1500;
+  harness.counter.currentRound = 2;
+  continueButton = harness.openSummary();
+
+  assert.equal(harness.instance.success, false);
+  assert.equal(harness.registry.xapiEvents, 2);
+  assert.equal(harness.guessedItems.parent, harness.registry.summaries.at(-1));
+  assert.equal(harness.isAttached(harness.guessedItems), true);
+  assert.equal(harness.isVisible(harness.guessedItems), true);
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+
+  assert.equal(harness.instance.currentSentenceId, 2);
+  assert.deepEqual(harness.instance.sentencesGuessed, [0, 1]);
+  assert.deepEqual(harness.instance.wordsNotFound, [1]);
+  assert.equal(harness.guessedItems, guessedItemsIdentity);
+  assert.equal(harness.guessedItems.parent, harness.taskDescription);
+  assert.equal(harness.isAttached(harness.guessedItems), true);
+  assert.equal(harness.isVisible(harness.guessedItems), true);
+  assert.equal(harness.guessedItems.children.length, 2);
+  assert.match(harness.textOf(harness.guessedItems), /Word found: ITEM0/);
+  assert.match(harness.textOf(harness.guessedItems), /Word not found: ITEM1/);
+  assert.equal(harness.countCompletedItemsContainers(), 1);
+  assert.equal(harness.instance.totalTimeSpent, 4000);
+  assert.equal(harness.instance.totalRounds, 5);
+  assert.equal(harness.registry.xapiEvents, 2);
+  assert.equal(harness.registry.completedEvents, 0);
+  assert.equal(harness.registry.registerDomElements, 0);
+  assert.equal(harness.registry.registerButtons, 0);
+});
+
+test('production summary action gating keeps unsupported modes without Continue', function () {
+  [
+    { playMode: 'userSentence', questionCount: 1, wordle: false },
+    { playMode: 'userSentence', questionCount: 1, wordle: true },
+    { enableNumChoice: true, questionCount: 3, wordle: false }
+  ].forEach(function (options) {
+    const harness = createHarness(options);
+    assert.equal(harness.openSummary(), undefined, JSON.stringify(options));
+  });
+
+  assert.equal(SummaryUtils.getSummaryActions({
+    enableNumChoice: false,
+    hasRemainingQuestions: false,
+    wordle: false
+  }).continueGame, false);
+  assert.equal(SummaryUtils.getSummaryActions({
+    enableNumChoice: false,
+    hasRemainingQuestions: false,
+    wordle: true
+  }).continueGame, false);
+});
