@@ -2198,9 +2198,12 @@ H5P.GuessIt = (function ($, Question) {
 
   /**
    * Display a new sentence to be guessed.
+   *
+   * @param {boolean} currentItemAlreadyAccounted Whether summary entry has
+   *   already added the outgoing item's time and rounds to aggregate totals.
    * @public
    */
-  GuessIt.prototype.newSentence = function () {
+  GuessIt.prototype.newSentence = function (currentItemAlreadyAccounted = false) {
     let self = this;
     this.sentencesFound ++;
     let $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
@@ -2209,7 +2212,7 @@ H5P.GuessIt = (function ($, Question) {
     // Capitalize initial letter
     s = s.charAt(0).toUpperCase() + s.slice(1);
     self.$progress.text(s + (this.sentencesFound + 1) + '/' + this.numQuestions);
-    self.initTask();
+    self.initTask(currentItemAlreadyAccounted);
   };
 
   GuessIt.prototype.initCounters = function () {
@@ -2301,7 +2304,13 @@ H5P.GuessIt = (function ($, Question) {
 
   };
 
-  GuessIt.prototype.initTask = function () {
+  /**
+   * Prepare and display the next eligible item.
+   *
+   * @param {boolean} currentItemAlreadyAccounted Whether summary entry has
+   *   already added the outgoing item's time and rounds to aggregate totals.
+   */
+  GuessIt.prototype.initTask = function (currentItemAlreadyAccounted = false) {
     let self = this;
     this.wordListRejectedState = null;
     this.clearWordListValidationWarning();
@@ -2310,8 +2319,10 @@ H5P.GuessIt = (function ($, Question) {
     $content.find('.h5p-container').removeClass('h5p-guessit-hide');
 
     if (self.timer !== undefined) {
-      this.totalTimeSpent += this.timer.getTime();
-      this.totalRounds += this.counter.getcurrent();
+      if (!currentItemAlreadyAccounted) {
+        this.totalTimeSpent += this.timer.getTime();
+        this.totalRounds += this.counter.getcurrent();
+      }
       this.$timer.removeClass ('h5p-guessit-hide');
       this.timer.reset();
       this.timer.play();
@@ -2418,6 +2429,7 @@ H5P.GuessIt = (function ($, Question) {
 
     // Calculate and nicely format total time spent.
     this.totalTimeSpent += this.timer.getTime();
+    this.timer.stop();
     let time = this.totalTimeSpent / 1000;
     // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds#3733257
     function fancyTimeFormat(time) {
@@ -2467,16 +2479,13 @@ H5P.GuessIt = (function ($, Question) {
       explainScore = this.params.scoreExplanationforAllWords;
     }
 
-    if (actualScore === maxScore) {
-      this.success = true;
-    }
+    this.success = actualScore === maxScore;
     this.actualScore = actualScore;
     this.maxScore = maxScore;
     // We only trigger XAPI at the end of the activity
     self.triggerAnswered();
     this.hideButton('end-game2');
     this.hideButton('new-sentence');
-    this.$timer.remove();
     let txtGuessed = this.params.sentencesGuessed;
     if (this.params.wordle) {
       txtGuessed = this.params.wordsFound;
@@ -2520,14 +2529,14 @@ H5P.GuessIt = (function ($, Question) {
       this.$divGuessedSentences.prependTo($feedback);
     }
 
-    this.$feedbackContainer = $('<div class="h5p-guessit feedback-container"/>')
+    const $summaryFeedbackContainer = $('<div class="h5p-guessit feedback-container"/>')
       .appendTo($feedback);
     if (this.params.playMode === 'availableSentences') {
       let scoreBarLabel = this.params.scoreBarLabel.replace('@score', actualScore).replace('@total', maxScore);
       let scoreBar = H5P.JoubelUI.createScoreBar(maxScore, scoreBarLabel, explainScore, this.params.scoreExplanationButtonLabel);
       scoreBar.setMaxScore(maxScore);
       scoreBar.setScore(actualScore);
-      scoreBar.appendTo(this.$feedbackContainer);
+      scoreBar.appendTo($summaryFeedbackContainer);
     }
     this.trigger('resize');
 
@@ -2552,7 +2561,7 @@ H5P.GuessIt = (function ($, Question) {
     if (summaryActions.continueGame || summaryActions.resetGame) {
       $summaryActions = $('<div>', {
         class: 'h5p-guessit-summary-actions'
-      }).appendTo(this.$feedbackContainer);
+      }).appendTo($summaryFeedbackContainer);
     }
     let focusTarget;
 
@@ -2564,7 +2573,7 @@ H5P.GuessIt = (function ($, Question) {
         icon: 'next',
         classes: 'h5p-guessit-continue-button',
         onClick: function () {
-          window.top.location.reload();
+          self.continueTask();
         }
       });
       continueButton.title = self.params.continueGame;
@@ -2601,6 +2610,50 @@ H5P.GuessIt = (function ($, Question) {
     if (focusTarget) {
       focusTarget.focus();
     }
+  };
+
+  /**
+   * Continue an unfinished game from the summary without reloading the host.
+   * @public
+   */
+  GuessIt.prototype.continueTask = function () {
+    const self = this;
+    const $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
+
+    this.wordListRejectedState = null;
+    this.clearWordListValidationWarning();
+    this.clearIncompleteAnswerWarning();
+
+    if (this.$divGuessedSentences && this.$taskdescription) {
+      this.$divGuessedSentences.appendTo(this.$taskdescription);
+    }
+
+    $content.find('.h5p-guessit-summary-screen').remove();
+    $content.find('.cloned').remove();
+    $content.find(
+      '.h5p-guessit-title-container, ' +
+      '.h5p-guessit-description, ' +
+      '.h5p-question-introduction, ' +
+      '.h5p-question-content, ' +
+      '.h5p-question-feedback'
+    ).show();
+    if (this.hadNoFrameBeforeSummary) {
+      $content.addClass('h5p-no-frame');
+    }
+
+    this.hideSolutions();
+    this.removeFeedback();
+    this.success = false;
+    this.newSentence(true);
+
+    setTimeout(function () {
+      self.$questions
+        .eq(self.currentSentenceId)
+        .filter(':first')
+        .find('input:enabled:first')
+        .focus();
+      self.trigger('resize');
+    }, 0);
   };
 
   /**
