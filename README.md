@@ -38,7 +38,7 @@ Core API 1.28. This limitation is expected and does not indicate a problem with
 the GuessIt package.
 
 The release asset is a library-only H5P package. Install
-`H5P.GuessIt-1.8.1.h5p` through the platform's H5P library administration
+`H5P.GuessIt-1.8.2.h5p` through the platform's H5P library administration
 interface. Do not import it as ordinary learner content.
 
 ## Development

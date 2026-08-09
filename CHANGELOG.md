@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.8.2 - 2026-08-09
+
+### Fixed
+
+- Replaced Continue's host-page reload with portable in-place continuation,
+  fixing the Moodle core Save Content State race after View Summary → Continue.
+- Preserved completed word and sentence history, configured selections,
+  feedback, scoring, focus, and resize behavior across Continue.
+- Prevented timer and round double accounting and stopped the timer while the
+  Summary is displayed.
+- Restored completed-items visibility after Continue.
+- Added Continue lifecycle regression tests.
+
 ## 1.8.1 - 2026-08-08
 
 ### Fixed

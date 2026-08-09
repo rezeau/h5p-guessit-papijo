@@ -1,8 +1,8 @@
 # Test Plan
 
-## Deferred: Moodle core Continue state
+## Fixed in 1.8.2: Moodle core Continue state
 
-### Confirmed Behavior
+### Historical Confirmed Behavior
 
 - In Moodle core H5P, Save Content State works for normal activity
   leave-and-return behavior.
@@ -12,15 +12,17 @@
 
 ### Diagnosis
 
-- GuessIt's Continue game action executes `window.top.location.reload()`.
-- Moodle core state persistence may not complete before that immediate reload.
-- A future portable fix should continue the game in place instead of reloading
-  the host page.
+- GuessIt's Continue game action executed `window.top.location.reload()`.
+- Moodle core state persistence could not reliably complete before that
+  immediate reload.
+- The portable fix continues the game in place instead of reloading the host
+  page.
 - Host-specific persistence APIs should not be the primary solution.
 
-### Release Status and Follow-up
+### Release Status and Verification
 
-- This issue does not block H5P.GuessIt 1.8.1.
-- Future branch: `fix/moodle-core-continue-state`.
-- Likely future patch, if the fix proves backward-compatible:
-  H5P.GuessIt 1.8.2.
+- Fixed and tested for H5P.GuessIt 1.8.2.
+- Automated Continue lifecycle regression coverage passes for configured
+  sentence and Wordle modes.
+- Manual verification passed in H5P CLI, WordPress, Moodle core H5P, and the
+  Moodle third-party H5P plugin.
