@@ -1,5 +1,18 @@
 # Test Plan
 
+## 1.9.0 combined feature verification
+
+- Automated coverage passes for Wordle result-chip rendering, accessibility,
+  play order, saved reconstruction, Reset, and Summary → Continue lifecycle.
+- Automated coverage passes for post-Check progressive sentence Help,
+  current leftmost unresolved targeting, repeat eligibility after Try again,
+  retry cleanup, focus, sentence-level assistance counting, localization, and
+  unchanged Wordle Show solution behavior.
+- Combined manual smoke tests passed in H5P CLI, WordPress, and Moodle core H5P.
+- Manual checks covered responsive Wordle chip wrapping and status presentation;
+  repeated sentence Check → Help → Try again cycles; preservation of correct
+  and incorrect feedback; Reset; saved state; and Summary → Continue.
+
 ## Fixed in 1.8.2: Moodle core Continue state
 
 ### Historical Confirmed Behavior

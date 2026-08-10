@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.9.0 - 2026-08-10
+
+### Added
+
+- Added progressive sentence Help as a post-Check action that reveals one
+  current leftmost unresolved word at a time while preserving the established
+  retry, scoring, accessibility, and Wordle Show solution behavior.
+
+### Improved
+
+- Replaced the vertical Wordle result history with compact, responsive
+  found/not-found chips using H5P theme feedback colors, tick/cross glyphs,
+  localized accessible statuses, and preserved play order and Continue
+  lifecycle behavior.
+
 ## 1.8.2 - 2026-08-09
 
 ### Fixed
