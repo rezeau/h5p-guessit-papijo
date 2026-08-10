@@ -605,6 +605,20 @@
     "common": true
   },
   {
+    "label": "Text for sentence \"Help\" button",
+    "name": "sentenceHelp",
+    "type": "text",
+    "default": "Help",
+    "common": true
+  },
+  {
+    "label": "Assistive technology label for sentence Help button",
+    "name": "sentenceHelpDescription",
+    "type": "text",
+    "default": "Show next missing word",
+    "common": true
+  },
+  {
     "label": "Text for \"New sentence\" button",
     "importance": "low",
     "name": "newSentence",

@@ -185,6 +185,14 @@
       "default": "Mostrar Solução"
     },
     {
+      "label": "Texto do botão «Ajuda» para frases",
+      "default": "Ajuda"
+    },
+    {
+      "label": "Rótulo do botão de ajuda para tecnologias de apoio",
+      "default": "Mostrar a próxima palavra em falta"
+    },
+    {
       "label": "Texto do botão \"Nova Afirmação\"",
       "default": "Descobrir Nova Afirmação"
     },

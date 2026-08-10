@@ -137,6 +137,8 @@ const createCheckHarness = function (options = {}) {
     notFilledOut: 'Fill every cell',
     playMode: options.playMode || 'availableSentences',
     questions: [{ ID: 0, sentence: 'APPLE' }],
+    sentenceHelp: 'Help',
+    sentenceHelpDescription: 'Show next missing word',
     showSolutions: 'Show solution',
     tryAgain: 'Try again',
     wordle: options.wordle !== false,
@@ -167,10 +169,12 @@ const createCheckHarness = function (options = {}) {
   instance.numQuestions = 1;
   instance.confirmEndGameEnabled = false;
 
-  instance.addButton = function (id, label, callback) {
+  instance.addButton = function (id, label, callback, visible, attributes) {
     callbacks[id] = callback;
     buttons[id] = {
+      ariaLabel: attributes && attributes['aria-label'],
       focused: false,
+      label,
       visible: true
     };
   };
@@ -563,6 +567,22 @@ test('learner-supplied-word and non-Wordle modes remain unaffected', function ()
   });
   sentenceMode.check();
   assert.equal(sentenceMode.calls.includes('markResults'), true);
+});
+
+test('sentence Help and Wordle solution buttons keep isolated labels', function () {
+  const sentenceMode = createCheckHarness({
+    validationEnabled: false,
+    wordle: false
+  });
+  assert.equal(sentenceMode.buttons['show-solution'].label, 'Help');
+  assert.equal(
+    sentenceMode.buttons['show-solution'].ariaLabel,
+    'Show next missing word'
+  );
+
+  const wordleMode = createCheckHarness({ validationEnabled: false });
+  assert.equal(wordleMode.buttons['show-solution'].label, 'Show solution');
+  assert.equal(wordleMode.buttons['show-solution'].ariaLabel, 'Show solution');
 });
 
 test('warning uses plain text without retaining focus in a Wordle input', function () {
