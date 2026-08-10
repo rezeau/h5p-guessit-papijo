@@ -13,6 +13,10 @@ const source = fs.readFileSync(
   path.join(__dirname, '..', 'src', 'scripts', 'guessit-blanks.js'),
   'utf8'
 );
+const styleSource = fs.readFileSync(
+  path.join(__dirname, '..', 'src', 'styles', 'guessit.css'),
+  'utf8'
+);
 
 const getPrototypeMethodSource = function (methodName, nextMethodName) {
   const startMarker = `GuessIt.prototype.${methodName} = function (`;
@@ -30,6 +34,7 @@ const createSelection = function (name, registry) {
     name,
     children: [],
     classes: new Set(),
+    attributes: {},
     hidden: false,
     htmlValue: '',
     length: 1,
@@ -160,7 +165,7 @@ const isEffectivelyVisible = function (selection, root) {
 };
 
 const getSelectionText = function (selection) {
-  return [selection.htmlValue]
+  return [selection.htmlValue, selection.textValue]
     .concat(selection.children.map(getSelectionText))
     .filter(Boolean)
     .join(' ');
@@ -190,6 +195,7 @@ const createHarness = function (options = {}) {
   const clones = createSelection('clones', registry);
   const taskDescription = createSelection('task-description', registry);
   const guessedItems = createSelection('guessed-items', registry);
+  guessedItems.tagName = options.wordle ? 'ol' : 'div';
   const progress = createSelection('progress', registry);
   const timerDom = createSelection('timer', registry);
   const ordinaryFeedback = createSelection('ordinary-feedback', registry);
@@ -274,6 +280,16 @@ const createHarness = function (options = {}) {
   const $ = function (selector, context) {
     if (typeof selector === 'string' && selector.startsWith('<')) {
       const selection = createSelection('created', registry);
+      selection.tagName = selector.match(/^<([a-z]+)/i)[1].toLowerCase();
+      if (context && context.class) {
+        selection.addClass(context.class);
+      }
+      if (context && context.text !== undefined) {
+        selection.text(context.text);
+      }
+      if (context && context['aria-hidden'] !== undefined) {
+        selection.attributes['aria-hidden'] = context['aria-hidden'];
+      }
       if (selector.includes('feedback-container')) {
         selection.name = 'summary-feedback';
       }
@@ -352,6 +368,9 @@ const createHarness = function (options = {}) {
   };
 
   [
+    ['createHistoryContainer', 'appendWordHistoryItem'],
+    ['appendWordHistoryItem', 'renderWordHistory'],
+    ['renderWordHistory', 'handleGuessIt'],
     ['newSentence', 'initCounters'],
     ['initTask', 'recordCompletedItem'],
     ['recordCompletedItem', 'showFinalPage'],
@@ -470,6 +489,8 @@ const createHarness = function (options = {}) {
       totalRounds: 'Total rounds',
       totalTimeSpent: 'Total time',
       word: 'word',
+      wordFound: 'Word found: ',
+      wordNotFound: 'Word not found: ',
       wordle: Boolean(options.wordle),
       wordsFound: 'Words found'
     },
@@ -526,6 +547,9 @@ const createHarness = function (options = {}) {
 
   const displayCompletedItem = function (wordGuessed, label) {
     instance.recordCompletedItem(wordGuessed);
+    if (instance.params.wordle) {
+      return instance.appendWordHistoryItem(wordGuessed, label);
+    }
     const completedItem = createSelection('completed-item', registry);
     completedItem.html(label).appendTo(guessedItems);
     guessedItems.removeClass('h5p-guessit-hide');
@@ -706,7 +730,16 @@ test('Wordle list and selection survive repeated actual Continue callbacks', fun
     wordListRejectedState: { word: 'NOPE' }
   });
   const guessedItemsIdentity = harness.guessedItems;
-  harness.displayCompletedItem(true, 'Word found: ITEM0');
+  const foundItem = harness.displayCompletedItem(true, 'ITEM0');
+  assert.equal(foundItem.tagName, 'li');
+  assert.equal(foundItem.children[0].tagName, 'span');
+  assert.equal(foundItem.classes.has('h5p-wordFound'), true);
+  assert.equal(foundItem.children[0].attributes['aria-hidden'], 'true');
+  assert.equal(foundItem.children[0].classes.has('h5p-guessit-word-result-icon-correct'), true);
+  assert.equal(foundItem.children[1].textValue, 'Word found: ');
+  assert.equal(foundItem.children[1].classes.has('h5p-guessit-visually-hidden'), true);
+  assert.equal(foundItem.children[2].textValue, 'ITEM0');
+  assert.equal(foundItem.children[2].classes.has('h5p-guessit-word-result-word'), true);
   const acceptedWordSet = harness.instance.acceptedWordSet;
   let continueButton = harness.openSummary();
   const firstSummary = harness.registry.summaries.at(-1);
@@ -715,7 +748,7 @@ test('Wordle list and selection survive repeated actual Continue callbacks', fun
   assert.equal(harness.guessedItems.parent, firstSummary);
   assert.equal(harness.isAttached(harness.guessedItems), true);
   assert.equal(harness.isVisible(harness.guessedItems), true);
-  assert.match(harness.textOf(harness.guessedItems), /Word found: ITEM0/);
+  assert.match(harness.textOf(harness.guessedItems), /Word found:\s+ITEM0/);
   continueButton.configuration.onClick();
   harness.deferred.splice(0).forEach((callback) => callback());
   assert.equal(harness.instance.success, false);
@@ -732,10 +765,16 @@ test('Wordle list and selection survive repeated actual Continue callbacks', fun
   assert.equal(harness.countCompletedItemsContainers(), 1);
 
   harness.instance.nbSentencesGuessed--;
-  harness.displayCompletedItem(false, 'Word not found: ITEM1');
+  const notFoundItem = harness.displayCompletedItem(false, 'ITEM1');
+  assert.equal(notFoundItem.classes.has('h5p-wordNotFound'), true);
+  assert.equal(notFoundItem.children[0].attributes['aria-hidden'], 'true');
+  assert.equal(notFoundItem.children[0].classes.has('h5p-guessit-word-result-icon-incorrect'), true);
+  assert.equal(notFoundItem.children[1].textValue, 'Word not found: ');
+  assert.equal(notFoundItem.children[1].classes.has('h5p-guessit-visually-hidden'), true);
+  assert.equal(notFoundItem.children[2].textValue, 'ITEM1');
   assert.equal(harness.guessedItems.children.length, 2);
-  assert.match(harness.textOf(harness.guessedItems), /Word found: ITEM0/);
-  assert.match(harness.textOf(harness.guessedItems), /Word not found: ITEM1/);
+  assert.match(harness.textOf(harness.guessedItems), /Word found:\s+ITEM0/);
+  assert.match(harness.textOf(harness.guessedItems), /Word not found:\s+ITEM1/);
   harness.timer.currentTime = 1500;
   harness.counter.currentRound = 2;
   continueButton = harness.openSummary();
@@ -756,8 +795,8 @@ test('Wordle list and selection survive repeated actual Continue callbacks', fun
   assert.equal(harness.isAttached(harness.guessedItems), true);
   assert.equal(harness.isVisible(harness.guessedItems), true);
   assert.equal(harness.guessedItems.children.length, 2);
-  assert.match(harness.textOf(harness.guessedItems), /Word found: ITEM0/);
-  assert.match(harness.textOf(harness.guessedItems), /Word not found: ITEM1/);
+  assert.match(harness.textOf(harness.guessedItems), /Word found:\s+ITEM0/);
+  assert.match(harness.textOf(harness.guessedItems), /Word not found:\s+ITEM1/);
   assert.equal(harness.countCompletedItemsContainers(), 1);
   assert.equal(harness.instance.totalTimeSpent, 4000);
   assert.equal(harness.instance.totalRounds, 5);
@@ -765,6 +804,111 @@ test('Wordle list and selection survive repeated actual Continue callbacks', fun
   assert.equal(harness.registry.completedEvents, 0);
   assert.equal(harness.registry.registerDomElements, 0);
   assert.equal(harness.registry.registerButtons, 0);
+
+  harness.instance.renderWordHistory(harness.instance.originalQuestions);
+  assert.equal(harness.guessedItems.children.length, 2);
+  assert.match(harness.textOf(harness.guessedItems), /Word found:\s+ITEM0/);
+  assert.match(harness.textOf(harness.guessedItems), /Word not found:\s+ITEM1/);
+  harness.instance.renderWordHistory(harness.instance.originalQuestions);
+  assert.equal(harness.guessedItems.children.length, 2);
+  assert.deepEqual(
+    harness.guessedItems.children.map(function (item) {
+      return item.children[2].textValue;
+    }),
+    ['ITEM0', 'ITEM1']
+  );
+});
+
+test('Wordle history uses semantic ordered results with explicit localized status', function () {
+  const harness = createHarness({
+    completed: [],
+    nbSentencesGuessed: 0,
+    questionCount: 4,
+    selectedItemCount: 4,
+    selectedQuestionIndices: [0, 1, 2, 3],
+    selectedWordLength: 12,
+    wordle: true
+  });
+  const parent = createSelection('history-parent', harness.registry);
+  const history = harness.instance.createHistoryContainer(
+    'h5p-guessit-listGuessedWord',
+    parent
+  );
+
+  assert.equal(history.tagName, 'ol');
+  assert.equal(history.classes.has('h5p-guessit-listGuessedWord'), true);
+  assert.equal(history.classes.has('h5p-guessit-hide'), true);
+
+  [
+    [true, 'HORSE'],
+    [false, 'EXTRAORDINARILY-LONG-ZEBRA-WORD'],
+    [true, 'SNAKE'],
+    [false, 'TIGER']
+  ].forEach(function (result, index) {
+    harness.instance.currentSentenceId = index;
+    harness.displayCompletedItem(result[0], result[1]);
+  });
+
+  assert.deepEqual(
+    harness.guessedItems.children.map(function (item) {
+      return [item.children[1].textValue, item.children[2].textValue];
+    }),
+    [
+      ['Word found: ', 'HORSE'],
+      ['Word not found: ', 'EXTRAORDINARILY-LONG-ZEBRA-WORD'],
+      ['Word found: ', 'SNAKE'],
+      ['Word not found: ', 'TIGER']
+    ]
+  );
+  assert.deepEqual(harness.instance.sentencesGuessed, [0, 1, 2, 3]);
+  assert.deepEqual(harness.instance.wordsNotFound, [1, 3]);
+  assert.equal(harness.guessedItems.children.every(function (item) {
+    return item.tagName === 'li' &&
+      item.parent === harness.guessedItems &&
+      item.children.length === 3;
+  }), true);
+  assert.equal(harness.instance.selectedWordLength, 12);
+  assert.equal(harness.instance.selectedItemCount, 4);
+
+  harness.instance.sentencesGuessed = [];
+  harness.instance.wordsNotFound = [];
+  harness.instance.renderWordHistory(harness.instance.originalQuestions);
+  assert.equal(harness.guessedItems.children.length, 0);
+  assert.equal(harness.guessedItems.hasClass('h5p-guessit-hide'), true);
+
+  const sentenceHarness = createHarness({ completed: [], nbSentencesGuessed: 0 });
+  const sentenceParent = createSelection('sentence-history-parent', sentenceHarness.registry);
+  const sentenceHistory = sentenceHarness.instance.createHistoryContainer(
+    'h5p-guessit-listGuessedSentences',
+    sentenceParent
+  );
+  assert.equal(sentenceHistory.tagName, 'div');
+});
+
+test('Wordle history CSS uses compact wrapping theme feedback items', function () {
+  const listRule = styleSource.match(/\.h5p-guessit-listGuessedWord\s*\{([^}]+)\}/)[1];
+  const itemRule = styleSource.match(/\.h5p-guessit-word-result\s*\{([^}]+)\}/)[1];
+  const wordRule = styleSource.match(/\.h5p-guessit-word-result-word\s*\{([^}]+)\}/)[1];
+
+  assert.match(listRule, /display:\s*flex/);
+  assert.match(listRule, /flex-wrap:\s*wrap/);
+  assert.match(listRule, /list-style:\s*none/);
+  assert.match(listRule, /gap:/);
+  assert.doesNotMatch(listRule, /(?:max-)?width:/);
+  assert.match(itemRule, /display:\s*inline-flex/);
+  assert.match(itemRule, /flex:\s*0 1 auto/);
+  assert.doesNotMatch(itemRule, /(?:^|[;\s])width:/);
+  assert.match(wordRule, /overflow-wrap:\s*anywhere/);
+  assert.match(styleSource, /font-family:\s*'h5p-theme'/);
+  assert.match(styleSource, /font-weight:\s*normal/);
+  assert.match(styleSource, /h5p-guessit-word-result-icon-correct::before\s*\{\s*content:\s*"\\e903"/);
+  assert.match(styleSource, /h5p-guessit-word-result-icon-incorrect::before\s*\{\s*content:\s*"\\e902"/);
+  assert.match(styleSource, /var\(--h5p-theme-feedback-correct-main\)/);
+  assert.match(styleSource, /var\(--h5p-theme-feedback-correct-secondary\)/);
+  assert.match(styleSource, /var\(--h5p-theme-feedback-correct-third\)/);
+  assert.match(styleSource, /var\(--h5p-theme-feedback-incorrect-main\)/);
+  assert.match(styleSource, /var\(--h5p-theme-feedback-incorrect-secondary\)/);
+  assert.match(styleSource, /var\(--h5p-theme-feedback-incorrect-third\)/);
 });
 
 test('production summary action gating keeps unsupported modes without Continue', function () {
