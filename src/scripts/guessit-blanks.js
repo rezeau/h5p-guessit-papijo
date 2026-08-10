@@ -243,6 +243,8 @@ H5P.GuessIt = (function ($, Question) {
       ],
       playMode: 'availableSentences',
       showSolutions: "Show solution",
+      sentenceHelp: "Help",
+      sentenceHelpDescription: "Show next missing word",
       tryAgain: "Try again",
       tryAgain2: "Try again2",
       newSentence: 'Guess another sentence',
@@ -533,6 +535,7 @@ H5P.GuessIt = (function ($, Question) {
     this.totalRounds = 0;
     this.solutionsViewed = [];
     this.nbSsolutionsViewed = 0;
+    this.sentenceHelpRevealed = new Set();
     // Used by enableNumChoice
     this.numWords = 0;
     this.numQuestions = 0;
@@ -1489,24 +1492,31 @@ H5P.GuessIt = (function ($, Question) {
       }
     );
 
-    // Show solution button
-    //if (this.params.behaviour.enableSolutionsButton) {
+    // Show solution / progressive sentence Help button
+    const solutionButtonLabel = self.params.wordle ?
+      self.params.showSolutions : self.params.sentenceHelp;
+    const solutionButtonAriaLabel = self.params.wordle ?
+      self.params.showSolutions : self.params.sentenceHelpDescription;
     self.addButton(
       'show-solution',
-      self.params.showSolutions,
+      solutionButtonLabel,
       function () {
-        self.showCorrectAnswers(false);
+        if (self.params.wordle) {
+          self.showCorrectAnswers(false);
+        }
+        else {
+          self.showNextSentenceHelp();
+        }
       },
       false,
       {
-        'aria-label': self.params.showSolutions
+        'aria-label': solutionButtonAriaLabel
       },
       {
         styleType: 'secondary',
         icon: 'show-solutions'
       }
     );
-    //}
 
     // New Sentence button
     let txtNewElement = self.params.newSentence;
@@ -1994,7 +2004,11 @@ H5P.GuessIt = (function ($, Question) {
 
     // The show solutions button is hidden if all answers are correct
     if (this.params.behaviour.enableSolutionsButton) {
-      if (state === STATE_CHECKING && !isFinished) {
+      const sentenceHelpAvailable = !this.params.wordle &&
+        this.hasUnresolvedSentenceGap() &&
+        state === STATE_CHECKING;
+      if ((this.params.wordle && state === STATE_CHECKING && !isFinished) ||
+        sentenceHelpAvailable) {
         this.showButton('show-solution');
       }
       else {
@@ -2189,6 +2203,86 @@ H5P.GuessIt = (function ($, Question) {
   };
 
   /**
+   * Return the leftmost unresolved sentence gap.
+   *
+   * Correct gaps and gaps already revealed during this checked attempt are
+   * resolved.
+   *
+   * @returns {number} Cloze index, or -1 when every gap is resolved.
+   */
+  GuessIt.prototype.getNextUnresolvedSentenceGapIndex = function () {
+    if (this.params.wordle) {
+      return -1;
+    }
+    const revealedGaps = this.sentenceHelpRevealed || new Set();
+    const currentClozes =
+      (this.currentSentenceClozes &&
+        this.currentSentenceClozes[this.currentSentenceId]) || [];
+    return currentClozes.findIndex(function (cloze, index) {
+      return !cloze.correct() && !revealedGaps.has(index);
+    });
+  };
+
+  /**
+   * Determine whether the current sentence still has a gap Help can reveal.
+   *
+   * @returns {boolean} Whether an unresolved gap remains.
+   */
+  GuessIt.prototype.hasUnresolvedSentenceGap = function () {
+    return this.getNextUnresolvedSentenceGapIndex() !== -1;
+  };
+
+  /**
+   * Clear per-gap assistance state for the current checked attempt.
+   */
+  GuessIt.prototype.resetSentenceHelpState = function () {
+    this.sentenceHelpRevealed = new Set();
+  };
+
+  /**
+   * Enter the post-Help feedback state used by the legacy solution action.
+   */
+  GuessIt.prototype.finishSentenceHelp = function () {
+    const self = this;
+    if (this.timer) {
+      this.timer.stop();
+    }
+    this.toggleButtonVisibility(STATE_SHOWING_SOLUTION);
+    setTimeout(function () {
+      self.focusButton('try-again');
+    }, 20);
+  };
+
+  /**
+   * Reveal only the leftmost unresolved gap in sentence mode.
+   */
+  GuessIt.prototype.showNextSentenceHelp = function () {
+    if (this.params.wordle ||
+      !this.allowSolution(this.params.sentenceHelp)) {
+      return;
+    }
+
+    const nextIndex = this.getNextUnresolvedSentenceGapIndex();
+    if (nextIndex === -1) {
+      this.finishSentenceHelp();
+      return;
+    }
+
+    if (this.solutionsViewed[this.currentSentenceId] !== true) {
+      this.solutionsViewed[this.currentSentenceId] = true;
+      this.nbSsolutionsViewed++;
+    }
+
+    const currentClozes =
+      (this.currentSentenceClozes &&
+        this.currentSentenceClozes[this.currentSentenceId]) || [];
+    currentClozes[nextIndex].showSolution();
+    this.sentenceHelpRevealed.add(nextIndex);
+    this.finishSentenceHelp();
+    this.trigger('resize');
+  };
+
+  /**
    * Toggle input allowed for all input fields
    *
    * @method function
@@ -2226,6 +2320,7 @@ H5P.GuessIt = (function ($, Question) {
     this.clearIncompleteAnswerWarning();
     this.answered = false;
     this.currentItemCompleted = false;
+    this.sentenceHelpRevealed = new Set();
     this.hideSolutions();
     this.removeFeedback();
     this.enableInCorrectInputs();
@@ -2384,6 +2479,7 @@ H5P.GuessIt = (function ($, Question) {
     this.hideButton('end-game');
     this.answered = false;
     this.currentItemCompleted = false;
+    this.sentenceHelpRevealed = new Set();
     this.clearAnswers();
     this.removeMarkedResults();
     this.toggleButtonVisibility(STATE_ONGOING);
@@ -2734,6 +2830,7 @@ H5P.GuessIt = (function ($, Question) {
     this.totalRounds = 0;
     this.solutionsViewed = [];
     this.nbSsolutionsViewed = 0;
+    this.sentenceHelpRevealed = new Set();
     this.numWords = 0;
     this.numQuestions = 0;
     this.success = false;

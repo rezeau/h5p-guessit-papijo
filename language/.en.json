@@ -185,6 +185,14 @@
       "default": "Show solution"
     },
     {
+      "label": "Text for sentence \"Help\" button",
+      "default": "Help"
+    },
+    {
+      "label": "Assistive technology label for sentence Help button",
+      "default": "Show next missing word"
+    },
+    {
       "label": "Text for \"New sentence\" button",
       "default": "Guess another sentence"
     },

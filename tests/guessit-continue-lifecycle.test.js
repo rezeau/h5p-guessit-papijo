@@ -514,6 +514,7 @@ const createHarness = function (options = {}) {
     selectedLengthQuestionPool: options.selectedLengthQuestionPool || [],
     selectedQuestionIndices: options.selectedQuestionIndices || null,
     selectedWordLength: options.selectedWordLength || null,
+    sentenceHelpRevealed: new Set(),
     sentencesFound: 0,
     sentencesGuessed: completed.slice(),
     success: Boolean(options.success),
@@ -609,12 +610,14 @@ test('configured sentence list survives repeated actual Continue callbacks', fun
   });
   const guessedItemsIdentity = harness.guessedItems;
   harness.displayCompletedItem(true, 'ITEM0');
+  harness.instance.sentenceHelpRevealed.add(0);
   assert.equal(harness.guessedItems, guessedItemsIdentity);
   assert.equal(harness.guessedItems.parent, harness.taskDescription);
   assert.equal(harness.isAttached(harness.guessedItems), true);
   assert.equal(harness.isVisible(harness.guessedItems), true);
   assert.match(harness.textOf(harness.guessedItems), /ITEM0/);
   assert.deepEqual(harness.instance.sentencesGuessed, [0]);
+  assert.equal(harness.instance.sentenceHelpRevealed.size, 1);
   assert.equal(harness.countCompletedItemsContainers(), 1);
 
   const timerIdentity = harness.instance.timer;
@@ -649,6 +652,7 @@ test('configured sentence list survives repeated actual Continue callbacks', fun
   assert.deepEqual(harness.timerCalls, ['stop', 'reset', 'play']);
   assert.deepEqual(harness.counterCalls, ['reset']);
   assert.deepEqual(harness.instance.sentencesGuessed, [0]);
+  assert.equal(harness.instance.sentenceHelpRevealed.size, 0);
   assert.deepEqual(harness.instance.selectedQuestionIndices, [0, 1, 2]);
   assert.equal(harness.guessedItems, guessedItemsIdentity);
   assert.equal(harness.guessedItems.parent, harness.taskDescription);
@@ -702,9 +706,11 @@ test('configured sentence list survives repeated actual Continue callbacks', fun
   assert.deepEqual(state.selectedQuestionIndices, [0, 1, 2]);
   assert.equal(state.selectedItemCount, 3);
 
+  harness.instance.sentenceHelpRevealed.add(1);
   harness.instance.resetTask();
   assert.equal(harness.instance.sentencesGuessed.length, 0);
   assert.equal(harness.instance.wordsNotFound.length, 0);
+  assert.equal(harness.instance.sentenceHelpRevealed.size, 0);
   assert.equal(harness.instance.totalTimeSpent, 0);
   assert.equal(harness.instance.totalRounds, 0);
   assert.equal(harness.instance.selectedQuestionIndices, null);

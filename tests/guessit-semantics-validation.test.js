@@ -209,6 +209,10 @@ const englishLocalisation = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', 'language', '.en.json'),
   'utf8'
 ));
+const frenchLocalisation = JSON.parse(fs.readFileSync(
+  path.join(__dirname, '..', 'language', 'fr.json'),
+  'utf8'
+));
 
 const portugueseLocalisations = [
   {
@@ -231,6 +235,34 @@ const portugueseLocalisations = [
       'utf8'
     ))
   };
+});
+const supportedLocalisations = [
+  { code: 'fr', data: frenchLocalisation },
+  ...portugueseLocalisations
+];
+
+test('progressive sentence Help strings are localized consistently', function () {
+  const helpIndex = semantics.findIndex(function (field) {
+    return field.name === 'sentenceHelp';
+  });
+  const descriptionIndex = semantics.findIndex(function (field) {
+    return field.name === 'sentenceHelpDescription';
+  });
+  assert.notEqual(helpIndex, -1);
+  assert.equal(semantics[helpIndex].default, 'Help');
+  assert.equal(semantics[descriptionIndex].default, 'Show next missing word');
+  assert.equal(frenchLocalisation.semantics[helpIndex].default, 'Aide');
+  assert.equal(
+    frenchLocalisation.semantics[descriptionIndex].default,
+    'Afficher le prochain mot manquant'
+  );
+  portugueseLocalisations.forEach(function (locale) {
+    assert.notEqual(locale.data.semantics[helpIndex].default, 'Help');
+    assert.notEqual(
+      locale.data.semantics[descriptionIndex].default,
+      'Show next missing word'
+    );
+  });
 });
 
 const getTranslationShape = function (value) {
@@ -285,15 +317,14 @@ const getPlaceholderMap = function (
   return placeholders;
 };
 
-test('Portuguese localisations retain semantic alignment', function () {
+test('every localisation retains semantic alignment', function () {
   assert.equal(
     englishLocalisation.semantics.length,
     semantics.length
   );
-  assert.equal(semantics[8].fields[0].name, 'caseSensitive');
 
   const englishShape = getTranslationShape(englishLocalisation);
-  portugueseLocalisations.forEach(function (locale) {
+  supportedLocalisations.forEach(function (locale) {
     assert.deepEqual(
       getTranslationShape(locale.data),
       englishShape,
@@ -304,6 +335,12 @@ test('Portuguese localisations retain semantic alignment', function () {
       semantics.length,
       locale.code
     );
+  });
+});
+
+test('Portuguese localisations retain case-sensitive labels', function () {
+  assert.equal(semantics[8].fields[0].name, 'caseSensitive');
+  portugueseLocalisations.forEach(function (locale) {
     assert.equal(
       locale.data.semantics[8].fields[0].label,
       locale.caseSensitiveLabel,
@@ -332,26 +369,26 @@ test('required Portuguese Wordle strings are translated', function () {
     ['semantics', 8, 'fields', 8, 'description'],
     ['semantics', 11, 'label'],
     ['semantics', 11, 'default'],
-    ['semantics', 17, 'label'],
-    ['semantics', 17, 'default'],
-    ['semantics', 29, 'label'],
-    ['semantics', 29, 'default'],
-    ['semantics', 29, 'description'],
-    ['semantics', 32, 'label'],
-    ['semantics', 32, 'default'],
-    ['semantics', 32, 'description'],
+    ['semantics', 19, 'label'],
+    ['semantics', 19, 'default'],
+    ['semantics', 31, 'label'],
+    ['semantics', 31, 'default'],
+    ['semantics', 31, 'description'],
     ['semantics', 34, 'label'],
     ['semantics', 34, 'default'],
     ['semantics', 34, 'description'],
-    ['semantics', 44, 'label'],
-    ['semantics', 44, 'default'],
-    ['semantics', 45, 'description'],
-    ['semantics', 48, 'label'],
-    ['semantics', 48, 'default'],
-    ['semantics', 49, 'label'],
-    ['semantics', 49, 'default'],
+    ['semantics', 36, 'label'],
+    ['semantics', 36, 'default'],
+    ['semantics', 36, 'description'],
+    ['semantics', 46, 'label'],
+    ['semantics', 46, 'default'],
+    ['semantics', 47, 'description'],
     ['semantics', 50, 'label'],
-    ['semantics', 50, 'default']
+    ['semantics', 50, 'default'],
+    ['semantics', 51, 'label'],
+    ['semantics', 51, 'default'],
+    ['semantics', 52, 'label'],
+    ['semantics', 52, 'default']
   ];
 
   portugueseLocalisations.forEach(function (locale) {
@@ -365,10 +402,10 @@ test('required Portuguese Wordle strings are translated', function () {
   });
 });
 
-test('Portuguese localisation placeholders match English', function () {
+test('localisation placeholders match English', function () {
   const englishPlaceholders = getPlaceholderMap(englishLocalisation);
 
-  portugueseLocalisations.forEach(function (locale) {
+  supportedLocalisations.forEach(function (locale) {
     assert.deepEqual(
       getPlaceholderMap(locale.data),
       englishPlaceholders,

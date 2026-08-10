@@ -185,6 +185,14 @@
       "default": "Montrer la solution"
     },
     {
+      "label": "Texte du bouton « Aide » pour les phrases",
+      "default": "Aide"
+    },
+    {
+      "label": "Libellé du bouton d’aide pour les technologies d’assistance",
+      "default": "Afficher le prochain mot manquant"
+    },
+    {
       "label": "Texte du bouton \"Nouvelle phrase\" button",
       "default": "Nouvelle phrase"
     },
