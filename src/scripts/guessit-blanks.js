@@ -1150,41 +1150,27 @@ H5P.GuessIt = (function ($, Question) {
         aClass = 'h5p-guessit-listGuessedWord';
       }
 
-      this.$divGuessedSentences = $('<div>', {
-        'class': aClass + ' h5p-guessit-hide'
-      }).appendTo(this.$taskdescription);
+      this.$divGuessedSentences = this.createHistoryContainer(
+        aClass,
+        this.$taskdescription
+      );
       // Retrieve potentially previously saved list.
       self.setH5PUserState();
       if (self.sentencesGuessed !== '') {
-        let guessedSentences = '';
         let questions = this.originalQuestions;
-        let i;
-        self.sentencesGuessed.forEach(function (item) {
-          let foundSentence = questions[item].sentence;
-          if (self.params.wordle) {
-            i = self.wordsNotFound.indexOf(item);
-            let bClass;
-            let wordGuessed = true;
-            if (i !== -1) {
-              wordGuessed = false;
-            }
-            if (self.params.wordle) {
-              if (wordGuessed) {
-                bClass = 'h5p-guessit h5p-wordFound';
-                foundSentence = '<span class="' + bClass + '">' + self.params.wordFound + foundSentence + '</span>';
-              }
-              else {
-                bClass = 'h5p-guessit h5p-wordNotFound';
-                foundSentence = '<span class="' + bClass + '">' + self.params.wordNotFound + foundSentence + '</span>';
-              }
-            }
+        if (self.params.wordle) {
+          self.renderWordHistory(questions);
+        }
+        else {
+          let guessedSentences = '';
+          self.sentencesGuessed.forEach(function (item) {
+            let foundSentence = questions[item].sentence;
+            guessedSentences += (!guessedSentences ? '' : '<br>') + foundSentence;
+          });
 
-          }
-          guessedSentences += (!guessedSentences ? '' : '<br>') + foundSentence;
-        });
-
-        self.$divGuessedSentences.removeClass ('h5p-guessit-hide');
-        self.$divGuessedSentences.html(guessedSentences);
+          self.$divGuessedSentences.removeClass('h5p-guessit-hide');
+          self.$divGuessedSentences.html(guessedSentences);
+        }
       }
     }
 
@@ -1443,24 +1429,19 @@ H5P.GuessIt = (function ($, Question) {
               let patternReplace = /\//g;
               foundSentence += ' <i class="fa fa-arrow-right" style="color:#4D9782;" ></i> ' + foundSentence.replace(patternReplace, '');
             }
-            let bClass;
+            let $guessedSentence;
             if (self.params.wordle) {
-              if (wordGuessed) {
-                bClass = 'h5p-guessit h5p-wordFound';
-                foundSentence = self.params.wordFound + foundSentence;
-              }
-              else {
-                foundSentence = self.params.wordNotFound + foundSentence;
-                bClass = 'h5p-guessit h5p-wordNotFound';
-              }
+              $guessedSentence = self.appendWordHistoryItem(
+                wordGuessed,
+                foundSentence
+              );
             }
-            self.$divGuessedSentences.removeClass ('h5p-guessit-hide');
-
-            let $guessedSentence = $('<div>', {
-              'class': bClass,
-              'html': foundSentence
-            })
-              .appendTo(self.$divGuessedSentences);
+            else {
+              self.$divGuessedSentences.removeClass('h5p-guessit-hide');
+              $guessedSentence = $('<div>', {
+                'html': foundSentence
+              }).appendTo(self.$divGuessedSentences);
+            }
 
             if (self.params.playMode === 'availableSentences') {
               let showTipsAndAudio = self.params.behaviour.listGuessedAudioAndTips;
@@ -1617,6 +1598,75 @@ H5P.GuessIt = (function ($, Question) {
     this.hideButton('end-game2');
     self.toggleButtonVisibility(STATE_ONGOING);
 
+  };
+
+  /**
+   * Create the completed-items container with Wordle-specific semantics.
+   *
+   * @param {string} className Presentation class for the active mode.
+   * @param {H5P.jQuery} $parent Container that owns the history during play.
+   * @returns {H5P.jQuery} The completed-items container.
+   */
+  GuessIt.prototype.createHistoryContainer = function (className, $parent) {
+    const historyElement = this.params.wordle ? '<ol>' : '<div>';
+    return $(historyElement, {
+      'class': className + ' h5p-guessit-hide'
+    }).appendTo($parent);
+  };
+
+  /**
+   * Append one Wordle result to the shared, movable history list.
+   *
+   * Status and word remain separate visually while their combined list-item
+   * text gives assistive technology an explicit result without relying on
+   * colour.
+   *
+   * @param {boolean} wordGuessed Whether the word was found.
+   * @param {string} word The completed Wordle word.
+   * @returns {H5P.jQuery} The appended list item.
+   */
+  GuessIt.prototype.appendWordHistoryItem = function (wordGuessed, word) {
+    const statusClass = wordGuessed ? 'h5p-wordFound' : 'h5p-wordNotFound';
+    const iconClass = wordGuessed ?
+      'h5p-guessit-word-result-icon-correct' :
+      'h5p-guessit-word-result-icon-incorrect';
+    const statusText = wordGuessed ? this.params.wordFound : this.params.wordNotFound;
+    const $item = $('<li>', {
+      'class': 'h5p-guessit-word-result ' + statusClass
+    });
+
+    $('<span>', {
+      'aria-hidden': 'true',
+      'class': 'h5p-guessit-word-result-icon ' + iconClass
+    }).appendTo($item);
+    $('<span>', {
+      'class': 'h5p-guessit-word-result-status h5p-guessit-visually-hidden',
+      'text': statusText
+    }).appendTo($item);
+    $('<span>', {
+      'class': 'h5p-guessit-word-result-word',
+      'text': word
+    }).appendTo($item);
+
+    $item.appendTo(this.$divGuessedSentences);
+    this.$divGuessedSentences.removeClass('h5p-guessit-hide');
+    return $item;
+  };
+
+  /**
+   * Recreate Wordle history from saved stable question IDs.
+   *
+   * @param {object[]} questions Original question pool.
+   */
+  GuessIt.prototype.renderWordHistory = function (questions) {
+    const self = this;
+    this.$divGuessedSentences.empty().addClass('h5p-guessit-hide');
+    this.sentencesGuessed.forEach(function (questionId) {
+      self.appendWordHistoryItem(
+        self.wordsNotFound.indexOf(questionId) === -1,
+        questions[questionId].sentence
+      );
+    });
   };
 
   /**
