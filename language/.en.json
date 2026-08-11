@@ -118,15 +118,15 @@
           "description": "When enabled in Wordle mode, only words from the complete configured mystery-word list can be submitted."
         },
         {
-          "label": "Enable \"Show solution\" button"
+          "label": "Enable Help button"
         },
         {
           "label": "Enable \"View Summary\" button",
           "description": "Allow the player to open the summary without guessing the current sentence."
         },
         {
-          "label": "Number of rounds before Solutions or View Summary",
-          "description": "Minimum number of rounds before the \"Show solution\" or \"View Summary\" buttons can be displayed:"
+          "label": "Number of rounds before Help or View Summary",
+          "description": "Minimum number of rounds before the \"Help\" or \"View Summary\" buttons can be displayed:"
         },
         {
           "label": "Maximum number of tries to guess the word (Wordle option)",

@@ -71,3 +71,58 @@ test('allows summary access after completing an item in any round', function () 
   assert.equal(SummaryUtils.canViewSummary(1, 3, true), true);
   assert.equal(SummaryUtils.canViewSummary(3, 3, false), true);
 });
+
+test('sentence View Summary keeps the authored round threshold', function () {
+  const params = {
+    wordle: false,
+    behaviour: { enableEndGameButton: true, numRounds: 4 }
+  };
+  const requiredRound = SummaryUtils.getEffectiveSummaryMinimumRound(
+    params.wordle,
+    params.behaviour.numRounds
+  );
+
+  assert.equal(requiredRound, 4);
+  assert.equal(SummaryUtils.canViewSummary(3, requiredRound, false), false);
+  assert.equal(SummaryUtils.canViewSummary(4, requiredRound, false), true);
+});
+
+test('Wordle View Summary ignores a hidden stored round threshold', function () {
+  const params = {
+    wordle: true,
+    behaviour: { enableEndGameButton: true, numRounds: 4 }
+  };
+  const requiredRound = SummaryUtils.getEffectiveSummaryMinimumRound(
+    params.wordle,
+    params.behaviour.numRounds
+  );
+
+  assert.equal(requiredRound, 1);
+  assert.equal(SummaryUtils.canViewSummary(1, requiredRound, false), true);
+});
+
+test('switching out of Wordle restores the stored sentence threshold', function () {
+  const params = {
+    wordle: true,
+    behaviour: { numRounds: 4 }
+  };
+
+  assert.equal(
+    SummaryUtils.getEffectiveSummaryMinimumRound(
+      params.wordle,
+      params.behaviour.numRounds
+    ),
+    1
+  );
+  assert.equal(params.behaviour.numRounds, 4);
+
+  params.wordle = false;
+  assert.equal(
+    SummaryUtils.getEffectiveSummaryMinimumRound(
+      params.wordle,
+      params.behaviour.numRounds
+    ),
+    4
+  );
+  assert.equal(params.behaviour.numRounds, 4);
+});

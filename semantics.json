@@ -392,7 +392,7 @@
         }
       },
       {
-        "label": "Enable \"Show solution\" button",
+        "label": "Enable Help button",
         "importance": "low",
         "name": "enableSolutionsButton",
         "type": "boolean",
@@ -443,23 +443,18 @@
       {
         "name": "numRounds",
         "type": "number",
-        "label": "Number of rounds before Solutions or View Summary",
-        "description": "Minimum number of rounds before the \"Show solution\" or \"View Summary\" buttons can be displayed:",
+        "label": "Number of rounds before Help or View Summary",
+        "description": "Minimum number of rounds before the \"Help\" or \"View Summary\" buttons can be displayed:",
         "importance": "low",
         "optional": true,
         "default": 1,
         "min": 1,
         "widget": "showWhen",
         "showWhen": {
-          "type": "or",
           "rules": [
             {
-              "field": "enableSolutionsButton",
-              "equals": true
-            },
-            {
-              "field": "enableEndGameButton",
-              "equals": true
+              "field": "../wordle",
+              "equals": false
             }
           ]
         }

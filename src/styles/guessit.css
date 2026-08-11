@@ -4,20 +4,27 @@
   overflow: hidden;
   position: relative;
 }
+
+/* Better spacing for question content */
+.h5p-guessit .h5p-question-content {
+  margin-top: 1em;
+}
+
 .h5p-guessit .h5p-input-wrapper {
   display: inline-flex;
   position: relative;
   align-items: center;
   vertical-align: middle;
-  margin-bottom: 12px;
+  margin-bottom: var(--h5p-theme-font-size-m-large);
 }
 .h5p-guessit .h5p-text-input,
 .h5p-guessit .h5p-text-input-user {
   font-family: 'Roboto Mono', 'Lucida Console', Courier, monospace;
   font-size: var(--h5p-theme-font-size-x);
   border-radius: var(--h5p-theme-border-radius-medium);
+  /* Better contrast of input border when using dark theme */
   background-color: var(--h5p-theme-ui-base);
-  border: 2px solid var(--h5p-theme-alternative-darker);
+  border: 2px solid #a0a0a0;
   padding: calc(var(--h5p-theme-spacing-xs) / 2) 0 calc(var(--h5p-theme-spacing-xs) / 2) var(--h5p-theme-spacing-xxs);
   text-overflow: ellipsis;
   overflow: hidden;
@@ -136,17 +143,18 @@
   margin: var(--h5p-theme-spacing-xs, 0.5rem) 0;
 }
 
-/* Misplaced letter in Wordle */
+/* Misplaced letter in Wordle - Using theme feedback neutral values modified */
 .h5p-guessit .h5p-misplaced .h5p-text-input {
-  background-color: #ffff99;
-  border: 1px solid #aaaa53;
-  color: #777732;
+  background: var(--h5p-theme-feedback-neutral-third);
+  border: 2px solid var(--h5p-theme-feedback-neutral-third);
+  color: var(--h5p-theme-feedback-neutral-secondary);
 }
 
 /* Actual text paragraphs */
 .h5p-guessit .h5p-question-content p {
   line-height: 1.75em;
   margin: 0 0 1em;
+  margin-top: 1em;
 }
 
 /* Header and footer blocks (title + evaluation, buttons) */
@@ -269,9 +277,11 @@
   background-color: var(--h5p-theme-feedback-correct-secondary);
   padding: calc(var(--h5p-theme-spacing-xs) / 2);
   border-radius: var(--h5p-theme-border-radius-medium);
-  margin-left: .5em;
+  margin-left: calc(-2 * var(--h5p-theme-spacing-xs));
   display: inline-flex;
   line-height: normal;
+  position: relative;
+  top: 2em;
 }
 .h5p-guessit-number-choice-options {
   display: flex;
@@ -449,6 +459,7 @@
 
 .h5p-guessit-summary-screen .h5p-guessit-summary-table {
   width: 100%;
+  color: var(--h5p-theme-text-primary);
 }
 
 .h5p-guessit-summary-screen .h5p-guessit-summary-table td {
