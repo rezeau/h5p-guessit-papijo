@@ -1,5 +1,16 @@
 # Test Plan
 
+## 1.9.1 refinement verification
+
+- Automated coverage passes for Help authoring labels and localizations,
+  Wordle editor visibility, stored round-limit compatibility, Sentence-mode
+  round gating, Wordle View Summary's effective one-round minimum, and
+  unchanged Wordle Show solution behavior.
+- Manual smoke testing passed in H5P CLI, WordPress, and Moodle core H5P.
+- Dark-theme input borders, misplaced-letter feedback, spacing,
+  supplied-answer positioning, and summary-table text were verified in the
+  H5P CLI development environment.
+
 ## 1.9.0 combined feature verification
 
 - Automated coverage passes for Wordle result-chip rendering, accessibility,

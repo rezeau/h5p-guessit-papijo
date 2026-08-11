@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.9.1 - 2026-08-11
+
+### Improved
+
+- Refined spacing, dark-theme input borders, misplaced-letter feedback,
+  supplied-answer positioning, and summary-table text using H5P theme styles.
+- Updated sentence Help authoring labels and explanatory text in English,
+  French, and Portuguese localizations.
+- Hid the sentence round-limit setting in Wordle while preserving its stored
+  value, and made Wordle View Summary use an effective one-round minimum
+  without changing sentence-mode limits or Wordle Show solution behavior.
+
 ## 1.9.0 - 2026-08-10
 
 ### Added
