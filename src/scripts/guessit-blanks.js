@@ -1569,7 +1569,11 @@ H5P.GuessIt = (function ($, Question) {
       'end-game',
       self.params.endGame,
       function () {
-        if (!self.allowSolution(self.params.endGame)) {
+        const requiredRound = SummaryUtils.getEffectiveSummaryMinimumRound(
+          self.params.wordle,
+          self.params.behaviour.numRounds
+        );
+        if (!self.allowSolution(self.params.endGame, requiredRound)) {
           return;
         }
 
@@ -2050,9 +2054,13 @@ H5P.GuessIt = (function ($, Question) {
 
     const itemCompleted = this.currentItemCompleted ||
       this.getScore() === this.getMaxScore();
+    const requiredRound = SummaryUtils.getEffectiveSummaryMinimumRound(
+      this.params.wordle,
+      this.params.behaviour.numRounds
+    );
     const disabled = !SummaryUtils.canViewSummary(
       this.counter.getcurrent(),
-      this.params.behaviour.numRounds,
+      requiredRound,
       itemCompleted
     );
     const $content = $('[data-content-id="' + this.contentId + '"].h5p-content');
@@ -2064,17 +2072,19 @@ H5P.GuessIt = (function ($, Question) {
   /**
    * Check if solution is allowed. Warn user if not
    */
-  GuessIt.prototype.allowSolution = function (option) {
+  GuessIt.prototype.allowSolution = function (option, requiredRound) {
+    requiredRound = requiredRound === undefined ?
+      this.params.behaviour.numRounds : requiredRound;
     const itemCompleted = this.currentItemCompleted ||
       this.getScore() === this.getMaxScore();
     const isAllowed = SummaryUtils.canViewSummary(
       this.counter.getcurrent(),
-      this.params.behaviour.numRounds,
+      requiredRound,
       itemCompleted
     );
     if (!isAllowed) {
       let minRoundsText = option + ' : ' + this.params.notEnoughRounds
-        .replace('@round', this.params.behaviour.numRounds);
+        .replace('@round', requiredRound);
       this.updateFeedbackContent(minRoundsText);
       this.read(minRoundsText);
       this.hideButton('show-solution');

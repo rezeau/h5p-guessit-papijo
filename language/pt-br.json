@@ -118,15 +118,15 @@
           "description": "Quando ativada no modo Wordle, somente palavras da lista completa de palavras misteriosas configurada podem ser enviadas."
         },
         {
-          "label": "Permitir o botão \"Mostrar Solução\""
+          "label": "Ativar o botão Ajuda"
         },
         {
           "label": "Permitir o botão \"Ver resumo\"",
           "description": "Permite ao jogador abrir o resumo sem descobrir a frase atual."
         },
         {
-          "label": "Número de tentativas antes da solução ou do resumo",
-          "description": "Número mínimo de tentativas antes de exibir os botões \"Mostrar solução\" ou \"Ver resumo\"."
+          "label": "Número de tentativas antes de Ajuda ou Ver resumo",
+          "description": "Número mínimo de tentativas antes que os botões “Ajuda” ou “Ver resumo” possam ser exibidos."
         },
         {
           "label": "Número máximo de tentativas para adivinhar a palavra (modo Wordle)",

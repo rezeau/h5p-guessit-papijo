@@ -241,6 +241,135 @@ const supportedLocalisations = [
   ...portugueseLocalisations
 ];
 
+const behaviourIndex = semantics.findIndex(function (field) {
+  return field.name === 'behaviour';
+});
+const behaviourFields = semantics[behaviourIndex].fields;
+const getBehaviourField = function (name) {
+  return behaviourFields.find(function (field) {
+    return field.name === name;
+  });
+};
+const getLocalisedBehaviourField = function (localisation, name) {
+  const fieldIndex = behaviourFields.findIndex(function (field) {
+    return field.name === name;
+  });
+  return localisation.semantics[behaviourIndex].fields[fieldIndex];
+};
+
+test('sentence Help authoring labels replace legacy solution wording', function () {
+  const enableHelp = getBehaviourField('enableSolutionsButton');
+  const numRounds = getBehaviourField('numRounds');
+
+  assert.equal(enableHelp.label, 'Enable Help button');
+  assert.equal(
+    numRounds.label,
+    'Number of rounds before Help or View Summary'
+  );
+  assert.equal(
+    numRounds.description,
+    'Minimum number of rounds before the "Help" or "View Summary" ' +
+      'buttons can be displayed:'
+  );
+  assert.equal(
+    getLocalisedBehaviourField(
+      englishLocalisation,
+      'enableSolutionsButton'
+    ).label,
+    enableHelp.label
+  );
+  assert.equal(
+    getLocalisedBehaviourField(englishLocalisation, 'numRounds').label,
+    numRounds.label
+  );
+});
+
+test('French and Portuguese authoring labels use localized Help wording', function () {
+  const expected = {
+    fr: {
+      enable: 'Activer le bouton Aide',
+      rounds: 'Nombre de tours avant Aide ou Voir le résumé',
+      description: 'Nombre minimum de tours avant que les boutons « Aide » ' +
+        'ou « Voir le résumé » puissent être affichés :'
+    },
+    pt: {
+      enable: 'Ativar o botão Ajuda',
+      rounds: 'Número de tentativas antes de Ajuda ou Ver resumo',
+      description: 'Número mínimo de tentativas antes de os botões «Ajuda» ' +
+        'ou «Ver resumo» poderem ser apresentados.'
+    },
+    'pt-br': {
+      enable: 'Ativar o botão Ajuda',
+      rounds: 'Número de tentativas antes de Ajuda ou Ver resumo',
+      description: 'Número mínimo de tentativas antes que os botões “Ajuda” ' +
+        'ou “Ver resumo” possam ser exibidos.'
+    },
+    'pt-pt': {
+      enable: 'Ativar o botão Ajuda',
+      rounds: 'Número de tentativas antes de Ajuda ou Ver resumo',
+      description: 'Número mínimo de tentativas antes de os botões «Ajuda» ' +
+        'ou «Ver resumo» poderem ser apresentados.'
+    }
+  };
+
+  supportedLocalisations.forEach(function (locale) {
+    const enableHelp = getLocalisedBehaviourField(
+      locale.data,
+      'enableSolutionsButton'
+    );
+    const numRounds = getLocalisedBehaviourField(locale.data, 'numRounds');
+
+    assert.equal(enableHelp.label, expected[locale.code].enable, locale.code);
+    assert.equal(numRounds.label, expected[locale.code].rounds, locale.code);
+    assert.equal(
+      numRounds.description,
+      expected[locale.code].description,
+      locale.code
+    );
+  });
+});
+
+test('round limit authoring is visible only when Wordle is off', function () {
+  const numRounds = getBehaviourField('numRounds');
+  const condition = numRounds.showWhen;
+  const isVisible = function (wordle) {
+    return condition.rules.some(function (rule) {
+      return rule.field === '../wordle' && rule.equals === wordle;
+    });
+  };
+
+  assert.equal(numRounds.widget, 'showWhen');
+  assert.deepEqual(condition, {
+    rules: [{ field: '../wordle', equals: false }]
+  });
+  assert.equal(isVisible(false), true);
+  assert.equal(isVisible(true), false);
+  assert.equal(condition.nullWhenHidden, undefined);
+});
+
+test('round limit schema and stored values remain backward compatible', function () {
+  const numRounds = getBehaviourField('numRounds');
+  const existingContent = { behaviour: { numRounds: 4 } };
+
+  assert.equal(numRounds.type, 'number');
+  assert.equal(numRounds.default, 1);
+  assert.equal(numRounds.min, 1);
+  assert.equal(numRounds.optional, true);
+  assert.equal(existingContent.behaviour.numRounds >= numRounds.min, true);
+});
+
+test('learner-facing Wordle Show solution wording remains unchanged', function () {
+  const showSolutionsIndex = semantics.findIndex(function (field) {
+    return field.name === 'showSolutions';
+  });
+
+  assert.equal(semantics[showSolutionsIndex].default, 'Show solution');
+  assert.equal(
+    englishLocalisation.semantics[showSolutionsIndex].default,
+    'Show solution'
+  );
+});
+
 test('progressive sentence Help strings are localized consistently', function () {
   const helpIndex = semantics.findIndex(function (field) {
     return field.name === 'sentenceHelp';

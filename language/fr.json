@@ -118,15 +118,15 @@
           "description": "Lorsque cette option est activée en mode Wordle, seuls les mots de la liste complète des mots mystères configurés peuvent être proposés."
         },
         {
-          "label": "Activer le bouton \"Montrer la solution\""
+          "label": "Activer le bouton Aide"
         },
         {
           "label": "Activer le bouton \"Voir le résumé\"",
           "description": "Permettre au joueur d'afficher le résumé sans avoir deviné la phrase en cours."
         },
         {
-          "label": "Nombre de tours avant la solution ou le résumé",
-          "description": "Nombre minimum de tours avant que les boutons \"Montrer la solution\" ou \"Voir le résumé\" puissent être affichés :"
+          "label": "Nombre de tours avant Aide ou Voir le résumé",
+          "description": "Nombre minimum de tours avant que les boutons « Aide » ou « Voir le résumé » puissent être affichés :"
         },
         {
           "label": "Nombre maximal d'essais pour deviner le mot (option Wordle)",

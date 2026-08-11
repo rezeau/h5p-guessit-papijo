@@ -28,6 +28,20 @@ const hasReachedMinimumRound = function (currentRound, requiredRound) {
 };
 
 /**
+ * Get the effective round threshold for opening the summary.
+ *
+ * Wordle does not expose this setting to authors, so it uses the semantic
+ * default without changing the stored sentence-mode value.
+ *
+ * @param {boolean} wordle Whether Wordle mode is active.
+ * @param {number|string} configuredRound Authored sentence-mode threshold.
+ * @returns {number|string} Effective minimum round for View Summary.
+ */
+const getEffectiveSummaryMinimumRound = function (wordle, configuredRound) {
+  return wordle ? 1 : configuredRound;
+};
+
+/**
  * Allow summary access after completing an item or reaching the round limit.
  *
  * @param {number|string} currentRound Current displayed round.
@@ -39,4 +53,9 @@ const canViewSummary = function (currentRound, requiredRound, itemCompleted) {
   return itemCompleted || hasReachedMinimumRound(currentRound, requiredRound);
 };
 
-module.exports = { canViewSummary, getSummaryActions, hasReachedMinimumRound };
+module.exports = {
+  canViewSummary,
+  getEffectiveSummaryMinimumRound,
+  getSummaryActions,
+  hasReachedMinimumRound
+};
