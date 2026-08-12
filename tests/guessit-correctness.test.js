@@ -82,14 +82,16 @@ test('initCounters preserves progress behavior without creating global $content'
   };
   const timerEvents = [];
   const counterEvents = [];
+  const counterMaxTries = [];
   sandbox.GuessIt.Timer = function ($element) {
     assert.equal($element.selector, '.h5p-time-spent');
     this.play = function () {
       timerEvents.push('play');
     };
   };
-  sandbox.GuessIt.Counter = function ($element) {
+  sandbox.GuessIt.Counter = function ($element, maxTries) {
     assert.equal($element.selector, '.h5p-counter');
+    counterMaxTries.push(maxTries);
     this.increment = function () {
       counterEvents.push('increment');
     };
@@ -156,6 +158,32 @@ test('initCounters preserves progress behavior without creating global $content'
   assert.equal(deferredCallbacks.length, 1);
   deferredCallbacks.shift()();
   assert.equal(resizeCount, 2);
+
+  const wordleInstance = {
+    $progressWrapper: createElement('progress-wrapper'),
+    contentId: 19,
+    numQuestions: 4,
+    params: {
+      behaviour: { maxTries: 6 },
+      playMode: 'availableSentences',
+      round: 'Round @round',
+      sentence: 'sentence',
+      timeSpent: 'Time Spent',
+      word: 'Word',
+      wordle: true
+    },
+    trigger: function (eventName) {
+      assert.equal(eventName, 'resize');
+      resizeCount++;
+    }
+  };
+  sandbox.GuessIt.prototype.initCounters.call(wordleInstance);
+
+  assert.equal(wordleInstance.$progress.options.text, 'Word 1/4');
+  assert.deepEqual(counterMaxTries, [undefined, undefined, 6]);
+  assert.equal(deferredCallbacks.length, 1);
+  deferredCallbacks.shift()();
+  assert.equal(resizeCount, 3);
 });
 
 test('first timer activation requests one deferred resize in every mode', function () {
