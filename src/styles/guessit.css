@@ -24,7 +24,7 @@
   border-radius: var(--h5p-theme-border-radius-medium);
   /* Better contrast of input border when using dark theme */
   background-color: var(--h5p-theme-ui-base);
-  border: 2px solid #a0a0a0;
+  border: 1px solid #a0a0a0;
   padding: calc(var(--h5p-theme-spacing-xs) / 2) 0 calc(var(--h5p-theme-spacing-xs) / 2) var(--h5p-theme-spacing-xxs);
   text-overflow: ellipsis;
   overflow: hidden;
@@ -73,7 +73,7 @@
 .h5p-guessit .h5p-correct .h5p-text-input,
 .h5p-guessit .h5p-correct-wordle .h5p-text-input {
   background: var(--h5p-theme-feedback-correct-secondary);
-  border: 2px solid var(--h5p-theme-feedback-correct-third);
+  border: 1px solid var(--h5p-theme-feedback-correct-third);
   color: var(--h5p-theme-feedback-correct-main);
   font-weight: bold;
   padding-right: var(--h5p-theme-spacing-m);
@@ -102,14 +102,14 @@
 
 /* Wrongly answered input */
 .h5p-guessit .h5p-wrong-wordle .h5p-text-input {
-  background-color: #f7d0d0;
-  border: 1px solid #f7d0d0;
-  color: #b71c1c;
+  background: var(--h5p-theme-feedback-incorrect-secondary);
+  border: 1px solid var(--h5p-theme-feedback-incorrect-third);
+  color: var(--h5p-theme-feedback-incorrect-main);
 }
 
 .h5p-guessit .h5p-wrong .h5p-text-input {
   background-color: var(--h5p-theme-feedback-incorrect-secondary);
-  border: 2px solid var(--h5p-theme-feedback-incorrect-third);
+  border: 1px solid var(--h5p-theme-feedback-incorrect-third);
   color: var(--h5p-theme-feedback-incorrect-main);
   font-weight: bold;
   padding-right: var(--h5p-theme-spacing-m);
@@ -145,8 +145,8 @@
 
 /* Misplaced letter in Wordle - Using theme feedback neutral values modified */
 .h5p-guessit .h5p-misplaced .h5p-text-input {
-  background: var(--h5p-theme-feedback-neutral-third);
-  border: 2px solid var(--h5p-theme-feedback-neutral-third);
+  background-color: var(--h5p-theme-feedback-neutral-third);
+  border: 1px solid var(--h5p-theme-feedback-neutral-main);
   color: var(--h5p-theme-feedback-neutral-secondary);
 }
 
@@ -273,7 +273,7 @@
 .h5p-guessit .h5p-correct-answer {
   color: var(--h5p-theme-feedback-correct-main);
   font-weight: bold;
-  border: 2px var(--h5p-theme-feedback-correct-main) dashed;
+  border: 1px var(--h5p-theme-feedback-correct-main) dashed;
   background-color: var(--h5p-theme-feedback-correct-secondary);
   padding: calc(var(--h5p-theme-spacing-xs) / 2);
   border-radius: var(--h5p-theme-border-radius-medium);
