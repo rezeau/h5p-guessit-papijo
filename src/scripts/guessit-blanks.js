@@ -2184,7 +2184,8 @@ H5P.GuessIt = (function ($, Question) {
    * Removed marked results
    */
   GuessIt.prototype.removeMarkedResults = function () {
-    this.$questions.find('.h5p-input-wrapper').removeClass('h5p-correct h5p-wrong');
+    this.$questions.find('.h5p-input-wrapper')
+      .removeClass('h5p-correct h5p-wrong feedback-neutral');
     $( '.h5p-guessit-markup').remove();
     this.$questions.find('.h5p-input-wrapper > input').attr('disabled', false);
     this.trigger('resize');
@@ -2430,7 +2431,13 @@ H5P.GuessIt = (function ($, Question) {
     const $counterStatus = $('<div>', {
       class: 'h5p-guessit-counter-status'
     }).appendTo(this.$timer);
-    this.counter = new GuessIt.Counter(this.$counter.find('.h5p-counter'));
+    const maxTries = this.params.wordle && this.params.behaviour ?
+      this.params.behaviour.maxTries :
+      undefined;
+    this.counter = new GuessIt.Counter(
+      this.$counter.find('.h5p-counter'),
+      maxTries
+    );
     this.$counter.appendTo($counterStatus);
     this.counter.increment();
     // No point displaying sentences progress in userSentence mode OR if Wordle option is selected!

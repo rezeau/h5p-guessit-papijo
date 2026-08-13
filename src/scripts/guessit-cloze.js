@@ -49,6 +49,20 @@ const WordleUtils = require('./guessit-wordle-utils');
     };
 
     /**
+     * Check whether an incorrect, non-empty sentence answer starts with the
+     * same character as the expected answer, ignoring case.
+     *
+     * @private
+     * @param {string} answered
+     * @returns {boolean}
+     */
+    const neutral = function (answered) {
+      return answered !== '' &&
+        answered.charAt(0).toLowerCase() ===
+          canonicalAnswer.charAt(0).toLowerCase();
+    };
+
+    /**
      * Check if filled out.
      *
      * @param {boolean}
@@ -77,8 +91,14 @@ const WordleUtils = require('./guessit-wordle-utils');
         if (checkedAnswer) {
           this.markUp(checkedAnswer);
         }
-        $wrapper.addClass('h5p-wrong');
-        $input.attr('aria-label', inputLabel + '. ' + l10n.answeredIncorrectly);
+        if (neutral(checkedAnswer)) {
+          $wrapper.addClass('feedback-neutral');
+          $input.attr('aria-label', inputLabel);
+        }
+        else {
+          $wrapper.addClass('h5p-wrong');
+          $input.attr('aria-label', inputLabel + '. ' + l10n.answeredIncorrectly);
+        }
       }
     };
 
@@ -133,6 +153,7 @@ const WordleUtils = require('./guessit-wordle-utils');
       $wrapper.removeClass('h5p-misplaced');
       $wrapper.removeClass('h5p-wrong-wordle');
       $wrapper.removeClass('h5p-wrong');
+      $wrapper.removeClass('feedback-neutral');
       $( '.h5p-guessit-markup', $wrapper ).remove();
     };
 
@@ -162,7 +183,7 @@ const WordleUtils = require('./guessit-wordle-utils');
       checkedAnswer = null;
       $wrapper.removeClass(
         'h5p-correct h5p-correct-wordle h5p-misplaced ' +
-        'h5p-wrong h5p-wrong-wordle'
+        'h5p-wrong h5p-wrong-wordle feedback-neutral'
       );
       $('.h5p-guessit-markup', $wrapper).remove();
       $input.val('')
@@ -311,6 +332,7 @@ const WordleUtils = require('./guessit-wordle-utils');
           // The Answer has changed since last check
           checkedAnswer = null;
           $wrapper.removeClass('h5p-wrong');
+          $wrapper.removeClass('feedback-neutral');
           if (wordle) {
             $wrapper.removeClass('h5p-wrong-wordle');
             $wrapper.removeClass('h5p-misplaced');
