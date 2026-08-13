@@ -2184,7 +2184,8 @@ H5P.GuessIt = (function ($, Question) {
    * Removed marked results
    */
   GuessIt.prototype.removeMarkedResults = function () {
-    this.$questions.find('.h5p-input-wrapper').removeClass('h5p-correct h5p-wrong');
+    this.$questions.find('.h5p-input-wrapper')
+      .removeClass('h5p-correct h5p-wrong feedback-neutral');
     $( '.h5p-guessit-markup').remove();
     this.$questions.find('.h5p-input-wrapper > input').attr('disabled', false);
     this.trigger('resize');

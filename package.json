@@ -5,7 +5,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV='production' webpack",
     "lint": "cross-env ESLINT_USE_FLAT_CONFIG=false eslint \"src/**/*.js\"",
-    "test": "node --test tests/guessit-wordle-utils.test.js tests/guessit-word-length-choice.test.js tests/guessit-word-list-validation.test.js tests/guessit-content-utils.test.js tests/guessit-semantics-validation.test.js tests/guessit-cloze-wordle.test.js tests/guessit-question-selector.test.js tests/guessit-summary-utils.test.js tests/guessit-correctness.test.js tests/guessit-continue-lifecycle.test.js tests/guessit-progressive-help.test.js tests/guessit-counter.test.js",
+    "test": "node --test tests/guessit-wordle-utils.test.js tests/guessit-word-length-choice.test.js tests/guessit-word-list-validation.test.js tests/guessit-content-utils.test.js tests/guessit-semantics-validation.test.js tests/guessit-cloze-wordle.test.js tests/guessit-cloze-sentence-feedback.test.js tests/guessit-question-selector.test.js tests/guessit-summary-utils.test.js tests/guessit-correctness.test.js tests/guessit-continue-lifecycle.test.js tests/guessit-progressive-help.test.js tests/guessit-counter.test.js",
     "watch": "webpack --watch"
   },
   "repository": {
