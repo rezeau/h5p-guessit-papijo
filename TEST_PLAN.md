@@ -1,5 +1,20 @@
 # Test Plan
 
+## 1.9.2 refinement verification
+
+- Automated coverage passes for finite Wordle Round current/max values,
+  learner-selected limits, No limit without a denominator, Reset, and the
+  unchanged Sentence-mode Round display.
+- Automated coverage passes for wrong Wordle input colors using current H5P
+  incorrect-feedback variables and for unchanged Wordle correct, misplaced,
+  result-chip, Show solution, scoring, and lifecycle behavior.
+- Automated coverage passes for Sentence correct, neutral, incorrect, empty,
+  case-sensitive, mixed-answer, hint-markup, accessibility, scoring,
+  progressive Help, and Try again states.
+- Manual H5P CLI testing passed for mixed Sentence feedback, icon suppression,
+  existing hints, Help and Try again, correct-answer preservation, dark-theme
+  legibility, and unchanged Wordle behavior.
+
 ## 1.9.1 refinement verification
 
 - Automated coverage passes for Help authoring labels and localizations,

@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.9.2 - 2026-08-13
+
+### Improved
+
+- Added the finite Wordle attempt limit to the Round display while keeping
+  learner-supplied Wordle with No limit and Sentence mode on the existing
+  current-round-only display.
+- Updated wrong Wordle inputs to use the current H5P theme incorrect-feedback
+  colors.
+- Added neutral, icon-free feedback for partially correct Sentence answers
+  whose first character matches, while preserving hints, retry, Help, and
+  scoring behavior.
+
 ## 1.9.1 - 2026-08-11
 
 ### Improved
