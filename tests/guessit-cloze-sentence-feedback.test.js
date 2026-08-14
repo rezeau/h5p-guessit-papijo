@@ -13,7 +13,9 @@ const createElement = function (initialValue = '') {
 
   return {
     addClass: function (className) {
-      classes.add(className);
+      className.split(' ').forEach(function (name) {
+        classes.add(name);
+      });
       return this;
     },
     attr: function (name, attributeValue) {
@@ -259,6 +261,160 @@ test('neutral CSS uses current H5P variables and defines no feedback icon', func
   assert.match(css, /\.h5p-wrong:after[\s\S]*content: "\\e902"/);
 });
 
+test('checked Sentence fields are compact and icon-free without changing live or Wordle sizing', function () {
+  const css = fs.readFileSync(
+    path.join(__dirname, '..', 'src', 'styles', 'guessit.css'),
+    'utf8'
+  );
+  const compactRule = css.match(
+    /\.h5p-guessit-sentence-feedback \.h5p-text-input,\s*\.h5p-guessit \.h5p-guessit-sentence-preserved-correct \.h5p-text-input\s*\{([^}]+)\}/
+  );
+  const generalRule = css.match(
+    /\.h5p-text-input,\s*\.h5p-guessit \.h5p-text-input-user\s*\{([^}]+)\}/
+  );
+
+  assert.notEqual(compactRule, null);
+  assert.match(compactRule[1], /min-width:\s*0/);
+  assert.match(compactRule[1], /padding-right:\s*var\(--h5p-theme-spacing-xxs\)/);
+  assert.match(generalRule[1], /min-width:\s*5em/);
+  assert.match(css, /\.h5p-text-input\.wordle[\s\S]*min-width:\s*0;[\s\S]*width:\s*1em!important/);
+  assert.match(
+    css,
+    /\.h5p-correct\.h5p-guessit-sentence-feedback-no-icon::after,[\s\S]*\.h5p-wrong\.h5p-guessit-sentence-feedback-no-icon::after\s*\{\s*content:\s*none;\s*display:\s*none;/
+  );
+  assert.match(
+    css,
+    /\.h5p-correct\.h5p-guessit-sentence-preserved-correct::after\s*\{\s*content:\s*none;\s*display:\s*none;/
+  );
+
+  ['correct', 'neutral', 'incorrect'].forEach(function (state) {
+    const answers = {
+      correct: ['stone', 'stone'],
+      neutral: ['rolling', 'roller'],
+      incorrect: ['stone', 'rock']
+    }[state];
+    const harness = createCloze(answers[0], answers[1]);
+    harness.cloze.checkAnswer();
+    assert.equal(
+      harness.wrapper.hasClass('h5p-guessit-sentence-feedback'),
+      true
+    );
+    assert.equal(
+      harness.wrapper.hasClass('h5p-guessit-sentence-feedback-no-icon'),
+      true
+    );
+    if (state === 'correct') {
+      assert.equal(harness.wrapper.hasClass('h5p-correct'), true);
+    }
+    else if (state === 'incorrect') {
+      assert.equal(harness.wrapper.hasClass('h5p-wrong'), true);
+    }
+    else {
+      assert.equal(harness.wrapper.hasClass('h5p-correct'), false);
+      assert.equal(harness.wrapper.hasClass('h5p-wrong'), false);
+    }
+    if (state === 'correct') {
+      harness.cloze.resetFeedbackPresentation();
+    }
+    else {
+      harness.cloze.resetBlank();
+    }
+    assert.equal(
+      harness.wrapper.hasClass('h5p-guessit-sentence-feedback'),
+      false
+    );
+    assert.equal(
+      harness.wrapper.hasClass('h5p-guessit-sentence-feedback-no-icon'),
+      false
+    );
+    assert.equal(
+      harness.wrapper.hasClass('h5p-guessit-sentence-preserved-correct'),
+      state === 'correct'
+    );
+  });
+});
+
+test('Try again keeps only a correct Sentence word compact, green, locked, and icon-free', function () {
+  const words = [
+    createCloze('Mosquitoes', 'flies'),
+    createCloze('are', 'are'),
+    createCloze('an', 'the'),
+    createCloze('inconvenience.', 'problem')
+  ];
+
+  words.forEach(function (word) {
+    word.cloze.checkAnswer();
+    assert.equal(
+      word.wrapper.hasClass('h5p-guessit-sentence-feedback'),
+      true
+    );
+    assert.equal(
+      word.wrapper.hasClass('h5p-guessit-sentence-feedback-no-icon'),
+      true
+    );
+  });
+
+  // Production retry first enables only incorrect fields.
+  words.forEach(function (word) {
+    if (!word.cloze.checkCorrect()) {
+      word.cloze.enableInput();
+    }
+  });
+  words.forEach(function (word) {
+    word.cloze.resetFeedbackPresentation();
+  });
+  words.forEach(function (word) {
+    if (!word.cloze.checkCorrect()) {
+      word.cloze.resetBlank();
+      word.cloze.setUserInput('');
+      word.cloze.resetAriaLabel();
+    }
+  });
+
+  const preserved = words[1];
+  assert.equal(preserved.input.val(), 'are');
+  assert.equal(preserved.input.attr('disabled'), true);
+  assert.equal(preserved.wrapper.hasClass('h5p-correct'), true);
+  assert.equal(
+    preserved.wrapper.hasClass('h5p-guessit-sentence-preserved-correct'),
+    true
+  );
+  assert.equal(
+    preserved.wrapper.hasClass('h5p-guessit-sentence-feedback-no-icon'),
+    false
+  );
+
+  [words[0], words[2], words[3]].forEach(function (word) {
+    assert.equal(word.input.val(), '');
+    assert.equal(word.input.attr('disabled'), false);
+    assert.equal(word.wrapper.hasClass('h5p-correct'), false);
+    assert.equal(word.wrapper.hasClass('h5p-wrong'), false);
+    assert.equal(word.wrapper.hasClass('feedback-neutral'), false);
+    assert.equal(
+      word.wrapper.hasClass('h5p-guessit-sentence-preserved-correct'),
+      false
+    );
+  });
+
+  // A subsequent Check returns every field to checked compact/no-icon state.
+  ['Mosquitoes', 'are', 'an', 'inconvenience.'].forEach(function (answer, index) {
+    words[index].cloze.setUserInput(answer);
+    words[index].cloze.checkAnswer();
+    assert.equal(
+      words[index].wrapper.hasClass('h5p-guessit-sentence-feedback'),
+      true
+    );
+    assert.equal(
+      words[index].wrapper.hasClass('h5p-guessit-sentence-feedback-no-icon'),
+      true
+    );
+    assert.equal(
+      words[index].wrapper.hasClass('h5p-guessit-sentence-preserved-correct'),
+      false
+    );
+  });
+});
+
 test('Wordle misplaced feedback remains on its existing isolated class', function () {
   const harness = createCloze('A', 'B', true, true);
   harness.cloze.checkAnswerWordle('misplaced');
@@ -266,4 +422,8 @@ test('Wordle misplaced feedback remains on its existing isolated class', functio
   assert.equal(harness.wrapper.hasClass('h5p-misplaced'), true);
   assert.equal(harness.wrapper.hasClass('feedback-neutral'), false);
   assert.equal(harness.wrapper.hasClass('h5p-wrong'), false);
+  assert.equal(
+    harness.wrapper.hasClass('h5p-guessit-sentence-feedback-no-icon'),
+    false
+  );
 });

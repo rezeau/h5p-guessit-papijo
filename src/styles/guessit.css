@@ -199,6 +199,28 @@
   padding-right: 3.5em;
 }
 
+/* Checked and preserved-correct Sentence fields fit their word content. */
+.h5p-guessit .h5p-guessit-sentence-feedback .h5p-text-input,
+.h5p-guessit .h5p-guessit-sentence-preserved-correct .h5p-text-input {
+  min-width: 0;
+  padding-left: var(--h5p-theme-spacing-xxs);
+  padding-right: var(--h5p-theme-spacing-xxs);
+}
+
+.h5p-guessit
+  .h5p-correct.h5p-guessit-sentence-feedback-no-icon::after,
+.h5p-guessit
+  .h5p-wrong.h5p-guessit-sentence-feedback-no-icon::after {
+  content: none;
+  display: none;
+}
+
+.h5p-guessit
+  .h5p-correct.h5p-guessit-sentence-preserved-correct::after {
+  content: none;
+  display: none;
+}
+
 .h5p-guessit-sentence.h5p-guessit-sentence-hidden {
   display: none;
 }
@@ -338,19 +360,6 @@
   border-bottom: 1px solid #EEE;
 } 
 
-.h5p-guessit-listGuessedSentences {
-  padding-left: 0.5em;
-  font-size: 0.9em;
-  background-color: var(--h5p-theme-contrast-cta-light);
-  border-radius: var(--h5p-theme-border-radius-medium);
-  color: var(--h5p-theme-contrast-cta-white);
-  font-weight: 700;
-}
-.h5p-guessit-listGuessedSentences p{
-  text-indent: -1.5em;
-  margin-left: 1.5em;
-}
-
 .h5p-guessit .h5p-guessit-listGuessedSentences .joubel-tip-container {
   display: inline-flex;
   align-items: center;
@@ -377,7 +386,8 @@
   vertical-align: middle;
 }
  
-.h5p-guessit-listGuessedWord {
+.h5p-guessit-listGuessedWord,
+.h5p-guessit-listGuessedSentences {
   display: flex;
   flex-wrap: wrap;
   gap: var(--h5p-theme-spacing-xxs, 0.375rem)

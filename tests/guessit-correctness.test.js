@@ -359,6 +359,29 @@ test('later attempts retain guarded timer and counter lifecycle', function () {
   assert.match(resetSource, /this\.counter = undefined;/);
 });
 
+test('Sentence feedback sizing reuses auto-grow with no compact minimum', function () {
+  const autoGrowSource = getPrototypeMethodSource(
+    'autoGrowTextField',
+    'resetGrowTextField'
+  );
+  const retrySource = getPrototypeMethodSource('reTry', 'newSentence');
+
+  assert.match(
+    autoGrowSource,
+    /\.h5p-guessit-sentence-feedback,[\s\S]*\.h5p-guessit-sentence-preserved-correct[\s\S]*\)\.length > 0/
+  );
+  assert.match(autoGrowSource, /compactSentenceFeedback \? 0 : 3/);
+  assert.match(autoGrowSource, /width \+ static_min_pad/);
+  assert.match(
+    retrySource,
+    /cloze\.resetFeedbackPresentation\(\)[\s\S]*this\.resetGrowTextField\(\)/
+  );
+  assert.match(
+    getPrototypeMethodSource('removeMarkedResults', 'showCorrectAnswers'),
+    /h5p-guessit-sentence-preserved-correct/
+  );
+});
+
 test('sentence groups emit a valid role without a malformed id attribute', function () {
   const markupLine = source.split(/\r?\n/).find(function (line) {
     return line.includes("h5p-guessit-sentence-hidden");

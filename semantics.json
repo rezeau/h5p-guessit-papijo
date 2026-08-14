@@ -1006,6 +1006,24 @@
     "optional": true
   },
   {
+    "name": "sentenceGuessed",
+    "label": "Accessible status for a guessed Sentence result",
+    "importance": "low",
+    "type": "text",
+    "default": "Sentence guessed: ",
+    "common": true,
+    "optional": true
+  },
+  {
+    "name": "sentenceNotGuessed",
+    "label": "Accessible status for a not-guessed Sentence result",
+    "importance": "low",
+    "type": "text",
+    "default": "Sentence not guessed: ",
+    "common": true,
+    "optional": true
+  },
+  {
     "name": "solutionsViewed",
     "label": "Text for the number of Solutions viewed (on the summary page)",
     "importance": "low",

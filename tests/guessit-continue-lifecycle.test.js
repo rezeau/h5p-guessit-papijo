@@ -483,6 +483,8 @@ const createHarness = function (options = {}) {
       scoreExplanationforAllWords: 'Word score',
       scoreExplanationforSentencesWithNumberWords: '@words words',
       sentence: 'sentence',
+      sentenceGuessed: 'Sentence guessed: ',
+      sentenceNotGuessed: 'Sentence not guessed: ',
       sentencesGuessed: 'Sentences guessed',
       solutionsViewed: 'Solutions viewed',
       summary: 'Summary',
@@ -515,6 +517,9 @@ const createHarness = function (options = {}) {
     selectedQuestionIndices: options.selectedQuestionIndices || null,
     selectedWordLength: options.selectedWordLength || null,
     sentenceHelpRevealed: new Set(),
+    sentenceResults: (options.sentenceResults || []).map(function (result) {
+      return Object.assign({}, result);
+    }),
     sentencesFound: 0,
     sentencesGuessed: completed.slice(),
     success: Boolean(options.success),
@@ -551,10 +556,7 @@ const createHarness = function (options = {}) {
     if (instance.params.wordle) {
       return instance.appendWordHistoryItem(wordGuessed, label);
     }
-    const completedItem = createSelection('completed-item', registry);
-    completedItem.html(label).appendTo(guessedItems);
-    guessedItems.removeClass('h5p-guessit-hide');
-    return completedItem;
+    return instance.appendSentenceHistoryItem(true, label);
   };
 
   const openSummary = function () {
@@ -888,11 +890,13 @@ test('Wordle history uses semantic ordered results with explicit localized statu
     'h5p-guessit-listGuessedSentences',
     sentenceParent
   );
-  assert.equal(sentenceHistory.tagName, 'div');
+  assert.equal(sentenceHistory.tagName, 'ol');
 });
 
 test('Wordle history CSS uses compact wrapping theme feedback items', function () {
-  const listRule = styleSource.match(/\.h5p-guessit-listGuessedWord\s*\{([^}]+)\}/)[1];
+  const listRule = styleSource.match(
+    /\.h5p-guessit-listGuessedWord,\s*\.h5p-guessit-listGuessedSentences\s*\{([^}]+)\}/
+  )[1];
   const itemRule = styleSource.match(/\.h5p-guessit-word-result\s*\{([^}]+)\}/)[1];
   const wordRule = styleSource.match(/\.h5p-guessit-word-result-word\s*\{([^}]+)\}/)[1];
 
@@ -915,6 +919,111 @@ test('Wordle history CSS uses compact wrapping theme feedback items', function (
   assert.match(styleSource, /var\(--h5p-theme-feedback-incorrect-main\)/);
   assert.match(styleSource, /var\(--h5p-theme-feedback-incorrect-secondary\)/);
   assert.match(styleSource, /var\(--h5p-theme-feedback-incorrect-third\)/);
+});
+
+test('Sentence results use localized ordered chips and persist compatibly', function () {
+  const harness = createHarness({
+    completed: [],
+    nbSentencesGuessed: 0,
+    questionCount: 3,
+    selectedItemCount: 3,
+    selectedQuestionIndices: [0, 1, 2]
+  });
+  const historyIdentity = harness.guessedItems;
+  const orderedResults = function (results) {
+    return Array.from(results, function (result) {
+      return [result.questionId, result.guessed];
+    });
+  };
+
+  const first = harness.displayCompletedItem(true, 'Sentence one.');
+  assert.equal(first.tagName, 'li');
+  assert.equal(first.classes.has('h5p-wordFound'), true);
+  assert.equal(
+    first.classes.has('h5p-guessit-sentence-feedback-no-icon'),
+    false
+  );
+  assert.equal(first.children[1].textValue, 'Sentence guessed: ');
+  assert.equal(first.children[2].textValue, 'Sentence one.');
+  let continueButton = harness.openSummary();
+  assert.equal(harness.guessedItems, historyIdentity);
+  assert.equal(harness.guessedItems.parent, harness.registry.summaries.at(-1));
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+
+  harness.instance.currentItemCompleted = false;
+  assert.deepEqual(orderedResults(harness.instance.sentenceResults), [
+    [0, true]
+  ]);
+  continueButton = harness.openSummary();
+  assert.deepEqual(orderedResults(harness.instance.sentenceResults), [
+    [0, true],
+    [1, false]
+  ]);
+  const abandoned = harness.guessedItems.children[1];
+  assert.equal(abandoned.classes.has('h5p-wordNotFound'), true);
+  assert.equal(
+    abandoned.classes.has('h5p-guessit-sentence-feedback-no-icon'),
+    false
+  );
+  assert.equal(abandoned.children[1].textValue, 'Sentence not guessed: ');
+  assert.equal(abandoned.children[2].textValue, 'ITEM1');
+
+  // Re-entering Summary cannot duplicate the confirmed abandoned outcome.
+  harness.instance.showFinalPage();
+  assert.equal(harness.instance.sentenceResults.length, 2);
+  assert.equal(harness.guessedItems.children.length, 2);
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+
+  harness.instance.currentItemCompleted = true;
+  harness.displayCompletedItem(true, 'Sentence three.');
+  assert.deepEqual(orderedResults(harness.instance.sentenceResults), [
+    [0, true],
+    [1, false],
+    [2, true]
+  ]);
+  assert.deepEqual(
+    harness.guessedItems.children.map(function (item) {
+      return [item.children[1].textValue, item.children[2].textValue];
+    }),
+    [
+      ['Sentence guessed: ', 'Sentence one.'],
+      ['Sentence not guessed: ', 'ITEM1'],
+      ['Sentence guessed: ', 'Sentence three.']
+    ]
+  );
+  assert.deepEqual(harness.instance.sentencesGuessed, [0, 2]);
+  assert.equal(harness.instance.nbSentencesGuessed, 2);
+
+  const state = harness.instance.getCurrentState();
+  const restored = {
+    learnerQuestion: null,
+    params: { playMode: 'availableSentences', wordle: false },
+    previousState: state
+  };
+  harness.sandbox.GuessIt.prototype.setH5PUserState.call(restored);
+  assert.deepEqual(
+    orderedResults(restored.sentenceResults),
+    orderedResults(harness.instance.sentenceResults)
+  );
+
+  const legacy = {
+    learnerQuestion: null,
+    params: { playMode: 'availableSentences', wordle: false },
+    previousState: Object.assign({}, state, {
+      sentenceResults: undefined,
+      sentencesGuessed: [0, 2]
+    })
+  };
+  harness.sandbox.GuessIt.prototype.setH5PUserState.call(legacy);
+  assert.deepEqual(orderedResults(legacy.sentenceResults), [
+    [0, true],
+    [2, true]
+  ]);
+
+  harness.instance.resetTask();
+  assert.equal(harness.instance.sentenceResults.length, 0);
 });
 
 test('production summary action gating keeps unsupported modes without Continue', function () {
