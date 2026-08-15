@@ -416,10 +416,17 @@ const createHarness = function (options = {}) {
     }
   };
 
-  const configuredQuestions = Array.from(
-    { length: questionCount },
-    (_, index) => ({ ID: index, sentence: `ITEM${index}` })
-  );
+  const configuredQuestions = options.configuredSentences ?
+    options.configuredSentences.map(function (sentence, index) {
+      return { ID: index, sentence };
+    }) :
+    Array.from(
+      { length: questionCount },
+      (_, index) => ({ ID: index, sentence: `ITEM${index}` })
+    );
+  if (!options.wordle) {
+    ContentUtils.normalizeSentenceQuestions(configuredQuestions);
+  }
   const completed = options.completed || [0];
   const wordsNotFound = options.wordsNotFound || [];
   const instance = Object.assign(Object.create(sandbox.GuessIt.prototype), {
@@ -1024,6 +1031,128 @@ test('Sentence results use localized ordered chips and persist compatibly', func
 
   harness.instance.resetTask();
   assert.equal(harness.instance.sentenceResults.length, 0);
+});
+
+test('Sentence apostrophes stay canonical through history, Summary, Continue, and restore', function () {
+  const harness = createHarness({
+    completed: [],
+    configuredSentences: [
+      'barking dogs don&#039;t bite',
+      'I don&#039;t think it isn&#039;t possible',
+      "An anti/constitut/ion/al act that doesn't fail"
+    ],
+    nbSentencesGuessed: 0,
+    questionCount: 3
+  });
+  const questions = harness.instance.params.questions;
+
+  assert.deepEqual(questions.map(function (question) {
+    return question.sentence;
+  }), [
+    "barking dogs don't bite",
+    "I don't think it isn't possible",
+    "An anti/constitut/ion/al act that doesn't fail"
+  ]);
+
+  harness.instance.recordCompletedItem(true);
+  const guessed = harness.instance.appendSentenceHistoryItem(
+    true,
+    harness.instance.getSentenceHistoryLabel(questions[0].sentence)
+  );
+  assert.equal(guessed.children[2].textValue, "barking dogs don't bite");
+  assert.equal(harness.textOf(harness.guessedItems).includes('&#039;'), false);
+
+  let continueButton = harness.openSummary();
+  assert.equal(
+    harness.guessedItems.parent,
+    harness.registry.summaries.at(-1)
+  );
+  assert.match(
+    harness.textOf(harness.guessedItems),
+    /barking dogs don't bite/
+  );
+  assert.equal(
+    harness.textOf(harness.guessedItems).includes('&#039;'),
+    false
+  );
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+  assert.equal(harness.instance.currentSentenceId, 1);
+  assert.match(harness.textOf(harness.guessedItems), /barking dogs don't bite/);
+
+  harness.instance.currentItemCompleted = false;
+  continueButton = harness.openSummary();
+  const abandoned = harness.guessedItems.children[1];
+  assert.equal(abandoned.children[1].textValue, 'Sentence not guessed: ');
+  assert.equal(
+    abandoned.children[2].textValue,
+    "I don't think it isn't possible"
+  );
+  assert.equal(harness.textOf(harness.guessedItems).includes('&#039;'), false);
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+
+  assert.equal(
+    harness.instance.getSentenceHistoryLabel(questions[2].sentence),
+    "An anti/constitut/ion/al act that doesn't fail → " +
+      "An anticonstitutional act that doesn't fail"
+  );
+
+  const state = harness.instance.getCurrentState();
+  state.originalQuestions = [
+    { ID: 0, sentence: 'barking dogs don&#039;t bite' },
+    { ID: 1, sentence: 'I don&#039;t think it isn&#039;t possible' },
+    { ID: 2, sentence: 'An anti/constitut/ion/al act' }
+  ];
+  const restored = {
+    learnerQuestion: null,
+    params: { playMode: 'availableSentences', wordle: false },
+    previousState: state
+  };
+  harness.sandbox.GuessIt.prototype.setH5PUserState.call(restored);
+  assert.deepEqual(restored.originalQuestions.map(function (question) {
+    return question.sentence;
+  }), [
+    "barking dogs don't bite",
+    "I don't think it isn't possible",
+    'An anti/constitut/ion/al act'
+  ]);
+
+  harness.instance.sentenceResults = restored.sentenceResults;
+  harness.instance.renderSentenceHistory(restored.originalQuestions);
+  assert.deepEqual(
+    harness.guessedItems.children.map(function (item) {
+      return item.children[2].textValue;
+    }),
+    ["barking dogs don't bite", "I don't think it isn't possible"]
+  );
+  assert.equal(harness.textOf(harness.guessedItems).includes('&#039;'), false);
+});
+
+test('Sentence normalization stays outside Wordle and history keeps text insertion', function () {
+  const constructorNormalization = source.indexOf(
+    'ContentUtils.normalizeSentenceQuestions(this.params.questions)'
+  );
+  const usableQuestionFiltering = source.indexOf(
+    'ContentUtils.getUsableQuestions('
+  );
+  const appendHistorySource = getPrototypeMethodSource(
+    'appendResultHistoryItem',
+    'getSentenceHistoryLabel'
+  );
+
+  assert.notEqual(constructorNormalization, -1);
+  assert.ok(constructorNormalization < usableQuestionFiltering);
+  assert.match(
+    source.slice(constructorNormalization - 80, constructorNormalization),
+    /if \(!this\.params\.wordle\)/
+  );
+  assert.match(appendHistorySource, /'text': label/);
+  assert.doesNotMatch(appendHistorySource, /'html': label/);
+  assert.doesNotMatch(
+    getPrototypeMethodSource('createQuestions', 'autoGrowTextField'),
+    /&#039;/
+  );
 });
 
 test('production summary action gating keeps unsupported modes without Continue', function () {

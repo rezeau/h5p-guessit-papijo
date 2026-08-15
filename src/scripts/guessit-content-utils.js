@@ -4,6 +4,40 @@ const toQuestionArray = function (questions) {
   return Array.isArray(questions) ? questions : [];
 };
 
+/**
+ * Normalize the plain text supplied by an H5P Sentence text field.
+ *
+ * H5P content can contain decimal or named apostrophe entities depending on
+ * which editor/runtime serialized it. Decode only those known apostrophe
+ * forms; Sentence content is plain text and must not be interpreted as HTML.
+ *
+ * @param {*} sentence Sentence field value.
+ * @returns {*} Normalized sentence, or the original non-string value.
+ */
+const normalizeSentenceText = function (sentence) {
+  if (typeof sentence !== 'string') {
+    return sentence;
+  }
+
+  return sentence.replace(/(?:&#0?39;|&apos;)/g, "'");
+};
+
+/**
+ * Normalize Sentence fields in a question array before runtime pools diverge.
+ *
+ * @param {object[]} questions Configured or restored questions.
+ * @returns {object[]} The supplied question array.
+ */
+const normalizeSentenceQuestions = function (questions) {
+  toQuestionArray(questions).forEach(function (question) {
+    if (question && typeof question.sentence === 'string') {
+      question.sentence = normalizeSentenceText(question.sentence);
+    }
+  });
+
+  return toQuestionArray(questions);
+};
+
 const getUsableQuestions = function (questions, isWordleWord) {
   return toQuestionArray(questions).filter(function (question) {
     if (!question || typeof question.sentence !== 'string' ||
@@ -97,6 +131,8 @@ module.exports = {
   getConfiguredListState,
   getUsableQuestions,
   getWordCountChoices,
+  normalizeSentenceQuestions,
+  normalizeSentenceText,
   setLearnerQuestion,
   toQuestionArray
 };

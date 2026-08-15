@@ -23,6 +23,48 @@ const createInstance = function (questions) {
   };
 };
 
+test('normalizes only apostrophe entities in plain Sentence text', function () {
+  assert.equal(
+    ContentUtils.normalizeSentenceText('barking dogs don&#039;t bite'),
+    "barking dogs don't bite"
+  );
+  assert.equal(
+    ContentUtils.normalizeSentenceText(
+      'I don&#039;t think it isn&#039;t possible'
+    ),
+    "I don't think it isn't possible"
+  );
+  assert.equal(
+    ContentUtils.normalizeSentenceText('don&#39;t &apos;stop&apos;'),
+    "don't 'stop'"
+  );
+  assert.equal(ContentUtils.normalizeSentenceText("don't"), "don't");
+  assert.equal(
+    ContentUtils.normalizeSentenceText('anti/constitut/ion/al <em>act</em>'),
+    'anti/constitut/ion/al <em>act</em>'
+  );
+});
+
+test('normalizes configured Sentence questions in place', function () {
+  const questions = [
+    { sentence: 'barking dogs don&#039;t bite' },
+    { sentence: 'I don&#39;t think it isn&#039;t possible' },
+    { sentence: "segments/don't/change" }
+  ];
+
+  assert.equal(ContentUtils.normalizeSentenceQuestions(questions), questions);
+  assert.deepEqual(questions.map(function (question) {
+    return question.sentence;
+  }), [
+    "barking dogs don't bite",
+    "I don't think it isn't possible",
+    "segments/don't/change"
+  ]);
+  assert.equal(questions.some(function (question) {
+    return question.sentence.includes('&#039;');
+  }), false);
+});
+
 const countWords = function (sentence) {
   return sentence.trim().split(/\s+/).length;
 };

@@ -352,6 +352,9 @@ H5P.GuessIt = (function ($, Question) {
     this.params.questions = ContentUtils.toQuestionArray(
       this.params.questions
     );
+    if (!this.params.wordle) {
+      ContentUtils.normalizeSentenceQuestions(this.params.questions);
+    }
     if (this.params.playMode === 'availableSentences') {
       this.params.questions = ContentUtils.getUsableQuestions(
         this.params.questions,
@@ -1821,10 +1824,6 @@ H5P.GuessIt = (function ($, Question) {
       self.params.questions[i].sentence = self.params.questions[i].sentence.replace(/\s+/g, ' ').trim();
 
       let question = self.params.questions[i].sentence;
-      // Replace potential apostrophe entity with apostrophe character!
-      if (question.indexOf("&#039;") >= 0) {
-        question = question.replace("&#039;", "'");
-      }
       // If wordle add forward slashes between each letter
       if (this.params.wordle) {
         question = WordleUtils.normalizeCanonicalWord(question);
@@ -3292,6 +3291,9 @@ H5P.GuessIt = (function ($, Question) {
       );
       if (this.params.wordle) {
         normalizeWordleQuestions(this.originalQuestions);
+      }
+      else {
+        ContentUtils.normalizeSentenceQuestions(this.originalQuestions);
       }
     }
     this.sentencesGuessed = this.previousState.sentencesGuessed || [];
