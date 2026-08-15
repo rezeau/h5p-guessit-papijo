@@ -347,6 +347,7 @@ H5P.GuessIt = (function ($, Question) {
       this.params.behaviour.listGuessedSentences = true;
       this.params.behaviour.enableNumChoice = false;
       this.params.behaviour.enableSolutionsButton = false;
+      this.params.behaviour.enableEndGameButton = false;
     }
 
     this.params.questions = ContentUtils.toQuestionArray(

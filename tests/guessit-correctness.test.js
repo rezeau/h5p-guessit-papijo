@@ -12,6 +12,80 @@ const source = fs.readFileSync(
   'utf8'
 );
 
+const cloneValue = function (value) {
+  if (Array.isArray(value)) {
+    return value.map(cloneValue);
+  }
+  if (value && typeof value === 'object') {
+    return mergeObjects({}, value);
+  }
+  return value;
+};
+
+const mergeObjects = function (target, sourceObject) {
+  Object.keys(sourceObject || {}).forEach(function (key) {
+    const value = sourceObject[key];
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      target[key] = mergeObjects(
+        target[key] && typeof target[key] === 'object' ? target[key] : {},
+        value
+      );
+    }
+    else {
+      target[key] = cloneValue(value);
+    }
+  });
+  return target;
+};
+
+const createGuessItRuntime = function (params) {
+  const originalDocument = global.document;
+  const originalH5P = global.H5P;
+  const body = {
+    keydown: function () {
+      return this;
+    },
+    keyup: function () {
+      return this;
+    }
+  };
+  const jquery = function () {
+    return {};
+  };
+  jquery.extend = function (...args) {
+    const deep = args[0] === true;
+    const offset = deep ? 1 : 0;
+    const target = args[offset] || {};
+    args.slice(offset + 1).forEach(function (sourceObject) {
+      if (deep) {
+        mergeObjects(target, sourceObject);
+      }
+      else {
+        Object.assign(target, sourceObject);
+      }
+    });
+    return target;
+  };
+
+  global.document = { body: {} };
+  global.H5P = {
+    $body: body,
+    jQuery: jquery,
+    Question: function () {}
+  };
+  global.H5P.Question.prototype = {};
+
+  try {
+    delete require.cache[require.resolve('../src/scripts/guessit-blanks')];
+    require('../src/scripts/guessit-blanks');
+    return new global.H5P.GuessIt(params, 17, {});
+  }
+  finally {
+    global.document = originalDocument;
+    global.H5P = originalH5P;
+  }
+};
+
 const getPrototypeMethodSource = function (methodName, nextMethodName) {
   const startMarker = `GuessIt.prototype.${methodName} = function (`;
   const endMarker = `GuessIt.prototype.${nextMethodName} = function (`;
@@ -184,6 +258,66 @@ test('initCounters preserves progress behavior without creating global $content'
   assert.equal(deferredCallbacks.length, 1);
   deferredCallbacks.shift()();
   assert.equal(resizeCount, 3);
+});
+
+test('Wordle runtime disables the hidden Sentence View Summary setting', function () {
+  const createParams = function (wordle, enableEndGameButton) {
+    return {
+      behaviour: { enableEndGameButton },
+      playMode: 'availableSentences',
+      playModeW: 'availableSentences',
+      questions: [{ sentence: 'A configured sentence' }],
+      questionsW: [{ sentence: 'APPLE' }],
+      wordle
+    };
+  };
+
+  const sentenceEnabledParams = createParams(false, true);
+  const sentenceEnabled = createGuessItRuntime(sentenceEnabledParams);
+  assert.equal(sentenceEnabled.params.behaviour.enableEndGameButton, true);
+
+  const wordleEnabledParams = createParams(true, true);
+  const wordleEnabled = createGuessItRuntime(wordleEnabledParams);
+  assert.equal(wordleEnabled.params.behaviour.enableEndGameButton, false);
+  assert.equal(wordleEnabled.params.behaviour.enableSolutionsButton, false);
+  assert.equal(wordleEnabledParams.behaviour.enableEndGameButton, true);
+
+  const wordleDisabled = createGuessItRuntime(createParams(true, false));
+  assert.equal(wordleDisabled.params.behaviour.enableEndGameButton, false);
+});
+
+test('Wordle hidden Sentence setting cannot show Summary or record abandonment', function () {
+  const instance = createGuessItRuntime({
+    behaviour: { enableEndGameButton: true },
+    playMode: 'availableSentences',
+    playModeW: 'availableSentences',
+    questions: [{ sentence: 'A configured sentence' }],
+    questionsW: [{ sentence: 'APPLE' }],
+    wordle: true
+  });
+  const shownButtons = [];
+  const hiddenButtons = [];
+  instance.getScore = function () {
+    return 0;
+  };
+  instance.getMaxScore = function () {
+    return 1;
+  };
+  instance.showButton = function (buttonId) {
+    shownButtons.push(buttonId);
+  };
+  instance.hideButton = function (buttonId) {
+    hiddenButtons.push(buttonId);
+  };
+  instance.trigger = function () {};
+
+  instance.toggleButtonVisibility('ongoing');
+  instance.toggleButtonVisibility('checking');
+  assert.equal(shownButtons.includes('end-game'), false);
+  assert.equal(hiddenButtons.includes('end-game'), true);
+
+  assert.equal(instance.recordSentenceResult(false), false);
+  assert.deepEqual(instance.sentenceResults, []);
 });
 
 test('first timer activation requests one deferred resize in every mode', function () {

@@ -284,6 +284,19 @@ test('sentence Help authoring labels replace legacy solution wording', function 
   );
 });
 
+test('Sentence View Summary stays hidden in Wordle without erasing its value', function () {
+  const enableEndGame = getBehaviourField('enableEndGameButton');
+  const wordleRule = enableEndGame.showWhen.rules.find(function (rule) {
+    return rule.field === '../wordle';
+  });
+
+  assert.deepEqual(wordleRule, {
+    field: '../wordle',
+    equals: false
+  });
+  assert.equal(enableEndGame.nullWhenHidden, undefined);
+});
+
 test('French and Portuguese authoring labels use localized Help wording', function () {
   const expected = {
     fr: {
