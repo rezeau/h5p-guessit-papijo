@@ -466,7 +466,6 @@
   margin: auto;
   box-sizing: border-box;
   width: calc(100% - 2em);
-  max-width: 22em;
 }
 .h5p-guessit .h5p-guessit-summary-screen .h5p-guessit-summary-header {
   width: 100%;
@@ -526,7 +525,8 @@
 
 .h5p-guessit .h5p-guessit-summary-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, max-content);
+  justify-content: center;
   gap: 0.4em;
   margin-top: 0.5em;
 }
