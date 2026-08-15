@@ -76,7 +76,6 @@
   border: 1px solid var(--h5p-theme-feedback-correct-third);
   color: var(--h5p-theme-feedback-correct-main);
   font-weight: bold;
-  padding-right: var(--h5p-theme-spacing-m);
 }
 /* Showing markup. top & left determined by position of input element. 
 */
