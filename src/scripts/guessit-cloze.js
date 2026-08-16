@@ -79,6 +79,13 @@ const WordleUtils = require('./guessit-wordle-utils');
     this.checkAnswer = function () {
       // Remove potentially existing markup element.
       $( '.h5p-guessit-markup', $wrapper ).remove();
+      if (!wordle) {
+        $wrapper.removeClass('h5p-guessit-sentence-preserved-correct');
+        $wrapper.addClass(
+          'h5p-guessit-sentence-feedback ' +
+          'h5p-guessit-sentence-feedback-no-icon'
+        );
+      }
       checkedAnswer = this.getUserAnswer();
       const isCorrect = correct(checkedAnswer);
       if (isCorrect) {
@@ -154,7 +161,25 @@ const WordleUtils = require('./guessit-wordle-utils');
       $wrapper.removeClass('h5p-wrong-wordle');
       $wrapper.removeClass('h5p-wrong');
       $wrapper.removeClass('feedback-neutral');
+      $wrapper.removeClass('h5p-guessit-sentence-feedback');
+      $wrapper.removeClass('h5p-guessit-sentence-feedback-no-icon');
+      $wrapper.removeClass('h5p-guessit-sentence-preserved-correct');
       $( '.h5p-guessit-markup', $wrapper ).remove();
+    };
+
+    /**
+     * Restore retry-row presentation without changing correctness state.
+     */
+    this.resetFeedbackPresentation = function () {
+      const preserveCorrect = !wordle &&
+        correct(this.getUserAnswer()) &&
+        $input.is(':disabled');
+      $wrapper.removeClass('h5p-guessit-sentence-feedback');
+      $wrapper.removeClass('h5p-guessit-sentence-feedback-no-icon');
+      $wrapper.removeClass('h5p-guessit-sentence-preserved-correct');
+      if (preserveCorrect) {
+        $wrapper.addClass('h5p-guessit-sentence-preserved-correct');
+      }
     };
 
     /**

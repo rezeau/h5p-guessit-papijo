@@ -380,6 +380,14 @@
       "default": "Mot non trouvé : "
     },
     {
+      "label": "Statut accessible pour une phrase devinée",
+      "default": "Phrase devinée : "
+    },
+    {
+      "label": "Statut accessible pour une phrase non devinée",
+      "default": "Phrase non devinée : "
+    },
+    {
       "label": "Texte pour le nombre de solutions demandées (sur la page finale)",
       "default": "Solutions demandées"
     },

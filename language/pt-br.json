@@ -380,6 +380,14 @@
       "default": "Palavra não encontrada: "
     },
     {
+      "label": "Status acessível para uma frase adivinhada",
+      "default": "Frase adivinhada: "
+    },
+    {
+      "label": "Status acessível para uma frase não adivinhada",
+      "default": "Frase não adivinhada: "
+    },
+    {
       "label": "Texto para o número total de soluções visualizadas (na página resumo final)",
       "default": "Soluções Visualizadas"
     },

@@ -184,6 +184,9 @@ const createHarness = function (options = {}) {
     focused: null,
     registerButtons: 0,
     registerDomElements: 0,
+    resetConfirmationCreated: 0,
+    resetConfirmationShown: 0,
+    resetDialog: null,
     resizeEvents: 0,
     summaries: [],
     xapiEvents: 0
@@ -265,6 +268,9 @@ const createHarness = function (options = {}) {
       return input;
     };
     return question;
+  });
+  (options.usedQuestionIndices || []).forEach(function (index) {
+    questionNodes[index].addClass('used');
   });
   const questions = {
     length: questionNodes.length,
@@ -416,10 +422,23 @@ const createHarness = function (options = {}) {
     }
   };
 
-  const configuredQuestions = Array.from(
-    { length: questionCount },
-    (_, index) => ({ ID: index, sentence: `ITEM${index}` })
-  );
+  const configuredQuestions = options.configuredSentences ?
+    options.configuredSentences.map(function (sentence, index) {
+      return { ID: index, sentence };
+    }) :
+    Array.from(
+      { length: questionCount },
+      (_, index) => ({ ID: index, sentence: `ITEM${index}` })
+    );
+  const completeConfiguredQuestions = options.configuredPoolCount ?
+    Array.from(
+      { length: options.configuredPoolCount },
+      (_, index) => ({ ID: index, sentence: `CONFIGURED${index}` })
+    ) :
+    configuredQuestions;
+  if (!options.wordle) {
+    ContentUtils.normalizeSentenceQuestions(configuredQuestions);
+  }
   const completed = options.completed || [0];
   const wordsNotFound = options.wordsNotFound || [];
   const instance = Object.assign(Object.create(sandbox.GuessIt.prototype), {
@@ -431,8 +450,16 @@ const createHarness = function (options = {}) {
     $timer: timerDom,
     acceptedWordSet: new Set(['ITEM0', 'ITEM1', 'ITEM2']),
     activeQuestionPool: configuredQuestions,
-    addConfirmationDialogToButton: function () {
-      throw new Error('Reset dialog should already exist');
+    addConfirmationDialogToButton: function (configuration, callback) {
+      assert.equal(configuration.l10n, instance.params.confirmResetGame);
+      registry.resetConfirmationCreated++;
+      registry.resetDialog = {
+        confirm: callback,
+        show: function () {
+          registry.resetConfirmationShown++;
+        }
+      };
+      return registry.resetDialog;
     },
     answered: false,
     clearAnswers: function () {
@@ -445,7 +472,7 @@ const createHarness = function (options = {}) {
       registry.validationWarningCleared = true;
     },
     clozes: [],
-    configuredQuestionPool: configuredQuestions,
+    configuredQuestionPool: completeConfiguredQuestions,
     contentId: 17,
     counter,
     currentAnswer: '',
@@ -475,6 +502,7 @@ const createHarness = function (options = {}) {
         sentencesOrder: 'normal'
       },
       continueGame: 'Continue game',
+      confirmResetGame: { body: 'Confirm reset' },
       playMode: options.playMode || 'availableSentences',
       questions: configuredQuestions,
       scoreBarLabel: 'Score @score/@total',
@@ -483,6 +511,8 @@ const createHarness = function (options = {}) {
       scoreExplanationforAllWords: 'Word score',
       scoreExplanationforSentencesWithNumberWords: '@words words',
       sentence: 'sentence',
+      sentenceGuessed: 'Sentence guessed: ',
+      sentenceNotGuessed: 'Sentence not guessed: ',
       sentencesGuessed: 'Sentences guessed',
       solutionsViewed: 'Solutions viewed',
       summary: 'Summary',
@@ -508,13 +538,15 @@ const createHarness = function (options = {}) {
     removeMarkedResults: function () {
       registry.markingsRemoved = true;
     },
-    resetGameDialog: { show: function () {} },
     resetGrowTextField: function () {},
     selectedItemCount: options.selectedItemCount || questionCount,
     selectedLengthQuestionPool: options.selectedLengthQuestionPool || [],
     selectedQuestionIndices: options.selectedQuestionIndices || null,
     selectedWordLength: options.selectedWordLength || null,
     sentenceHelpRevealed: new Set(),
+    sentenceResults: (options.sentenceResults || []).map(function (result) {
+      return Object.assign({}, result);
+    }),
     sentencesFound: 0,
     sentencesGuessed: completed.slice(),
     success: Boolean(options.success),
@@ -551,10 +583,7 @@ const createHarness = function (options = {}) {
     if (instance.params.wordle) {
       return instance.appendWordHistoryItem(wordGuessed, label);
     }
-    const completedItem = createSelection('completed-item', registry);
-    completedItem.html(label).appendTo(guessedItems);
-    guessedItems.removeClass('h5p-guessit-hide');
-    return completedItem;
+    return instance.appendSentenceHistoryItem(true, label);
   };
 
   const openSummary = function () {
@@ -576,6 +605,11 @@ const createHarness = function (options = {}) {
     deferred,
     displayCompletedItem,
     gameContainer,
+    getResetButton: function () {
+      return registry.buttons.findLast(function (button) {
+        return button.configuration.classes === 'h5p-guessit-reset-button';
+      });
+    },
     guessedItems,
     input,
     isAttached: function (selection) {
@@ -716,6 +750,86 @@ test('configured sentence list survives repeated actual Continue callbacks', fun
   assert.equal(harness.instance.selectedQuestionIndices, null);
   assert.equal(harness.instance.selectedItemCount, 0);
   assert.equal(harness.registry.registerDomElements, 1);
+});
+
+test('Summary Reset confirms while the selected game has items remaining', function () {
+  const harness = createHarness({
+    completed: [0],
+    currentItemCompleted: true,
+    questionCount: 3,
+    selectedItemCount: 3,
+    selectedQuestionIndices: [0, 1, 2]
+  });
+  const progressBeforeReset = harness.instance.sentencesGuessed.slice();
+
+  harness.openSummary();
+  const resetButton = harness.getResetButton();
+  resetButton.clickListener();
+
+  assert.equal(harness.registry.resetConfirmationCreated, 1);
+  assert.equal(harness.registry.resetConfirmationShown, 1);
+  assert.deepEqual(harness.instance.sentencesGuessed, progressBeforeReset);
+  assert.equal(harness.registry.registerDomElements, 0);
+
+  // Cancelling is represented by leaving the confirmation callback untouched.
+  assert.deepEqual(harness.instance.sentencesGuessed, progressBeforeReset);
+  harness.registry.resetDialog.confirm();
+  assert.equal(harness.registry.registerDomElements, 1);
+  assert.equal(harness.instance.sentencesGuessed.length, 0);
+});
+
+test('Summary Reset is direct when the selected active game is exhausted', function () {
+  [
+    {
+      label: 'one-item game',
+      options: { questionCount: 1 }
+    },
+    {
+      label: 'multi-item game',
+      options: { questionCount: 3, usedQuestionIndices: [0, 1] }
+    },
+    {
+      label: 'item-count selection from a larger configured pool',
+      options: {
+        configuredPoolCount: 5,
+        itemCountChoice: true,
+        questionCount: 2,
+        selectedItemCount: 2,
+        selectedQuestionIndices: [1, 3],
+        usedQuestionIndices: [0]
+      }
+    },
+    {
+      label: 'restored completed active game',
+      options: {
+        completed: [0, 1],
+        questionCount: 2,
+        selectedItemCount: 2,
+        selectedQuestionIndices: [0, 1],
+        usedQuestionIndices: [0]
+      }
+    }
+  ].forEach(function (scenario) {
+    const harness = createHarness(Object.assign({
+      currentItemCompleted: true,
+      nbSentencesGuessed: 1
+    }, scenario.options));
+
+    harness.openSummary();
+    harness.getResetButton().clickListener();
+
+    assert.equal(
+      harness.registry.resetConfirmationCreated,
+      0,
+      scenario.label
+    );
+    assert.equal(
+      harness.registry.resetConfirmationShown,
+      0,
+      scenario.label
+    );
+    assert.equal(harness.registry.registerDomElements, 1, scenario.label);
+  });
 });
 
 test('Wordle list and selection survive repeated actual Continue callbacks', function () {
@@ -888,11 +1002,13 @@ test('Wordle history uses semantic ordered results with explicit localized statu
     'h5p-guessit-listGuessedSentences',
     sentenceParent
   );
-  assert.equal(sentenceHistory.tagName, 'div');
+  assert.equal(sentenceHistory.tagName, 'ol');
 });
 
 test('Wordle history CSS uses compact wrapping theme feedback items', function () {
-  const listRule = styleSource.match(/\.h5p-guessit-listGuessedWord\s*\{([^}]+)\}/)[1];
+  const listRule = styleSource.match(
+    /\.h5p-guessit-listGuessedWord,\s*\.h5p-guessit-listGuessedSentences\s*\{([^}]+)\}/
+  )[1];
   const itemRule = styleSource.match(/\.h5p-guessit-word-result\s*\{([^}]+)\}/)[1];
   const wordRule = styleSource.match(/\.h5p-guessit-word-result-word\s*\{([^}]+)\}/)[1];
 
@@ -915,6 +1031,233 @@ test('Wordle history CSS uses compact wrapping theme feedback items', function (
   assert.match(styleSource, /var\(--h5p-theme-feedback-incorrect-main\)/);
   assert.match(styleSource, /var\(--h5p-theme-feedback-incorrect-secondary\)/);
   assert.match(styleSource, /var\(--h5p-theme-feedback-incorrect-third\)/);
+});
+
+test('Sentence results use localized ordered chips and persist compatibly', function () {
+  const harness = createHarness({
+    completed: [],
+    nbSentencesGuessed: 0,
+    questionCount: 3,
+    selectedItemCount: 3,
+    selectedQuestionIndices: [0, 1, 2]
+  });
+  const historyIdentity = harness.guessedItems;
+  const orderedResults = function (results) {
+    return Array.from(results, function (result) {
+      return [result.questionId, result.guessed];
+    });
+  };
+
+  const first = harness.displayCompletedItem(true, 'Sentence one.');
+  assert.equal(first.tagName, 'li');
+  assert.equal(first.classes.has('h5p-wordFound'), true);
+  assert.equal(
+    first.classes.has('h5p-guessit-sentence-feedback-no-icon'),
+    false
+  );
+  assert.equal(first.children[1].textValue, 'Sentence guessed: ');
+  assert.equal(first.children[2].textValue, 'Sentence one.');
+  let continueButton = harness.openSummary();
+  assert.equal(harness.guessedItems, historyIdentity);
+  assert.equal(harness.guessedItems.parent, harness.registry.summaries.at(-1));
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+
+  harness.instance.currentItemCompleted = false;
+  assert.deepEqual(orderedResults(harness.instance.sentenceResults), [
+    [0, true]
+  ]);
+  continueButton = harness.openSummary();
+  assert.deepEqual(orderedResults(harness.instance.sentenceResults), [
+    [0, true],
+    [1, false]
+  ]);
+  const abandoned = harness.guessedItems.children[1];
+  assert.equal(abandoned.classes.has('h5p-wordNotFound'), true);
+  assert.equal(
+    abandoned.classes.has('h5p-guessit-sentence-feedback-no-icon'),
+    false
+  );
+  assert.equal(abandoned.children[1].textValue, 'Sentence not guessed: ');
+  assert.equal(abandoned.children[2].textValue, 'ITEM1');
+
+  // Re-entering Summary cannot duplicate the confirmed abandoned outcome.
+  harness.instance.showFinalPage();
+  assert.equal(harness.instance.sentenceResults.length, 2);
+  assert.equal(harness.guessedItems.children.length, 2);
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+
+  harness.instance.currentItemCompleted = true;
+  harness.displayCompletedItem(true, 'Sentence three.');
+  assert.deepEqual(orderedResults(harness.instance.sentenceResults), [
+    [0, true],
+    [1, false],
+    [2, true]
+  ]);
+  assert.deepEqual(
+    harness.guessedItems.children.map(function (item) {
+      return [item.children[1].textValue, item.children[2].textValue];
+    }),
+    [
+      ['Sentence guessed: ', 'Sentence one.'],
+      ['Sentence not guessed: ', 'ITEM1'],
+      ['Sentence guessed: ', 'Sentence three.']
+    ]
+  );
+  assert.deepEqual(harness.instance.sentencesGuessed, [0, 2]);
+  assert.equal(harness.instance.nbSentencesGuessed, 2);
+
+  const state = harness.instance.getCurrentState();
+  const restored = {
+    learnerQuestion: null,
+    params: { playMode: 'availableSentences', wordle: false },
+    previousState: state
+  };
+  harness.sandbox.GuessIt.prototype.setH5PUserState.call(restored);
+  assert.deepEqual(
+    orderedResults(restored.sentenceResults),
+    orderedResults(harness.instance.sentenceResults)
+  );
+
+  const legacy = {
+    learnerQuestion: null,
+    params: { playMode: 'availableSentences', wordle: false },
+    previousState: Object.assign({}, state, {
+      sentenceResults: undefined,
+      sentencesGuessed: [0, 2]
+    })
+  };
+  harness.sandbox.GuessIt.prototype.setH5PUserState.call(legacy);
+  assert.deepEqual(orderedResults(legacy.sentenceResults), [
+    [0, true],
+    [2, true]
+  ]);
+
+  harness.instance.resetTask();
+  assert.equal(harness.instance.sentenceResults.length, 0);
+});
+
+test('Sentence apostrophes stay canonical through history, Summary, Continue, and restore', function () {
+  const harness = createHarness({
+    completed: [],
+    configuredSentences: [
+      'barking dogs don&#039;t bite',
+      'I don&#039;t think it isn&#039;t possible',
+      "An anti/constitut/ion/al act that doesn't fail"
+    ],
+    nbSentencesGuessed: 0,
+    questionCount: 3
+  });
+  const questions = harness.instance.params.questions;
+
+  assert.deepEqual(questions.map(function (question) {
+    return question.sentence;
+  }), [
+    "barking dogs don't bite",
+    "I don't think it isn't possible",
+    "An anti/constitut/ion/al act that doesn't fail"
+  ]);
+
+  harness.instance.recordCompletedItem(true);
+  const guessed = harness.instance.appendSentenceHistoryItem(
+    true,
+    harness.instance.getSentenceHistoryLabel(questions[0].sentence)
+  );
+  assert.equal(guessed.children[2].textValue, "barking dogs don't bite");
+  assert.equal(harness.textOf(harness.guessedItems).includes('&#039;'), false);
+
+  let continueButton = harness.openSummary();
+  assert.equal(
+    harness.guessedItems.parent,
+    harness.registry.summaries.at(-1)
+  );
+  assert.match(
+    harness.textOf(harness.guessedItems),
+    /barking dogs don't bite/
+  );
+  assert.equal(
+    harness.textOf(harness.guessedItems).includes('&#039;'),
+    false
+  );
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+  assert.equal(harness.instance.currentSentenceId, 1);
+  assert.match(harness.textOf(harness.guessedItems), /barking dogs don't bite/);
+
+  harness.instance.currentItemCompleted = false;
+  continueButton = harness.openSummary();
+  const abandoned = harness.guessedItems.children[1];
+  assert.equal(abandoned.children[1].textValue, 'Sentence not guessed: ');
+  assert.equal(
+    abandoned.children[2].textValue,
+    "I don't think it isn't possible"
+  );
+  assert.equal(harness.textOf(harness.guessedItems).includes('&#039;'), false);
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+
+  assert.equal(
+    harness.instance.getSentenceHistoryLabel(questions[2].sentence),
+    "An anti/constitut/ion/al act that doesn't fail → " +
+      "An anticonstitutional act that doesn't fail"
+  );
+
+  const state = harness.instance.getCurrentState();
+  state.originalQuestions = [
+    { ID: 0, sentence: 'barking dogs don&#039;t bite' },
+    { ID: 1, sentence: 'I don&#039;t think it isn&#039;t possible' },
+    { ID: 2, sentence: 'An anti/constitut/ion/al act' }
+  ];
+  const restored = {
+    learnerQuestion: null,
+    params: { playMode: 'availableSentences', wordle: false },
+    previousState: state
+  };
+  harness.sandbox.GuessIt.prototype.setH5PUserState.call(restored);
+  assert.deepEqual(restored.originalQuestions.map(function (question) {
+    return question.sentence;
+  }), [
+    "barking dogs don't bite",
+    "I don't think it isn't possible",
+    'An anti/constitut/ion/al act'
+  ]);
+
+  harness.instance.sentenceResults = restored.sentenceResults;
+  harness.instance.renderSentenceHistory(restored.originalQuestions);
+  assert.deepEqual(
+    harness.guessedItems.children.map(function (item) {
+      return item.children[2].textValue;
+    }),
+    ["barking dogs don't bite", "I don't think it isn't possible"]
+  );
+  assert.equal(harness.textOf(harness.guessedItems).includes('&#039;'), false);
+});
+
+test('Sentence normalization stays outside Wordle and history keeps text insertion', function () {
+  const constructorNormalization = source.indexOf(
+    'ContentUtils.normalizeSentenceQuestions(this.params.questions)'
+  );
+  const usableQuestionFiltering = source.indexOf(
+    'ContentUtils.getUsableQuestions('
+  );
+  const appendHistorySource = getPrototypeMethodSource(
+    'appendResultHistoryItem',
+    'getSentenceHistoryLabel'
+  );
+
+  assert.notEqual(constructorNormalization, -1);
+  assert.ok(constructorNormalization < usableQuestionFiltering);
+  assert.match(
+    source.slice(constructorNormalization - 80, constructorNormalization),
+    /if \(!this\.params\.wordle\)/
+  );
+  assert.match(appendHistorySource, /'text': label/);
+  assert.doesNotMatch(appendHistorySource, /'html': label/);
+  assert.doesNotMatch(
+    getPrototypeMethodSource('createQuestions', 'autoGrowTextField'),
+    /&#039;/
+  );
 });
 
 test('production summary action gating keeps unsupported modes without Continue', function () {

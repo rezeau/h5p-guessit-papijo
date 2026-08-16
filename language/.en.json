@@ -380,6 +380,14 @@
       "default": "Word not found: "
     },
     {
+      "label": "Accessible status for a guessed Sentence result",
+      "default": "Sentence guessed: "
+    },
+    {
+      "label": "Accessible status for a not-guessed Sentence result",
+      "default": "Sentence not guessed: "
+    },
+    {
       "label": "Text for the number of Solutions viewed (on the summary page)",
       "default": "Solutions viewed"
     },
