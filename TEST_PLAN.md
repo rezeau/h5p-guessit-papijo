@@ -1,5 +1,22 @@
 # Test Plan
 
+## 1.9.3 refinement verification
+
+- All 151 automated tests pass, covering compact checked Sentence feedback,
+  icon suppression, correct/neutral/incorrect states, existing hints, and the
+  compact preserved-correct Try again lifecycle.
+- Automated coverage passes for ordered guessed/not-guessed Sentence result
+  history, old and new saved-state restoration, Summary → Continue, and safe
+  apostrophe normalization throughout Sentence runtime and history output.
+- Automated and source-level coverage verifies the wider Summary layout,
+  compact centered actions, spacing below the actions, Wordle View Summary
+  isolation, and the correct-cell padding refinement.
+- Automated lifecycle coverage passes for conditional View Summary and Reset
+  confirmations, including active selected subsets and exhausted games.
+- Manual smoke testing passed in H5P CLI for Sentence feedback and result
+  history, apostrophes, Summary and Continue, Wordle isolation and presentation,
+  and conditional View Summary and Reset confirmations.
+
 ## 1.9.2 refinement verification
 
 - Automated coverage passes for finite Wordle Round current/max values,

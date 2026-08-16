@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.9.3 - 2026-08-16
+
+### Improved
+
+- Made checked Sentence fields compact and removed per-word correctness icons
+  while preserving green, neutral, and red feedback, existing hints, and the
+  compact icon-free presentation of correct fields after Try again.
+- Added ordered green guessed-Sentence and red not-guessed-Sentence result
+  chips in play and Summary, with saved-state compatibility.
+- Normalized `&#039;`, `&#39;`, and `&apos;` to literal apostrophes throughout
+  Sentence runtime and history output while retaining safe plain-text rendering.
+- Widened the Summary area and kept its action buttons compact, centered, and
+  spaced below the results.
+- Prevented the Sentence-only View Summary setting from affecting Wordle and
+  removed extra padding from correct Wordle cells.
+- Skipped unnecessary Summary confirmation for completed items and limited
+  Reset confirmation to games with unfinished selected items.
+
 ## 1.9.2 - 2026-08-13
 
 ### Improved
