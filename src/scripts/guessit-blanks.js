@@ -1577,7 +1577,7 @@ H5P.GuessIt = (function ($, Question) {
           return;
         }
 
-        if (endGameDialog) {
+        if (endGameDialog && !self.currentItemCompleted) {
           endGameDialog.show();
         }
         else {
@@ -2685,6 +2685,26 @@ H5P.GuessIt = (function ($, Question) {
     return true;
   };
 
+  /**
+   * Check whether the current selected game contains another playable item.
+   *
+   * The current item counts as consumed when Summary opens. Previously
+   * consumed items are identified by the same `used` class that drives the
+   * next-item lifecycle.
+   *
+   * @returns {boolean} Whether another active item remains after the current.
+   */
+  GuessIt.prototype.hasRemainingItemsToPlay = function () {
+    let consumedQuestions = 1;
+    for (let i = 0; i < this.params.questions.length; i++) {
+      if (this.$questions.eq(i).hasClass('used')) {
+        consumedQuestions++;
+      }
+    }
+
+    return consumedQuestions < this.params.questions.length;
+  };
+
   GuessIt.prototype.showFinalPage = function () {
     let self = this;
     const abandonedSentenceRecorded = !this.params.wordle &&
@@ -2745,13 +2765,7 @@ H5P.GuessIt = (function ($, Question) {
     }
     this.totalTime = fancyTimeFormat(time);
 
-    // Calculate the number of sentences that have been guessed.
-    let usedQuestions = 1;
-    for (let i = 0; i < this.params.questions.length; i++) {
-      if (this.$questions.eq(i).hasClass('used')) {
-        usedQuestions ++;
-      }
-    }
+    const hasRemainingItemsToPlay = this.hasRemainingItemsToPlay();
     let actualScore;
     let maxScore;
     let explainScore;
@@ -2835,7 +2849,7 @@ H5P.GuessIt = (function ($, Question) {
     this.trigger('resize');
 
     // Reset all user state elements.
-    if (usedQuestions === this.params.questions.length) {
+    if (!hasRemainingItemsToPlay) {
       //this.sentencesList = '';
       this.sentencesGuessed.length = 0;
       if (this.sentenceResults) {
@@ -2851,7 +2865,7 @@ H5P.GuessIt = (function ($, Question) {
 
     const summaryActions = SummaryUtils.getSummaryActions({
       enableNumChoice: this.enableNumChoiceConfigured,
-      hasRemainingQuestions: usedQuestions < this.params.questions.length,
+      hasRemainingQuestions: hasRemainingItemsToPlay,
       wordle: this.params.wordle
     });
     let $summaryActions;
@@ -2886,7 +2900,7 @@ H5P.GuessIt = (function ($, Question) {
         icon: 'retry',
         classes: 'h5p-guessit-reset-button'
       });
-      if (!this.resetGameDialog) {
+      if (hasRemainingItemsToPlay && !this.resetGameDialog) {
         this.resetGameDialog = self.addConfirmationDialogToButton({
           enable: true,
           instance: self,
@@ -2897,7 +2911,12 @@ H5P.GuessIt = (function ($, Question) {
         });
       }
       resetButton.addEventListener('click', function () {
-        self.resetGameDialog.show(resetButton.offsetTop);
+        if (hasRemainingItemsToPlay) {
+          self.resetGameDialog.show(resetButton.offsetTop);
+        }
+        else {
+          self.resetTask();
+        }
       });
       resetButton.title = self.params.resetGame;
       $summaryActions.append(resetButton);

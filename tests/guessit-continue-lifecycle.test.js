@@ -184,6 +184,9 @@ const createHarness = function (options = {}) {
     focused: null,
     registerButtons: 0,
     registerDomElements: 0,
+    resetConfirmationCreated: 0,
+    resetConfirmationShown: 0,
+    resetDialog: null,
     resizeEvents: 0,
     summaries: [],
     xapiEvents: 0
@@ -265,6 +268,9 @@ const createHarness = function (options = {}) {
       return input;
     };
     return question;
+  });
+  (options.usedQuestionIndices || []).forEach(function (index) {
+    questionNodes[index].addClass('used');
   });
   const questions = {
     length: questionNodes.length,
@@ -424,6 +430,12 @@ const createHarness = function (options = {}) {
       { length: questionCount },
       (_, index) => ({ ID: index, sentence: `ITEM${index}` })
     );
+  const completeConfiguredQuestions = options.configuredPoolCount ?
+    Array.from(
+      { length: options.configuredPoolCount },
+      (_, index) => ({ ID: index, sentence: `CONFIGURED${index}` })
+    ) :
+    configuredQuestions;
   if (!options.wordle) {
     ContentUtils.normalizeSentenceQuestions(configuredQuestions);
   }
@@ -438,8 +450,16 @@ const createHarness = function (options = {}) {
     $timer: timerDom,
     acceptedWordSet: new Set(['ITEM0', 'ITEM1', 'ITEM2']),
     activeQuestionPool: configuredQuestions,
-    addConfirmationDialogToButton: function () {
-      throw new Error('Reset dialog should already exist');
+    addConfirmationDialogToButton: function (configuration, callback) {
+      assert.equal(configuration.l10n, instance.params.confirmResetGame);
+      registry.resetConfirmationCreated++;
+      registry.resetDialog = {
+        confirm: callback,
+        show: function () {
+          registry.resetConfirmationShown++;
+        }
+      };
+      return registry.resetDialog;
     },
     answered: false,
     clearAnswers: function () {
@@ -452,7 +472,7 @@ const createHarness = function (options = {}) {
       registry.validationWarningCleared = true;
     },
     clozes: [],
-    configuredQuestionPool: configuredQuestions,
+    configuredQuestionPool: completeConfiguredQuestions,
     contentId: 17,
     counter,
     currentAnswer: '',
@@ -482,6 +502,7 @@ const createHarness = function (options = {}) {
         sentencesOrder: 'normal'
       },
       continueGame: 'Continue game',
+      confirmResetGame: { body: 'Confirm reset' },
       playMode: options.playMode || 'availableSentences',
       questions: configuredQuestions,
       scoreBarLabel: 'Score @score/@total',
@@ -517,7 +538,6 @@ const createHarness = function (options = {}) {
     removeMarkedResults: function () {
       registry.markingsRemoved = true;
     },
-    resetGameDialog: { show: function () {} },
     resetGrowTextField: function () {},
     selectedItemCount: options.selectedItemCount || questionCount,
     selectedLengthQuestionPool: options.selectedLengthQuestionPool || [],
@@ -585,6 +605,11 @@ const createHarness = function (options = {}) {
     deferred,
     displayCompletedItem,
     gameContainer,
+    getResetButton: function () {
+      return registry.buttons.findLast(function (button) {
+        return button.configuration.classes === 'h5p-guessit-reset-button';
+      });
+    },
     guessedItems,
     input,
     isAttached: function (selection) {
@@ -725,6 +750,86 @@ test('configured sentence list survives repeated actual Continue callbacks', fun
   assert.equal(harness.instance.selectedQuestionIndices, null);
   assert.equal(harness.instance.selectedItemCount, 0);
   assert.equal(harness.registry.registerDomElements, 1);
+});
+
+test('Summary Reset confirms while the selected game has items remaining', function () {
+  const harness = createHarness({
+    completed: [0],
+    currentItemCompleted: true,
+    questionCount: 3,
+    selectedItemCount: 3,
+    selectedQuestionIndices: [0, 1, 2]
+  });
+  const progressBeforeReset = harness.instance.sentencesGuessed.slice();
+
+  harness.openSummary();
+  const resetButton = harness.getResetButton();
+  resetButton.clickListener();
+
+  assert.equal(harness.registry.resetConfirmationCreated, 1);
+  assert.equal(harness.registry.resetConfirmationShown, 1);
+  assert.deepEqual(harness.instance.sentencesGuessed, progressBeforeReset);
+  assert.equal(harness.registry.registerDomElements, 0);
+
+  // Cancelling is represented by leaving the confirmation callback untouched.
+  assert.deepEqual(harness.instance.sentencesGuessed, progressBeforeReset);
+  harness.registry.resetDialog.confirm();
+  assert.equal(harness.registry.registerDomElements, 1);
+  assert.equal(harness.instance.sentencesGuessed.length, 0);
+});
+
+test('Summary Reset is direct when the selected active game is exhausted', function () {
+  [
+    {
+      label: 'one-item game',
+      options: { questionCount: 1 }
+    },
+    {
+      label: 'multi-item game',
+      options: { questionCount: 3, usedQuestionIndices: [0, 1] }
+    },
+    {
+      label: 'item-count selection from a larger configured pool',
+      options: {
+        configuredPoolCount: 5,
+        itemCountChoice: true,
+        questionCount: 2,
+        selectedItemCount: 2,
+        selectedQuestionIndices: [1, 3],
+        usedQuestionIndices: [0]
+      }
+    },
+    {
+      label: 'restored completed active game',
+      options: {
+        completed: [0, 1],
+        questionCount: 2,
+        selectedItemCount: 2,
+        selectedQuestionIndices: [0, 1],
+        usedQuestionIndices: [0]
+      }
+    }
+  ].forEach(function (scenario) {
+    const harness = createHarness(Object.assign({
+      currentItemCompleted: true,
+      nbSentencesGuessed: 1
+    }, scenario.options));
+
+    harness.openSummary();
+    harness.getResetButton().clickListener();
+
+    assert.equal(
+      harness.registry.resetConfirmationCreated,
+      0,
+      scenario.label
+    );
+    assert.equal(
+      harness.registry.resetConfirmationShown,
+      0,
+      scenario.label
+    );
+    assert.equal(harness.registry.registerDomElements, 1, scenario.label);
+  });
 });
 
 test('Wordle list and selection survive repeated actual Continue callbacks', function () {

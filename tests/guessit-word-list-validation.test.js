@@ -55,6 +55,7 @@ const createCheckHarness = function (options = {}) {
   const buttons = {};
   const callbacks = {};
   const calls = [];
+  let endGameConfirmation;
   const lockedIndices = options.lockedIndices || [];
   const inputs = (options.letters || ['Z', 'Z', 'Z', 'Z', 'Z'])
     .map(function (letter, index) {
@@ -103,6 +104,7 @@ const createCheckHarness = function (options = {}) {
 
   instance.contentId = 1;
   instance.currentSentenceId = 0;
+  instance.currentItemCompleted = Boolean(options.currentItemCompleted);
   instance.$questions = questionCollection;
   instance.$timer = {};
   instance.timer = {
@@ -136,7 +138,10 @@ const createCheckHarness = function (options = {}) {
     newWord: 'Guess another word',
     notFilledOut: 'Fill every cell',
     playMode: options.playMode || 'availableSentences',
-    questions: [{ ID: 0, sentence: 'APPLE' }],
+    questions: Array.from(
+      { length: options.questionCount || 1 },
+      (_, index) => ({ ID: index, sentence: `ITEM${index}` })
+    ),
     sentenceHelp: 'Help',
     sentenceHelpDescription: 'Show next missing word',
     showSolutions: 'Show solution',
@@ -166,8 +171,8 @@ const createCheckHarness = function (options = {}) {
   instance.wordsNotFound = [];
   instance.nbSentencesGuessed = 0;
   instance.sentencesFound = 0;
-  instance.numQuestions = 1;
-  instance.confirmEndGameEnabled = false;
+  instance.numQuestions = options.questionCount || 1;
+  instance.confirmEndGameEnabled = Boolean(options.confirmEndGame);
 
   instance.addButton = function (id, label, callback, visible, attributes) {
     callbacks[id] = callback;
@@ -178,8 +183,17 @@ const createCheckHarness = function (options = {}) {
       visible: true
     };
   };
-  instance.addConfirmationDialogToButton = function () {
-    return null;
+  instance.addConfirmationDialogToButton = function (configuration, callback) {
+    if (!configuration.enable) {
+      return null;
+    }
+    endGameConfirmation = {
+      confirm: callback,
+      show: function () {
+        calls.push('showEndGameConfirmation');
+      }
+    };
+    return endGameConfirmation;
   };
   instance.allBlanksFilledOut = function () {
     return true;
@@ -265,7 +279,9 @@ const createCheckHarness = function (options = {}) {
   instance.allowSolution = function () {
     return true;
   };
-  instance.showFinalPage = function () {};
+  instance.showFinalPage = function () {
+    calls.push('showFinalPage');
+  };
 
   instance.registerButtons();
   calls.length = 0;
@@ -274,8 +290,13 @@ const createCheckHarness = function (options = {}) {
     buttons,
     calls,
     check: callbacks['check-answer'],
+    confirmSummary: function () {
+      endGameConfirmation.confirm();
+    },
     inputs,
     instance,
+    viewSummary: callbacks['end-game'],
+    viewSummaryDirect: callbacks['end-game2'],
     pressButtonKey: function (id, key) {
       if (buttons[id].focused &&
         (key === 'Enter' || key === ' ')) {
@@ -583,6 +604,45 @@ test('sentence Help and Wordle solution buttons keep isolated labels', function 
   const wordleMode = createCheckHarness({ validationEnabled: false });
   assert.equal(wordleMode.buttons['show-solution'].label, 'Show solution');
   assert.equal(wordleMode.buttons['show-solution'].ariaLabel, 'Show solution');
+});
+
+test('View Summary confirms only when the current Sentence is unresolved', function () {
+  const unresolved = createCheckHarness({
+    confirmEndGame: true,
+    currentItemCompleted: false,
+    validationEnabled: false,
+    wordle: false
+  });
+
+  unresolved.viewSummary();
+  assert.deepEqual(unresolved.calls, ['showEndGameConfirmation']);
+
+  // Cancelling leaves the confirmation callback untouched.
+  assert.equal(unresolved.calls.includes('showFinalPage'), false);
+  unresolved.confirmSummary();
+  assert.deepEqual(unresolved.calls, [
+    'showEndGameConfirmation',
+    'showFinalPage'
+  ]);
+
+  const completedSentence = createCheckHarness({
+    confirmEndGame: true,
+    currentItemCompleted: true,
+    questionCount: 3,
+    validationEnabled: false,
+    wordle: false
+  });
+  completedSentence.viewSummary();
+  assert.deepEqual(completedSentence.calls, ['showFinalPage']);
+
+  const completedWordle = createCheckHarness({
+    confirmEndGame: true,
+    currentItemCompleted: true,
+    validationEnabled: false,
+    wordle: true
+  });
+  completedWordle.viewSummaryDirect();
+  assert.deepEqual(completedWordle.calls, ['showFinalPage']);
 });
 
 test('warning uses plain text without retaining focus in a Wordle input', function () {
