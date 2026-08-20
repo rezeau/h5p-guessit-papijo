@@ -1138,6 +1138,109 @@ test('Sentence results use localized ordered chips and persist compatibly', func
   assert.equal(harness.instance.sentenceResults.length, 0);
 });
 
+test('Sentence history joins slash segments across play, Summary, Continue, and restore', function () {
+  const authoredSentences = [
+    'an angio/scope',
+    'electr/o/cardi/o/gram',
+    'a pre/fix and a suf/fix',
+    'an unchanged sentence'
+  ];
+  const joinedSentences = [
+    'an angioscope',
+    'electrocardiogram',
+    'a prefix and a suffix',
+    'an unchanged sentence'
+  ];
+  const harness = createHarness({
+    completed: [],
+    configuredSentences: authoredSentences,
+    nbSentencesGuessed: 0,
+    questionCount: 4,
+    selectedItemCount: 4,
+    selectedQuestionIndices: [0, 1, 2, 3]
+  });
+  const questions = harness.instance.params.questions;
+
+  assert.deepEqual(questions.map(function (question) {
+    return question.sentence;
+  }), authoredSentences);
+  assert.deepEqual(authoredSentences.map(function (sentence) {
+    return harness.instance.getSentenceHistoryLabel(sentence);
+  }), joinedSentences);
+
+  harness.instance.recordCompletedItem(true);
+  const guessed = harness.instance.appendSentenceHistoryItem(
+    true,
+    harness.instance.getSentenceHistoryLabel(questions[0].sentence)
+  );
+  assert.equal(guessed.children[1].textValue, 'Sentence guessed: ');
+  assert.equal(guessed.children[2].textValue, joinedSentences[0]);
+
+  let continueButton = harness.openSummary();
+  assert.match(harness.textOf(harness.guessedItems), /an angioscope/);
+  assert.equal(harness.textOf(harness.guessedItems).includes('/'), false);
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+  assert.match(harness.textOf(harness.guessedItems), /an angioscope/);
+
+  harness.instance.currentItemCompleted = false;
+  continueButton = harness.openSummary();
+  const notGuessed = harness.guessedItems.children[1];
+  assert.equal(notGuessed.children[1].textValue, 'Sentence not guessed: ');
+  assert.equal(notGuessed.children[2].textValue, joinedSentences[1]);
+  assert.equal(harness.textOf(harness.guessedItems).includes('/'), false);
+  continueButton.configuration.onClick();
+  harness.deferred.splice(0).forEach((callback) => callback());
+  assert.equal(notGuessed.children[2].textValue, joinedSentences[1]);
+
+  const state = harness.instance.getCurrentState();
+  const restored = {
+    learnerQuestion: null,
+    params: { playMode: 'availableSentences', wordle: false },
+    previousState: state
+  };
+  harness.sandbox.GuessIt.prototype.setH5PUserState.call(restored);
+  assert.deepEqual(restored.originalQuestions.map(function (question) {
+    return question.sentence;
+  }), authoredSentences);
+
+  harness.instance.sentenceResults = restored.sentenceResults;
+  harness.instance.renderSentenceHistory(restored.originalQuestions);
+  assert.deepEqual(
+    harness.guessedItems.children.map(function (item) {
+      return item.children[2].textValue;
+    }),
+    joinedSentences.slice(0, 2)
+  );
+
+  const createQuestionsSource = getPrototypeMethodSource(
+    'createQuestions',
+    'autoGrowTextField'
+  );
+  assert.equal(
+    createQuestionsSource.includes('let patternSplit = /(?:\\s|\\/)+/;'),
+    true
+  );
+  assert.equal(
+    createQuestionsSource.includes('let patternReplace = /(\\s|\\/)/g;'),
+    true
+  );
+
+  const wordleHarness = createHarness({
+    completed: [0],
+    configuredSentences: ['WORD/LE'],
+    questionCount: 1,
+    wordle: true
+  });
+  wordleHarness.instance.renderWordHistory(
+    wordleHarness.instance.originalQuestions
+  );
+  assert.equal(
+    wordleHarness.guessedItems.children[0].children[2].textValue,
+    'WORD/LE'
+  );
+});
+
 test('Sentence apostrophes stay canonical through history, Summary, Continue, and restore', function () {
   const harness = createHarness({
     completed: [],
@@ -1199,8 +1302,7 @@ test('Sentence apostrophes stay canonical through history, Summary, Continue, an
 
   assert.equal(
     harness.instance.getSentenceHistoryLabel(questions[2].sentence),
-    "An anti/constitut/ion/al act that doesn't fail → " +
-      "An anticonstitutional act that doesn't fail"
+    "An anticonstitutional act that doesn't fail"
   );
 
   const state = harness.instance.getCurrentState();
