@@ -1686,16 +1686,14 @@ H5P.GuessIt = (function ($, Question) {
   };
 
   /**
-   * Return the plain-text Sentence history label, preserving the legacy
-   * segmented and joined presentation without injecting authored HTML.
+   * Return the plain-text Sentence history label with authored segmentation
+   * separators removed without injecting authored HTML.
    *
    * @param {string} sentence Configured sentence.
    * @returns {string} History label.
    */
   GuessIt.prototype.getSentenceHistoryLabel = function (sentence) {
-    return sentence.indexOf('/') === -1 ?
-      sentence :
-      sentence + ' → ' + sentence.replace(/\//g, '');
+    return sentence.replace(/\//g, '');
   };
 
   /**
