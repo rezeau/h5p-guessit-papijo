@@ -34,7 +34,7 @@ order draws 20 items from the complete pool.
 
 ## Compatibility and Installation
 
-H5P GuessIt 1.9.3 requires H5P Core API 1.28. It has been tested successfully on
+H5P GuessIt 1.9.4 requires H5P Core API 1.28. It has been tested successfully on
 current WordPress and Moodle installations that support Core API 1.28.
 
 Current Lumi releases are not compatible because they do not yet support H5P
@@ -42,7 +42,7 @@ Core API 1.28. This limitation is expected and does not indicate a problem with
 the GuessIt package.
 
 The release asset is a library-only H5P package. Install
-`H5P.GuessIt-1.9.3.h5p` through the platform's H5P library administration
+`H5P.GuessIt-1.9.4.h5p` through the platform's H5P library administration
 interface. Do not import it as ordinary learner content.
 
 ## Development

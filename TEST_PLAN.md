@@ -1,5 +1,15 @@
 # Test Plan
 
+## 1.9.4 refinement verification
+
+- All 152 automated tests pass.
+- Segmented Sentence history labels render the natural joined form for guessed
+  and not-guessed chips in play, Summary → Continue, and saved-state
+  reconstruction.
+- Automated coverage confirms gameplay slash segmentation, apostrophe
+  normalization, and Wordle remain unchanged.
+- Manual H5P CLI smoke testing was completed for this refinement.
+
 ## 1.9.3 refinement verification
 
 - All 151 automated tests pass, covering compact checked Sentence feedback,

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.4 - 2026-08-21
+
+### Improved
+
+- Simplified segmented Sentence result-history labels by displaying only the
+  natural joined Sentence text, e.g. `an angio/scope` is shown as
+  `an angioscope`, while preserving slash-based gameplay segmentation.
+
 ## 1.9.3 - 2026-08-16
 
 ### Improved
